@@ -2580,30 +2580,14 @@
                     const nameLower = (item.name || '').toLowerCase();
                     const panelLabels = { income: 'Aavak', expense: 'Kharch' };
                     if (target === 'income') {
-                        const existing = dayData.income.find(e => (e.name || '').toLowerCase() === nameLower);
-                        if (existing) {
-                            if (item.category) existing.category = item.category;
-                            if (item.master) existing.master = item.master;
-                            if (item.fixedLabel) existing.fixedLabel = item.fixedLabel;
-                            if (item.note) existing.note = item.note;
-                            setStatus(`"${item.name}" is already in today's Aavak.`, false);
-                        } else {
-                            dayData.income.push({ id: uid(), name: item.name, amount: 0, category: item.category || '', master: item.master || '', fixedLabel: item.fixedLabel || '', note: '' });
-                            setStatus(`Added "${item.name}" to today's Aavak.`, false);
-                        }
+                        // Always add a new row — same name can be added multiple times
+                        dayData.income.push({ id: uid(), name: item.name, amount: 0, category: item.category || '', master: item.master || '', fixedLabel: item.fixedLabel || '', note: '' });
+                        setStatus(`Added "${item.name}" to today's Aavak.`, false);
                         renderIncome();
                     } else if (target === 'expense') {
-                        const existing = dayData.expense.find(e => (e.name || '').toLowerCase() === nameLower);
-                        if (existing) {
-                            if (item.category) existing.category = item.category;
-                            if (item.master) existing.master = item.master;
-                            if (item.fixedLabel) existing.fixedLabel = item.fixedLabel;
-                            if (item.note) existing.note = item.note;
-                            setStatus(`"${item.name}" is already in today's Kharch.`, false);
-                        } else {
-                            dayData.expense.push({ id: uid(), name: item.name, amount: 0, category: item.category || '', master: item.master || '', fixedLabel: item.fixedLabel || '', note: '' });
-                            setStatus(`Added "${item.name}" to today's Kharch.`, false);
-                        }
+                        // Always add a new row — same name can be added multiple times
+                        dayData.expense.push({ id: uid(), name: item.name, amount: 0, category: item.category || '', master: item.master || '', fixedLabel: item.fixedLabel || '', note: '' });
+                        setStatus(`Added "${item.name}" to today's Kharch.`, false);
                         renderExpense();
                     }
                     $('kpOverlay').classList.remove('open');
