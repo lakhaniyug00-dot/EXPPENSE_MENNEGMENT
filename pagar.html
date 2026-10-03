@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -630,7 +630,6 @@
             </nav>
         </div>
         <div class="top-right">
-            <button class="backup-data-btn" id="backupDataBtn" style="background:#2563eb;color:#ffffff;border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:4px;box-shadow:0 1px 3px rgba(0,0,0,0.12);" title="Save, Export & Import Data Backup">💾 Data</button>
         </div>
     </header>
 
@@ -1091,10 +1090,10 @@
                     const masterEntries = JSON.parse(mastersRaw) || [];
                     const found = masterEntries.find(m => m && m.name && m.name.trim().toLowerCase() === nameLower);
                     if (found) {
-                        const cat = (found.master && found.master.trim()) 
-                            ? found.master.trim() 
-                            : ((found.subCategory && found.subCategory.trim()) 
-                                ? found.subCategory.trim() 
+                        const cat = (found.master && found.master.trim())
+                            ? found.master.trim()
+                            : ((found.subCategory && found.subCategory.trim())
+                                ? found.subCategory.trim()
                                 : ((found.category && found.category.trim()) ? found.category.trim() : ''));
                         const amt = found.amount || found.pagarAmount || found.salary || '';
                         return { category: cat, pagarAmount: amt, pagarType: found.pagarType || '' };
@@ -1873,7 +1872,6 @@
             switchTab('rates');
         })();
     </script>
-    <script src="data-backup.js"></script>
 </body>
 
 </html>
