@@ -314,6 +314,7 @@
             padding: 24px 28px 20px;
             display: flex;
             flex-direction: column;
+            min-height: 0;
         }
 
         .panel.income {
@@ -1578,11 +1579,13 @@
             <section class="panel income">
                 <h2><span class="dot income"></span>Aavak</h2>
                 <div class="rows" id="incomeRows"></div>
+                <div id="incomeAddBtn" style="text-align:center;padding:6px 0 2px;flex-shrink:0;"></div>
                 <div class="totals"><span>Total income</span><b id="incomeTotal">₹0</b></div>
             </section>
             <section class="panel expense">
                 <h2><span class="dot expense"></span>Kharch</h2>
                 <div class="rows" id="expenseRows"></div>
+                <div id="expenseAddBtn" style="text-align:center;padding:6px 0 2px;flex-shrink:0;"></div>
                 <div class="totals"><span>Total expense</span><b id="expenseTotal">₹0</b></div>
             </section>
         </div>
@@ -2054,11 +2057,12 @@
                 dayData.income = dayData.income.filter(e => e.id !== btn.dataset.id);
                 renderIncome(); renderTotals(); await saveDay();
             }));
-            const addBtn = document.createElement('div');
-            addBtn.innerHTML = '<span class="picker-btn">➕ Add Entry</span>';
-            addBtn.style.textAlign = 'center';
-            addBtn.addEventListener('click', () => openKhataPicker('income'));
-            w.appendChild(addBtn);
+            // Add Entry button lives OUTSIDE the scrollable rows
+            const addSlot = $('incomeAddBtn');
+            if (addSlot) {
+                addSlot.innerHTML = '<span class="picker-btn">➕ Add Entry</span>';
+                addSlot.querySelector('.picker-btn').addEventListener('click', () => openKhataPicker('income'));
+            }
         }
 
         /* ── EXPENSE RENDER ── */
@@ -2104,11 +2108,12 @@
                 dayData.expense = dayData.expense.filter(e => e.id !== btn.dataset.id);
                 renderExpense(); renderTotals(); await saveDay();
             }));
-            const addBtn = document.createElement('div');
-            addBtn.innerHTML = '<span class="picker-btn">➕ Add Entry</span>';
-            addBtn.style.textAlign = 'center';
-            addBtn.addEventListener('click', () => openKhataPicker('expense'));
-            w.appendChild(addBtn);
+            // Add Entry button lives OUTSIDE the scrollable rows
+            const addSlot = $('expenseAddBtn');
+            if (addSlot) {
+                addSlot.innerHTML = '<span class="picker-btn">➕ Add Entry</span>';
+                addSlot.querySelector('.picker-btn').addEventListener('click', () => openKhataPicker('expense'));
+            }
         }
 
         /* ─ ENTRY TYPE is always aavak (income) — toggle buttons removed ─ */
