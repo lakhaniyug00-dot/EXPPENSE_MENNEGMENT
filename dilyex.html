@@ -1,0 +1,3168 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rojmel · Daily Khata</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@500;600&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --paper: #F5F1E6;
+            --paper-card: #FFFDF7;
+            --line: #E1D8BE;
+            --ink: #22314F;
+            --ink-soft: #5C6B8A;
+            --ink-faint: #9199AE;
+            --rust: #9C4A38;
+            --rust-bg: #F3E4DE;
+            --moss: #3E6B4C;
+            --moss-bg: #E4EEE2;
+            --gold: #A9832F;
+            --gold-bg: #EFE6CE;
+            --danger: #B23A2E;
+            --carry: #5B4FA8;
+            --carry-bg: #ECEAF8;
+            --carry-border: #C4BFEA;
+            --navy: #1E4D7B;
+            --navy-bg: #E3EDF7;
+            --navy-border: #B0CBE8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            height: 100%;
+        }
+
+        body {
+            background: var(--paper);
+            font-family: 'Inter', sans-serif;
+            color: var(--ink);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .wrap {
+            max-width: 100%;
+            margin: 0;
+            padding: 28px 36px 28px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+
+        /* ── HEADER ── */
+        header.top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-shrink: 0;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .brand h1 {
+            font-family: 'Source Serif 4', serif;
+            font-weight: 600;
+            font-size: 28px;
+            letter-spacing: 0.2px;
+        }
+
+        .brand span {
+            font-size: 13px;
+            color: var(--ink-soft);
+            display: block;
+            margin-top: 2px;
+        }
+
+        .master-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 16px;
+            background: var(--ink);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            letter-spacing: 0.2px;
+            transition: opacity 0.15s;
+        }
+
+        .master-btn:hover {
+            opacity: 0.88;
+        }
+
+        .master-btn .icon {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 3.5px;
+        }
+
+        .master-btn .icon span {
+            display: block;
+            height: 2px;
+            background: #fff;
+            border-radius: 2px;
+        }
+
+        .master-btn .icon span:nth-child(1) {
+            width: 14px;
+        }
+
+        .master-btn .icon span:nth-child(2) {
+            width: 10px;
+        }
+
+        .master-btn .icon span:nth-child(3) {
+            width: 14px;
+        }
+
+        .search-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 38px;
+            height: 38px;
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .search-btn:hover {
+            background: var(--paper-card);
+        }
+
+        .search-btn svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .report-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            height: 38px;
+            padding: 0 14px;
+            background: var(--paper-card);
+            color: var(--ink);
+            border: 1.5px solid var(--line);
+            border-radius: 10px;
+            font-family: 'Inter', sans-serif;
+            font-size: 13.5px;
+            font-weight: 600;
+            letter-spacing: 0.2px;
+            cursor: pointer;
+            transition: all 0.18s ease;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+            white-space: nowrap;
+        }
+
+        .report-btn:hover {
+            background: var(--ink);
+            color: #ffffff;
+            border-color: var(--ink);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.12);
+            transform: translateY(-1px);
+        }
+
+        .report-btn:active {
+            transform: translateY(0);
+        }
+
+        .pagar-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            height: 38px;
+            padding: 0 14px;
+            background: var(--paper-card);
+            color: var(--ink);
+            border: 1.5px solid var(--line);
+            border-radius: 10px;
+            font-family: 'Inter', sans-serif;
+            font-size: 13.5px;
+            font-weight: 600;
+            letter-spacing: 0.2px;
+            cursor: pointer;
+            transition: all 0.18s ease;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+            white-space: nowrap;
+        }
+
+        .pagar-btn:hover {
+            background: var(--ink);
+            color: #ffffff;
+            border-color: var(--ink);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.12);
+            transform: translateY(-1px);
+        }
+
+        .pagar-btn:active {
+            transform: translateY(0);
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .datebox {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--paper-card);
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 7px 10px;
+        }
+
+        .datebox button {
+            width: 28px;
+            height: 28px;
+            border-radius: 7px;
+            border: 1px solid var(--line);
+            background: transparent;
+            color: var(--ink);
+            font-size: 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .datebox button:hover {
+            background: var(--paper);
+        }
+
+        .datebox .datelabel {
+            font-weight: 500;
+            font-size: 13.5px;
+            min-width: 140px;
+            text-align: center;
+            cursor: pointer;
+            user-select: none;
+            border-radius: 6px;
+            padding: 2px 4px;
+            transition: background 0.15s;
+        }
+
+        .datebox .datelabel:hover {
+            background: var(--paper);
+        }
+
+        .datebox .datewrap {
+            position: relative;
+        }
+
+        .datebox input[type=date] {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+            border: none;
+            background: transparent;
+            pointer-events: none;
+            top: 50%;
+            left: 50%;
+        }
+
+        /* ── BOARD: 2 columns ── */
+        .board {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+            background: var(--paper-card);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            overflow: hidden;
+            flex: 1;
+            min-height: 0;
+        }
+
+        .panel {
+            padding: 24px 28px 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel.income {
+            border-right: 1px solid var(--line);
+        }
+
+        .panel .rows {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        @media(max-width: 700px) {
+            .board {
+                grid-template-columns: 1fr;
+            }
+
+            .panel.income,
+            .panel.expense {
+                border-right: none;
+                border-bottom: 1px solid var(--line);
+            }
+
+            header.top {
+                flex-wrap: wrap;
+            }
+
+            .wrap {
+                padding: 16px 14px 60px;
+            }
+        }
+
+        .panel h2 {
+            font-family: 'Source Serif 4', serif;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            flex-shrink: 0;
+        }
+
+        .dot.income {
+            background: var(--moss);
+        }
+
+        .dot.expense {
+            background: var(--rust);
+        }
+
+        .dot.carry {
+            background: var(--carry);
+        }
+
+        .panel .sub {
+            font-size: 12px;
+            color: var(--ink-soft);
+            margin-bottom: 14px;
+        }
+
+        .rows {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            margin-bottom: 10px;
+        }
+
+        .row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 7px 0;
+            border-bottom: 1px dashed var(--line);
+        }
+
+        .row:last-child {
+            border-bottom: none;
+        }
+
+        .row .who {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .row .name {
+            font-size: 15px;
+            font-weight: 500;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+            flex-shrink: 1;
+            min-width: 0;
+        }
+
+        .row .meta {
+            font-size: 11.5px;
+            color: var(--ink-soft);
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-top: 2px;
+        }
+
+        /* ── NOTE field inline, beside the name ── */
+        .row .note-text {
+            font-size: 11px;
+            color: var(--ink-soft);
+            font-style: italic;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 140px;
+            flex-shrink: 0;
+        }
+
+        .tag {
+            display: inline-block;
+            font-size: 10.5px;
+            padding: 1px 7px;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+
+        .tag.cat {
+            background: var(--rust-bg);
+            color: var(--rust);
+        }
+
+        .tag.fixed {
+            background: var(--gold-bg);
+            color: var(--gold);
+        }
+
+        .row .amount {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+            font-size: 16px;
+            white-space: nowrap;
+        }
+
+        .subcat-tag {
+            font-size: 11px;
+            font-weight: 700;
+            background: var(--gold-bg);
+            color: var(--gold);
+            padding: 2px 8px;
+            border-radius: 12px;
+            margin-left: 4px;
+            vertical-align: middle;
+            display: inline-block;
+        }
+
+        .pagar-tag {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 700;
+            background: #E8F5E9;
+            color: #2E7D32;
+            padding: 2px 9px;
+            border-radius: 12px;
+            margin-right: 5px;
+            vertical-align: middle;
+            border: 1px solid #A5D6A7;
+            white-space: nowrap;
+        }
+
+        .note-box {
+            display: inline-flex;
+            align-items: center;
+            border: 1.5px solid #2d5a42;
+            border-radius: 10px;
+            padding: 2px 10px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #2d5a42;
+            background: rgba(45, 90, 66, 0.05);
+            cursor: pointer;
+            transition: all 0.15s ease;
+            user-select: none;
+            min-height: 26px;
+            box-sizing: border-box;
+        }
+
+        .note-box:hover {
+            background: rgba(45, 90, 66, 0.12);
+            border-color: #20402f;
+        }
+
+        .amount-box {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1.5px solid #2d5a42;
+            border-radius: 10px;
+            padding: 4px 12px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 15px;
+            font-weight: 700;
+            background: rgba(45, 90, 66, 0.05);
+            cursor: pointer;
+            transition: all 0.15s ease;
+            user-select: none;
+            min-height: 32px;
+            box-sizing: border-box;
+        }
+
+        .panel.income .amount-box {
+            color: var(--moss);
+            border-color: var(--moss);
+            background: rgba(45, 122, 90, 0.06);
+        }
+
+        .panel.expense .amount-box {
+            color: var(--rust);
+            border-color: var(--rust);
+            background: rgba(194, 78, 30, 0.06);
+        }
+
+        .amount-box:hover {
+            transform: scale(1.02);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+        }
+
+        #nameListContainer,
+        #catListContainer,
+        #masterListContainer {
+            margin-top: 10px;
+            max-height: 180px;
+            overflow-y: auto;
+            border: 1.5px solid var(--line);
+            border-radius: 10px;
+            background: var(--paper);
+        }
+
+        .name-list-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+            border-bottom: 1px solid var(--line);
+            font-size: 13.5px;
+            font-weight: 500;
+            color: var(--ink);
+            cursor: pointer;
+        }
+
+        .name-list-item:last-child {
+            border-bottom: none;
+        }
+
+        .name-list-item:hover {
+            background: var(--card);
+        }
+
+        .name-list-item .del-btn {
+            color: var(--rust, #d9534f);
+            font-weight: 700;
+            font-size: 15px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .name-list-item .del-btn:hover {
+            background: #fdf2f2;
+        }
+
+        .panel.income .amount {
+            color: var(--moss);
+        }
+
+        .panel.expense .amount {
+            color: var(--rust);
+        }
+
+        .row .del {
+            border: none;
+            background: transparent;
+            color: var(--ink-faint);
+            cursor: pointer;
+            font-size: 14px;
+            padding: 4px;
+            border-radius: 6px;
+        }
+
+        .row .del:hover {
+            color: var(--danger);
+            background: var(--paper);
+        }
+
+        .row .edit-btn {
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 14px;
+            padding: 4px;
+            border-radius: 6px;
+        }
+
+        .row .edit-btn:hover {
+            background: var(--paper);
+        }
+
+        .inline-amt-input {
+            width: 90px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--ink);
+            background: var(--paper);
+            border: 1.5px solid var(--moss);
+            border-radius: 8px;
+            padding: 4px 8px;
+            outline: none;
+            text-align: right;
+        }
+
+        .inline-amt-input::-webkit-outer-spin-button,
+        .inline-amt-input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .inline-amt-input[type=number] {
+            -moz-appearance: textfield;
+        }
+
+        .inline-name-input {
+            width: 100%;
+            max-width: 150px;
+            min-width: 60px;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+            font-size: 12.5px;
+            font-weight: 500;
+            color: var(--ink);
+            background: var(--paper);
+            border: 1.5px solid var(--gold);
+            border-radius: 8px;
+            padding: 3px 7px;
+            outline: none;
+            text-align: left;
+            flex-shrink: 0;
+        }
+
+        .empty {
+            font-size: 13px;
+            color: var(--ink-faint);
+            padding: 16px 0;
+            text-align: center;
+            font-style: italic;
+        }
+
+        /* ── AUTO CARRY-FORWARD ROW ── */
+        .carry-row {
+            background: var(--carry-bg);
+            border: 1px solid var(--carry-border);
+            border-radius: 10px;
+            padding: 8px 12px !important;
+            margin-bottom: 6px;
+            border-bottom: 1px solid var(--carry-border) !important;
+        }
+
+        .carry-row .name {
+            color: var(--carry);
+            font-size: 14px;
+        }
+
+        .carry-row .amount {
+            color: var(--carry) !important;
+        }
+
+        .carry-row.carry-neg .name {
+            color: var(--danger);
+        }
+
+        .carry-row.carry-neg .amount {
+            color: var(--danger) !important;
+        }
+
+        .carry-row.carry-neg {
+            background: #FDE8E8;
+            border-color: #EAB4B4;
+        }
+
+        .picker-btn {
+            display: inline-block;
+            background: var(--ink-soft);
+            color: #fff;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 20px;
+            cursor: pointer;
+            margin-top: 10px;
+            text-align: center;
+            transition: opacity 0.15s;
+        }
+
+        .picker-btn:hover {
+            opacity: 0.85;
+        }
+
+        .totals {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 14px;
+            padding-top: 12px;
+            border-top: 1px solid var(--line);
+            font-size: 14px;
+            color: var(--ink-soft);
+            flex-shrink: 0;
+        }
+
+        .totals b {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 15px;
+            color: var(--ink);
+        }
+
+        /* ── NET BAR ── */
+        .net-bar {
+            margin-top: 14px;
+            background: var(--paper-card);
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            flex-shrink: 0;
+            flex-wrap: wrap;
+        }
+
+        .net-bar .net-pills {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .net-bar .pill {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+            color: var(--ink-soft);
+        }
+
+        .net-bar .pill b {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .net-bar .pill b.inc {
+            color: var(--moss);
+        }
+
+        .net-bar .pill b.exp {
+            color: var(--rust);
+        }
+
+        .net-bar .net-inline {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+        }
+
+        .net-bar .net-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            font-size: 26px;
+        }
+
+        .net-bar .net-value.pos {
+            color: var(--moss);
+        }
+
+        .net-bar .net-value.neg {
+            color: var(--danger);
+        }
+
+        .net-bar .net-label {
+            font-size: 12px;
+            color: var(--ink-soft);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            white-space: nowrap;
+        }
+
+        .status {
+            text-align: center;
+            font-size: 12px;
+            color: var(--ink-faint);
+            margin-top: 8px;
+            min-height: 16px;
+            flex-shrink: 0;
+        }
+
+        /* ── OVERLAY / MODAL ── */
+        .overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(34, 49, 79, 0.38);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+
+        .overlay.open {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--paper-card);
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            width: 100%;
+            max-width: 440px;
+            padding: 24px 22px 20px;
+            position: relative;
+            animation: popIn 0.15s ease;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        @keyframes popIn {
+            from {
+                transform: scale(0.95);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .modal .close-x {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            border: none;
+            background: transparent;
+            font-size: 18px;
+            color: var(--ink-soft);
+            cursor: pointer;
+            padding: 4px 6px;
+            border-radius: 6px;
+            line-height: 1;
+        }
+
+        .modal .close-x:hover {
+            background: var(--paper);
+            color: var(--ink);
+        }
+
+        .modal h3 {
+            font-family: 'Source Serif 4', serif;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .modal .modal-sub {
+            font-size: 13px;
+            color: var(--ink-soft);
+            margin-bottom: 18px;
+        }
+
+        .modal-form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .field-row {
+            display: flex;
+            gap: 6px;
+            align-items: stretch;
+        }
+
+        .field-row .field-main {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .modal-form input,
+        .modal-form select {
+            width: 100%;
+            font-family: 'Inter', sans-serif;
+            font-size: 13.5px;
+            padding: 9px 10px;
+            border-radius: 8px;
+            border: 1px solid var(--line);
+            background: var(--paper);
+            color: var(--ink);
+        }
+
+        .modal-form input:focus,
+        .modal-form select:focus {
+            outline: 2px solid var(--gold);
+            outline-offset: -1px;
+        }
+
+        .plus-btn {
+            flex-shrink: 0;
+            width: 36px;
+            height: 36px;
+            border: 1px solid var(--line);
+            background: var(--paper-card);
+            border-radius: 8px;
+            font-size: 20px;
+            cursor: pointer;
+            color: var(--ink-soft);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+            transition: background 0.12s, color 0.12s, border-color 0.12s;
+            align-self: flex-start;
+        }
+
+        .plus-btn:hover,
+        .plus-btn.active {
+            background: var(--ink);
+            color: #fff;
+            border-color: var(--ink);
+        }
+
+        .add-new-panel {
+            display: none;
+            background: var(--paper);
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 10px;
+            gap: 7px;
+            flex-direction: column;
+        }
+
+        .add-new-panel.open {
+            display: flex;
+        }
+
+        .add-new-panel .add-new-label {
+            font-size: 11px;
+            color: var(--ink-soft);
+            font-weight: 500;
+        }
+
+        .add-new-panel .add-new-row {
+            display: flex;
+            gap: 6px;
+        }
+
+        .add-new-panel input {
+            flex: 1;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            padding: 7px 9px;
+            border-radius: 7px;
+            border: 1px solid var(--line);
+            background: var(--paper-card);
+            color: var(--ink);
+        }
+
+        .add-new-panel input:focus {
+            outline: 2px solid var(--gold);
+            outline-offset: -1px;
+        }
+
+        .add-new-panel .confirm-btn {
+            padding: 7px 14px;
+            background: var(--ink);
+            color: #fff;
+            border: none;
+            border-radius: 7px;
+            font-size: 12.5px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .add-new-panel .confirm-btn:hover {
+            opacity: 0.88;
+        }
+
+        .modal-form .hint {
+            font-size: 11px;
+            color: var(--ink-faint);
+        }
+
+        .modal-form .err {
+            font-size: 12px;
+            color: var(--danger);
+            display: none;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 6px;
+        }
+
+        .modal-actions button {
+            flex: 1;
+            padding: 9px;
+            border-radius: 8px;
+            border: 1px solid var(--line);
+            font-size: 13.5px;
+            font-weight: 500;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-save {
+            background: var(--ink);
+            color: #fff;
+            border-color: var(--ink) !important;
+        }
+
+        .btn-save:hover {
+            opacity: 0.88;
+        }
+
+        .btn-cancel {
+            background: transparent;
+            color: var(--ink-soft);
+        }
+
+        /* ── ENTRY FORM: Aavak / Kharch toggle ── */
+        .entry-type-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 2px;
+        }
+
+        .entry-type-btn {
+            padding: 10px 8px;
+            border: 2px solid var(--line);
+            border-radius: 10px;
+            background: var(--paper);
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.15s;
+            text-align: center;
+            color: var(--ink-soft);
+        }
+
+        .entry-type-btn.active-aavak {
+            border-color: var(--moss);
+            background: var(--moss-bg);
+            color: var(--moss);
+        }
+
+        .entry-type-btn.active-kharch {
+            border-color: var(--rust);
+            background: var(--rust-bg);
+            color: var(--rust);
+        }
+
+        /* Search */
+        .search-input-wrap {
+            position: relative;
+            margin-bottom: 16px;
+        }
+
+        .search-input-wrap input {
+            width: 100%;
+            font-family: 'Inter', sans-serif;
+            font-size: 14.5px;
+            padding: 12px 14px 12px 38px;
+            border-radius: 10px;
+            border: 1px solid var(--line);
+            background: var(--paper);
+            color: var(--ink);
+        }
+
+        .search-input-wrap input:focus {
+            outline: 2px solid var(--gold);
+            outline-offset: -1px;
+        }
+
+        .search-input-wrap svg {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 18px;
+            height: 18px;
+            color: var(--ink-faint);
+            pointer-events: none;
+        }
+
+        .search-results {
+            max-height: 50vh;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .search-result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: var(--paper);
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: border-color 0.15s;
+        }
+
+        .search-result-item:hover {
+            border-color: var(--ink-soft);
+            background: var(--paper-card);
+        }
+
+        .sr-left {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .sr-date {
+            font-size: 11px;
+            color: var(--ink-soft);
+            font-weight: 500;
+        }
+
+        .sr-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--ink);
+        }
+
+        .sr-meta {
+            font-size: 11.5px;
+            color: var(--ink-soft);
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .sr-right {
+            text-align: right;
+            flex-shrink: 0;
+            margin-left: 8px;
+        }
+
+        .sr-amount {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 15px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .sr-amount.inc {
+            color: var(--moss);
+        }
+
+        .sr-amount.exp {
+            color: var(--rust);
+        }
+
+        .sr-type {
+            font-size: 11px;
+            color: var(--ink-soft);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 2px;
+        }
+
+        .search-empty {
+            text-align: center;
+            font-size: 13px;
+            color: var(--ink-faint);
+            padding: 20px 0;
+            font-style: italic;
+        }
+
+        /* ── EDIT AMOUNT MINI-MODAL ── */
+        .ea-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.55);
+            backdrop-filter: blur(4px);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ea-overlay.open {
+            display: flex;
+        }
+
+        .ea-box {
+            background: var(--paper-card);
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            padding: 28px 26px 22px;
+            width: min(340px, 90vw);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+            animation: slideUp 0.18s ease;
+        }
+
+        .ea-title {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            color: var(--ink-faint);
+            margin-bottom: 4px;
+        }
+
+        .ea-name {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--ink);
+            margin-bottom: 16px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .ea-input-wrap {
+            position: relative;
+            margin-bottom: 18px;
+        }
+
+        .ea-prefix {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--ink-soft);
+            pointer-events: none;
+        }
+
+        .ea-input {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 14px 14px 14px 32px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--ink);
+            background: var(--paper);
+            border: 1.5px solid var(--line);
+            border-radius: 12px;
+            outline: none;
+            transition: border-color 0.15s;
+        }
+
+        .ea-input:focus {
+            border-color: var(--moss);
+        }
+
+        .ea-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .ea-cancel {
+            flex: 1;
+            padding: 12px;
+            border: 1.5px solid var(--line);
+            background: transparent;
+            color: var(--ink-soft);
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .ea-cancel:hover {
+            background: var(--paper);
+        }
+
+        .ea-save {
+            flex: 2;
+            padding: 12px;
+            border: none;
+            background: var(--moss);
+            color: #fff;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .ea-save:hover {
+            opacity: 0.88;
+        }
+
+        /* ── KHATA PICKER MODAL ── */
+        .kp-filter-tabs {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 10px;
+        }
+
+        .kp-tab {
+            flex: 1;
+            padding: 6px 8px;
+            border-radius: 8px;
+            border: 1.5px solid var(--line);
+            background: transparent;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            color: var(--ink-soft);
+            transition: all 0.15s;
+        }
+
+        .kp-tab.active-inc {
+            border-color: var(--moss);
+            background: var(--moss-bg);
+            color: var(--moss);
+        }
+
+        .kp-tab.active-exp {
+            border-color: var(--rust);
+            background: var(--rust-bg);
+            color: var(--rust);
+        }
+
+        /* ── REPORT MODAL ── */
+        .rs-modal {
+            background: var(--paper-card);
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            padding: 22px;
+            width: min(480px, 92vw);
+            max-height: 82vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .rs-modal h3 {
+            font-family: 'Source Serif 4', serif;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .rs-modal .rs-sub {
+            font-size: 12.5px;
+            color: var(--ink-soft);
+            margin-bottom: 14px;
+        }
+
+        .rs-close {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            border: none;
+            background: transparent;
+            font-size: 16px;
+            color: var(--ink-soft);
+            cursor: pointer;
+            padding: 4px 7px;
+            border-radius: 6px;
+        }
+
+        .rs-close:hover {
+            background: var(--paper);
+        }
+
+        .report-summary {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .report-stat {
+            background: var(--paper);
+            border-radius: 10px;
+            padding: 12px 10px;
+            text-align: center;
+        }
+
+        .report-stat .rs-label {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            color: var(--ink-soft);
+            margin-bottom: 4px;
+        }
+
+        .report-stat .rs-val {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 800;
+            font-size: 15px;
+        }
+
+        .report-stat.inc .rs-val {
+            color: var(--moss);
+        }
+
+        .report-stat.exp .rs-val {
+            color: var(--rust);
+        }
+
+        .report-stat.net .rs-val.pos {
+            color: var(--moss);
+        }
+
+        .report-stat.net .rs-val.neg {
+            color: var(--danger);
+        }
+
+        .report-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12.5px;
+        }
+
+        .report-table th {
+            text-align: left;
+            font-size: 10.5px;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            color: var(--ink-soft);
+            padding: 6px 8px;
+            border-bottom: 2px solid var(--line);
+        }
+
+        .report-table td {
+            padding: 8px;
+            border-bottom: 1px solid var(--line);
+            font-weight: 600;
+        }
+
+        .report-table td.num {
+            font-family: 'JetBrains Mono', monospace;
+            text-align: right;
+        }
+
+        .report-table td.num.pos {
+            color: var(--moss);
+        }
+
+        .report-table td.num.neg {
+            color: var(--danger);
+        }
+
+        .report-print-btn {
+            width: 100%;
+            padding: 11px;
+            background: var(--ink);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 14px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .report-print-btn:hover {
+            opacity: 0.88;
+        }
+
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+
+            #reportOverlay,
+            #reportOverlay * {
+                visibility: visible;
+            }
+
+            #reportOverlay {
+                position: absolute;
+                inset: 0;
+                background: #fff;
+            }
+
+            .rs-close,
+            .report-print-btn {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrap">
+
+        <header class="top">
+            <div class="header-left">
+                <button class="master-btn" id="masterBtn">
+                    <span class="icon"><span></span><span></span><span></span></span>
+                    Master
+                </button>
+                <button class="report-btn" id="reportBtn" aria-label="Report" title="Report">Report</button>
+                <a href="pagar.html" class="pagar-btn" id="pagarBtn" style="text-decoration:none;" title="Pagar Book">💼
+                    Pagar</a>
+                <a href="khata.html"
+                    style="background:var(--carry-bg);color:var(--carry);border:1.5px solid var(--carry);border-radius:8px;padding:5px 11px;font-size:12px;font-weight:700;text-decoration:none;white-space:nowrap;"
+                    title="Khata Book">📒 Khata</a>
+                <div class="brand">
+                    <h1>ROJMEL</h1>
+                    <span>Income and expense book</span>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="datebox">
+                    <button id="prevDay" aria-label="Previous day">‹</button>
+                    <div class="datewrap">
+                        <span class="datelabel" id="dateLabel" title="Double-click to pick date">—</span>
+                        <input type="date" id="datePicker">
+                    </div>
+                    <button id="nextDay" aria-label="Next day">›</button>
+                </div>
+                <button class="search-btn" id="searchBtn" aria-label="Search" title="Search">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <div class="board">
+            <section class="panel income">
+                <h2><span class="dot income"></span>Aavak</h2>
+                <div class="rows" id="incomeRows"></div>
+                <div class="totals"><span>Total income</span><b id="incomeTotal">₹0</b></div>
+            </section>
+            <section class="panel expense">
+                <h2><span class="dot expense"></span>Kharch</h2>
+                <div class="rows" id="expenseRows"></div>
+                <div class="totals"><span>Total expense</span><b id="expenseTotal">₹0</b></div>
+            </section>
+        </div>
+
+        <div class="net-bar">
+            <div class="net-pills">
+                <div class="pill"><span class="dot income"></span><b class="inc" id="netInc">₹0</b></div>
+                <div class="pill" style="color:var(--ink-faint)">−</div>
+                <div class="pill"><span class="dot expense"></span><b class="exp" id="netExp">₹0</b></div>
+                <div class="pill" style="color:var(--ink-faint);font-weight:600;font-size:16px;">=</div>
+            </div>
+            <div class="net-inline">
+                <div class="net-value" id="netValue">₹0</div>
+                <div class="net-label">Today Balance</div>
+            </div>
+        </div>
+
+        <div class="status" id="status"></div>
+    </div>
+
+    <!-- ADD MASTER MODAL -->
+    <div class="overlay" id="overlay">
+        <div class="modal" role="dialog" aria-modal="true">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+                <button type="button" id="masterBackBtn"
+                    style="background:var(--paper);border:1.5px solid var(--line);padding:6px 12px;border-radius:8px;font-size:13px;font-weight:700;color:var(--ink);cursor:pointer;display:flex;align-items:center;gap:4px;">
+                    ← Back
+                </button>
+                <h3 style="margin:0;font-size:16px;font-weight:800;">Add Master</h3>
+                <button class="close-x" id="closeModal" aria-label="Close" style="position:static;">✕</button>
+            </div>
+
+            <div class="modal-form" id="entryForm">
+
+                <!-- 0. COMPANY NAME FIELD -->
+                <div style="margin-bottom:14px;padding-bottom:12px;border-bottom:1px dashed var(--line);">
+                    <label
+                        style="display:block;font-size:12px;font-weight:700;color:var(--ink-soft);margin-bottom:4px;">
+                        🏢 Company Name (દુકાન / ફેક્ટરી નામ)
+                    </label>
+                    <div style="display:flex;gap:8px;align-items:center;">
+                        <input type="text" id="masterCompanyName" placeholder="e.g. TAPU FAB" value="TAPU FAB"
+                            style="flex:1;padding:8px 12px;border:1.5px solid var(--line);border-radius:8px;font-size:13.5px;font-weight:700;font-family:'Inter',sans-serif;background:var(--bg);color:var(--ink);outline:none;">
+                        <button type="button" id="saveCompanyNameBtn"
+                            style="background:var(--ink);color:#fff;border:none;padding:8px 14px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;transition:all 0.2s ease;">
+                            Save Name
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 1. NAME (1st box) -->
+                <div>
+                    <div class="field-row">
+                        <div class="field-main">
+                            <select id="expName"></select>
+                        </div>
+                        <button class="plus-btn" id="namePlusBtn" type="button" title="Add new name">+</button>
+                        <button class="plus-btn" id="nameRemoveBtn" type="button" title="Delete selected name"
+                            style="display:none;background:#fdf2f2;color:#d9534f;border-color:#d9534f;font-weight:700;">✕</button>
+                    </div>
+                    <div class="add-new-panel" id="nameAddPanel">
+                        <div class="add-new-label">Save a new name to your list</div>
+                        <div class="add-new-row">
+                            <input type="text" id="nameNewInput" placeholder="Enter name to save">
+                        </div>
+                        <div id="nameListContainer"></div>
+                    </div>
+                </div>
+
+                <!-- 2. CATEGORY (2nd box) -->
+                <div>
+                    <div class="field-row">
+                        <div class="field-main"><select id="expCat"></select></div>
+                        <button class="plus-btn" id="catPlusBtn" type="button">+</button>
+                    </div>
+                    <div class="add-new-panel" id="catAddPanel">
+                        <div class="add-new-label">New category name</div>
+                        <div class="add-new-row">
+                            <input type="text" id="catNewInput" placeholder="e.g. Electricity, Tools…">
+                        </div>
+                        <div id="catListContainer"></div>
+                    </div>
+                </div>
+
+                <!-- 3. FACTORY KARIGAR fields (shown only when Factory Karigar selected) -->
+                <div id="karigarFields" style="display:none;">
+                    <div style="margin-bottom:10px;">
+                        <div class="field-row">
+                            <div class="field-main"><select id="expMaster"></select></div>
+                            <button class="plus-btn" id="masterPlusBtn" type="button">+</button>
+                        </div>
+                        <div class="add-new-panel" id="masterAddPanel">
+                            <div class="add-new-label">Add a new Sub Category</div>
+                            <div class="add-new-row">
+                                <input type="text" id="masterNewInput" placeholder="e.g. Weaving, Dyeing, Stitching…">
+                            </div>
+                            <div id="masterListContainer"></div>
+                        </div>
+                    </div>
+                    <select id="expFixed">
+                        <option value="">-- Select Fix / Daily Pagar --</option>
+                        <option value="Fix Pagar">Fix Pagar</option>
+                        <option value="Daily Pagar">Daily Pagar</option>
+                    </select>
+                    <div id="pagarAmountWrap" style="display:none;margin-top:8px;">
+                        <input type="number" id="expPagarAmount" placeholder="Enter Pagar Amount (₹)" min="0"
+                            style="width:100%;">
+                    </div>
+                </div>
+
+
+                <div class="err" id="entryErr"></div>
+                <div class="modal-actions">
+                    <button class="btn-cancel" id="entryCancel" type="button">← Back</button>
+                    <button class="btn-save" id="entrySave" type="button">Add Master</button>
+                    <button class="btn-save" id="saveChangeBtn" type="button"
+                        style="display:none;background:var(--rust,#d9534f);">Save Change</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SEARCH MODAL -->
+    <div class="overlay" id="searchOverlay">
+        <div class="modal" role="dialog" aria-modal="true">
+            <button class="close-x" id="closeSearchModal" aria-label="Close">✕</button>
+            <h3>Search</h3>
+            <p class="modal-sub">Search across all dates — names, amounts, categories</p>
+            <div class="search-input-wrap">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input type="text" id="searchInput" placeholder="Type to search..." autocomplete="off">
+            </div>
+            <div class="search-results" id="searchResults"></div>
+        </div>
+    </div>
+
+    <!-- EDIT AMOUNT MODAL -->
+    <div class="ea-overlay" id="eaOverlay">
+        <div class="ea-box">
+            <div class="ea-title">Edit Amount</div>
+            <div class="ea-name" id="eaName">—</div>
+            <div class="ea-input-wrap">
+                <span class="ea-prefix">₹</span>
+                <input class="ea-input" type="number" id="eaInput" min="0" step="1" placeholder="0">
+            </div>
+            <div class="ea-actions">
+                <button class="ea-cancel" id="eaCancel">Cancel</button>
+                <button class="ea-save" id="eaSave">Save Amount</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- KHATA PICKER MODAL -->
+    <div class="overlay" id="kpOverlay">
+        <div class="modal" role="dialog" aria-modal="true" style="max-height:80vh;display:flex;flex-direction:column;">
+            <button class="close-x" id="kpClose" aria-label="Close">✕</button>
+            <h3 id="kpTitle">Past Entries</h3>
+            <p class="modal-sub" id="kpSub">Tap an entry to add it to today's list</p>
+            <div class="search-input-wrap" style="margin-bottom:10px;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input type="text" id="kpSearchInput" placeholder="Search past entries..." autocomplete="off">
+            </div>
+            <div id="kpList" style="overflow-y:auto;flex:1;"></div>
+            <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--line);">
+                <button id="kpMasterBtn" type="button"
+                    style="width:100%;padding:10px;background:var(--ink);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:opacity 0.15s;">
+                    ⚙️ Master
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- REPORT MODAL -->
+    <div class="overlay" id="reportOverlay">
+        <div class="rs-modal">
+            <button class="rs-close" id="reportClose">✕</button>
+            <h3>Rojmel Report</h3>
+            <div class="rs-sub" id="reportSub">Summary across all dates</div>
+
+            <!-- REPORT DATE FILTER -->
+            <div class="rep-date-filter"
+                style="background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+                <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;flex:1;">
+                    <div
+                        style="font-size:11px;font-weight:700;letter-spacing:0.5px;color:var(--ink-soft);text-transform:uppercase;white-space:nowrap;display:flex;align-items:center;gap:4px;">
+                        <span>📅</span> FILTER
+                    </div>
+                    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                        <input type="date" id="repFilterFrom" class="rep-date-input"
+                            style="padding:6px 10px;background:var(--bg);border:1px solid var(--line);border-radius:8px;font-size:12.5px;color:var(--ink);outline:none;font-family:'Inter',sans-serif;"
+                            title="From Date">
+                        <span style="font-size:13px;color:var(--ink-faint);font-weight:700;">→</span>
+                        <input type="date" id="repFilterTo" class="rep-date-input"
+                            style="padding:6px 10px;background:var(--bg);border:1px solid var(--line);border-radius:8px;font-size:12.5px;color:var(--ink);outline:none;font-family:'Inter',sans-serif;"
+                            title="To Date">
+                    </div>
+                </div>
+                <button type="button" id="repFilterClear"
+                    style="background:none;border:1px solid var(--line);border-radius:8px;padding:5px 12px;font-size:12px;font-weight:600;color:var(--ink-soft);cursor:pointer;white-space:nowrap;transition:all 0.15s;">✕
+                    Clear</button>
+            </div>
+
+            <!-- CATEGORY FILTER PILLS -->
+            <div id="repCatPills" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;"></div>
+
+            <div class="report-summary">
+                <div class="report-stat inc">
+                    <div class="rs-label">Total Aavak</div>
+                    <div class="rs-val" id="repTotalInc">₹0</div>
+                </div>
+                <div class="report-stat exp">
+                    <div class="rs-label">Total Kharch</div>
+                    <div class="rs-val" id="repTotalExp">₹0</div>
+                </div>
+                <div class="report-stat net">
+                    <div class="rs-label">Net</div>
+                    <div class="rs-val" id="repTotalNet">₹0</div>
+                </div>
+            </div>
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th style="width:105px;">Date</th>
+                        <th>Name</th>
+                        <th style="text-align:right">Aavak</th>
+                        <th style="text-align:right">Kharch</th>
+                        <th style="text-align:right">Net</th>
+                    </tr>
+                </thead>
+                <tbody id="reportTableBody"></tbody>
+            </table>
+            <button class="report-print-btn" id="reportPrintBtn">🖨️ Print Report</button>
+        </div>
+    </div>
+
+    <script>
+        const $ = id => document.getElementById(id);
+        const rupee = n => '₹' + Math.round(Math.abs(n)).toLocaleString('en-IN');
+        const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+        const escHtml = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+        function toKey(d) { return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }
+        function fromKey(k) { const [y, m, d] = k.split('-').map(Number); return new Date(y, m - 1, d); }
+        function displayDate(d) {
+            const label = d.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+            return toKey(d) === toKey(new Date()) ? `Today · ${label}` : label;
+        }
+        function shortDate(d) { return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }); }
+
+        let currentDate = new Date();
+        let dayData = { income: [], expense: [] };
+        let prevNetCarry = null;
+        let categories = ['Factory Karigar', 'Factory Expense'];
+        let masters = ['Weaving', 'Dyeing', 'Finishing', 'Other'];
+        let workers = [];
+
+        // ── Entry form type state ──
+        let entryType = 'aavak'; // 'aavak' | 'kharch'
+
+        const storageGet = async k => {
+            try { if (window.storage) { const r = await window.storage.get(k, false); return r ? r.value : null; } return localStorage.getItem(k); } catch (e) { return null; }
+        };
+        const storageSet = async (k, v) => {
+            try { if (window.storage) return await window.storage.set(k, v, false); localStorage.setItem(k, v); return true; } catch (e) { return false; }
+        };
+        const storageRemove = async k => {
+            try { if (window.storage && window.storage.remove) { await window.storage.remove(k, false); return; } localStorage.removeItem(k); } catch (e) { }
+        };
+
+        async function loadCategories() {
+            try { const v = await storageGet('khata:categories'); if (v) { const p = JSON.parse(v); if (Array.isArray(p) && p.length) categories = p; } } catch (e) { }
+            if (!categories.includes('Factory Karigar')) categories.unshift('Factory Karigar');
+            if (!categories.includes('Factory Expense')) categories.push('Factory Expense');
+            categories = ['Factory Karigar', ...categories.filter(c => c !== 'Factory Karigar')];
+        }
+        async function saveCategories() { await storageSet('khata:categories', JSON.stringify(categories)); }
+        async function loadMasters() { try { const v = await storageGet('khata:masters'); if (v) { const p = JSON.parse(v); if (Array.isArray(p) && p.length) masters = p; } } catch (e) { } }
+        async function saveMasters() { await storageSet('khata:masters', JSON.stringify(masters)); }
+        async function loadWorkers() { try { const v = await storageGet('khata:workers'); if (v) { const p = JSON.parse(v); if (Array.isArray(p)) workers = p; } } catch (e) { } }
+        async function saveWorkers() { await storageSet('khata:workers', JSON.stringify(workers)); }
+        async function addWorkerIfNew(name) { if (name && !workers.includes(name)) { workers.push(name); await saveWorkers(); } }
+
+        let masterEntries = [];
+        async function loadMasterEntries() { try { const v = await storageGet('khata:master_entries'); if (v) { const p = JSON.parse(v); if (Array.isArray(p)) masterEntries = p; } } catch (e) { } }
+        async function saveMasterEntries() { await storageSet('khata:master_entries', JSON.stringify(masterEntries)); }
+
+        async function loadDay() {
+            try {
+                const v = await storageGet('khata:day:' + toKey(currentDate));
+                if (v) { const p = JSON.parse(v); dayData = { income: p.income || [], expense: p.expense || [] }; }
+                else dayData = { income: [], expense: [] };
+            } catch (e) { dayData = { income: [], expense: [] }; }
+        }
+        async function saveDay() {
+            const ok = await storageSet('khata:day:' + toKey(currentDate), JSON.stringify(dayData));
+            setStatus(ok ? 'Saved.' : 'Could not save — storage unavailable.', !ok);
+            // Notify khata.html in other tabs to refresh
+            try { syncChannel.postMessage({ type: 'day-updated' }); } catch (e) { }
+        }
+
+        async function loadPrevNet() {
+            prevNetCarry = null;
+            let cumulativeNet = 0;
+            let hasAnyData = false;
+            let lastDateStr = null;
+
+            try {
+                const keys = await getAllKeys();
+                const dayKeys = keys.filter(k => k && k.startsWith('khata:day:'));
+                const curKey = toKey(currentDate);
+
+                const pastDayKeys = dayKeys
+                    .map(k => k.replace('khata:day:', ''))
+                    .filter(d => d < curKey)
+                    .sort();
+
+                for (const dateStr of pastDayKeys) {
+                    const v = await storageGet('khata:day:' + dateStr);
+                    if (!v) continue;
+                    const p = JSON.parse(v);
+                    const incArr = p.income || [], expArr = p.expense || [];
+                    if (incArr.length > 0 || expArr.length > 0) {
+                        const inc = incArr.reduce((s, e) => s + Number(e.amount || 0), 0);
+                        const exp = expArr.reduce((s, e) => s + Number(e.amount || 0), 0);
+                        cumulativeNet += (inc - exp);
+                        hasAnyData = true;
+                        lastDateStr = dateStr;
+                    }
+                }
+            } catch (e) { }
+
+            if (hasAnyData && lastDateStr) {
+                const [y, m, d] = lastDateStr.split('-');
+                const formattedDate = `${d}/${m}/${String(y).slice(-2)}`;
+                prevNetCarry = { amount: cumulativeNet, fromDate: formattedDate };
+            }
+        }
+
+        function setStatus(msg, err) {
+            const el = $('status'); el.textContent = msg; el.style.color = err ? 'var(--danger)' : 'var(--ink-faint)';
+            if (!err) { clearTimeout(setStatus._t); setStatus._t = setTimeout(() => { el.textContent = ''; }, 2000); }
+        }
+
+        function calcNet() {
+            const inc = dayData.income.reduce((s, e) => s + Number(e.amount || 0), 0);
+            const exp = dayData.expense.reduce((s, e) => s + Number(e.amount || 0), 0);
+            const carryAmt = prevNetCarry ? prevNetCarry.amount : 0;
+            return { inc: inc + carryAmt, exp, net: (inc + carryAmt) - exp };
+        }
+
+        function renderTotals() {
+            const { inc, exp, net } = calcNet();
+            $('incomeTotal').textContent = rupee(inc);
+            $('expenseTotal').textContent = rupee(exp);
+            $('netInc').textContent = rupee(inc);
+            $('netExp').textContent = rupee(exp);
+            const nv = $('netValue');
+            nv.textContent = (net < 0 ? '−' : '') + rupee(net);
+            nv.className = 'net-value ' + (net >= 0 ? 'pos' : 'neg');
+        }
+
+        function renderDateBar() {
+            $('dateLabel').textContent = displayDate(currentDate);
+            $('datePicker').value = toKey(currentDate);
+        }
+
+        /* ── INLINE EDIT FOR AMOUNT ── */
+        function makeInlineEdit(item, arr, afterRender) {
+            return (amtBoxDiv) => {
+                if (amtBoxDiv.querySelector('input')) return;
+                const orig = item.amount || 0;
+                amtBoxDiv.innerHTML = '';
+                const inp = document.createElement('input');
+                inp.type = 'number'; inp.min = '0'; inp.step = '1';
+                inp.value = orig;
+                inp.style.cssText = 'width:65px;border:none;background:transparent;outline:none;font-size:14.5px;font-weight:700;color:inherit;text-align:center;padding:0;margin:0;';
+                amtBoxDiv.appendChild(inp);
+                inp.focus(); inp.select();
+                const commit = async () => {
+                    const v = parseFloat(inp.value);
+                    item.amount = (!isNaN(v) && v >= 0) ? v : orig;
+                    afterRender(); renderTotals(); await saveDay();
+                };
+                inp.addEventListener('blur', commit);
+                inp.addEventListener('keydown', e => {
+                    if (e.key === 'Enter') { e.preventDefault(); inp.blur(); }
+                    if (e.key === 'Escape') { item.amount = orig; afterRender(); renderTotals(); }
+                });
+            };
+        }
+
+        /* ── INLINE EDIT FOR NOTE ── */
+        function makeNoteInlineEdit(item, noteBoxDiv, afterRender) {
+            if (noteBoxDiv.querySelector('input')) return;
+            const orig = item.note || '';
+            noteBoxDiv.innerHTML = '';
+            const inp = document.createElement('input');
+            inp.type = 'text'; inp.placeholder = 'Type note…';
+            inp.value = orig;
+            inp.style.cssText = 'width:100px;border:none;background:transparent;outline:none;font-size:12px;font-weight:600;color:inherit;padding:0;margin:0;';
+            noteBoxDiv.appendChild(inp);
+            inp.focus(); inp.select();
+            const commit = async () => {
+                item.note = inp.value.trim();
+                afterRender(); renderTotals(); await saveDay();
+            };
+            inp.addEventListener('blur', commit);
+            inp.addEventListener('keydown', e => {
+                if (e.key === 'Enter') { e.preventDefault(); inp.blur(); }
+                if (e.key === 'Escape') { afterRender(); }
+            });
+        }
+
+        /* ── INCOME RENDER ── */
+        function renderIncome() {
+            const w = $('incomeRows'); w.innerHTML = '';
+            if (prevNetCarry) {
+                const isNeg = prevNetCarry.amount < 0;
+                const row = document.createElement('div');
+                row.className = 'row carry-row' + (isNeg ? ' carry-neg' : '');
+                row.innerHTML = `<div class="who"><div class="name">Balance <small style="font-size:11px;font-weight:600;color:var(--carry);background:var(--carry-bg);padding:1px 7px;border-radius:10px;">📅 ${escHtml(prevNetCarry.fromDate)}</small></div></div><div class="amount-box">${(isNeg ? '−' : '') + rupee(prevNetCarry.amount)}</div>`;
+                w.appendChild(row);
+            }
+            dayData.income.forEach(e => {
+                let subCat = '';
+                const found = masterEntries.find(m => m.name && m.name.toLowerCase() === (e.name || '').toLowerCase());
+                if (found && found.master) subCat = found.master;
+                else if (e.master) subCat = e.master;
+                const row = document.createElement('div'); row.className = 'row';
+                row.innerHTML = `
+                    <div class="who">
+                        <div class="name">
+                            ${escHtml(e.name)}
+                            ${subCat ? `<span class="subcat-tag">${escHtml(subCat)}</span>` : ''}
+                        </div>
+                        <div class="note-box" data-id="${e.id}" title="Click to edit note">
+                            ${e.note ? escHtml(e.note) : '<span style="opacity:0.6;font-style:italic;">+ note</span>'}
+                        </div>
+                    </div>
+                    <div class="amount-box" data-id="${e.id}" title="Click to edit amount">
+                        ${rupee(e.amount)}
+                    </div>
+                    <button class="del" data-id="${e.id}" aria-label="Delete">✕</button>`;
+                w.appendChild(row);
+            });
+            w.querySelectorAll('.note-box').forEach(box => {
+                box.addEventListener('click', (ev) => {
+                    ev.stopPropagation();
+                    const item = dayData.income.find(e => e.id === box.dataset.id); if (!item) return;
+                    makeNoteInlineEdit(item, box, renderIncome);
+                });
+            });
+            w.querySelectorAll('.amount-box').forEach(box => {
+                box.addEventListener('click', (ev) => {
+                    ev.stopPropagation();
+                    const item = dayData.income.find(e => e.id === box.dataset.id); if (!item) return;
+                    makeInlineEdit(item, dayData.income, renderIncome)(box);
+                });
+            });
+            w.querySelectorAll('.del').forEach(btn => btn.addEventListener('click', async () => {
+                dayData.income = dayData.income.filter(e => e.id !== btn.dataset.id);
+                renderIncome(); renderTotals(); await saveDay();
+            }));
+            const addBtn = document.createElement('div');
+            addBtn.innerHTML = '<span class="picker-btn">➕ Add Entry</span>';
+            addBtn.style.textAlign = 'center';
+            addBtn.addEventListener('click', () => openKhataPicker('income'));
+            w.appendChild(addBtn);
+        }
+
+        /* ── EXPENSE RENDER ── */
+        function renderExpense() {
+            const w = $('expenseRows'); w.innerHTML = '';
+            dayData.expense.forEach(e => {
+                let subCat = '';
+                const found = masterEntries.find(m => m.name && m.name.toLowerCase() === (e.name || '').toLowerCase());
+                if (found && found.master) subCat = found.master;
+                else if (e.master) subCat = e.master;
+                const row = document.createElement('div'); row.className = 'row';
+                row.innerHTML = `
+                    <div class="who">
+                        <div class="name">
+                            ${escHtml(e.name)}
+                            ${subCat ? `<span class="subcat-tag">${escHtml(subCat)}</span>` : ''}
+                        </div>
+                        <div class="note-box" data-id="${e.id}" title="Click to edit note">
+                            ${e.note ? escHtml(e.note) : '<span style="opacity:0.6;font-style:italic;">+ note</span>'}
+                        </div>
+                    </div>
+                    <div class="amount-box" data-id="${e.id}" title="Click to edit amount">
+                        ${rupee(e.amount)}
+                    </div>
+                    <button class="del" data-id="${e.id}" aria-label="Delete">✕</button>`;
+                w.appendChild(row);
+            });
+            w.querySelectorAll('.note-box').forEach(box => {
+                box.addEventListener('click', (ev) => {
+                    ev.stopPropagation();
+                    const item = dayData.expense.find(e => e.id === box.dataset.id); if (!item) return;
+                    makeNoteInlineEdit(item, box, renderExpense);
+                });
+            });
+            w.querySelectorAll('.amount-box').forEach(box => {
+                box.addEventListener('click', (ev) => {
+                    ev.stopPropagation();
+                    const item = dayData.expense.find(e => e.id === box.dataset.id); if (!item) return;
+                    makeInlineEdit(item, dayData.expense, renderExpense)(box);
+                });
+            });
+            w.querySelectorAll('.del').forEach(btn => btn.addEventListener('click', async () => {
+                dayData.expense = dayData.expense.filter(e => e.id !== btn.dataset.id);
+                renderExpense(); renderTotals(); await saveDay();
+            }));
+            const addBtn = document.createElement('div');
+            addBtn.innerHTML = '<span class="picker-btn">➕ Add Entry</span>';
+            addBtn.style.textAlign = 'center';
+            addBtn.addEventListener('click', () => openKhataPicker('expense'));
+            w.appendChild(addBtn);
+        }
+
+        /* ─ ENTRY TYPE is always aavak (income) — toggle buttons removed ─ */
+
+        /* ── MODAL ── */
+        async function loadCompanyNameInModal() {
+            try {
+                let comp = await storageGet('khata:company_name') || localStorage.getItem('khata:company_name');
+                if (!comp) {
+                    const rawPagar = await storageGet('khata_pagar_data') || localStorage.getItem('khata_pagar_data');
+                    if (rawPagar) {
+                        try {
+                            const parsed = JSON.parse(rawPagar);
+                            if (parsed.globalCompanyName) comp = parsed.globalCompanyName;
+                        } catch (e) { }
+                    }
+                }
+                if ($('masterCompanyName')) $('masterCompanyName').value = comp || 'TAPU FAB';
+            } catch (e) {
+                if ($('masterCompanyName')) $('masterCompanyName').value = 'TAPU FAB';
+            }
+        }
+
+        async function saveGlobalCompanyName(newComp) {
+            const comp = (newComp || '').trim() || 'TAPU FAB';
+            try {
+                await storageSet('khata:company_name', comp);
+                localStorage.setItem('khata:company_name', comp);
+
+                let pagarData = {};
+                const rawPagar = await storageGet('khata_pagar_data') || localStorage.getItem('khata_pagar_data');
+                if (rawPagar) {
+                    try { pagarData = JSON.parse(rawPagar); } catch (e) { }
+                }
+                pagarData.globalCompanyName = comp;
+                if (pagarData.opSlipsData && Array.isArray(pagarData.opSlipsData)) {
+                    pagarData.opSlipsData.forEach(s => s.company = comp);
+                }
+                if (pagarData.fixSlipsData && Array.isArray(pagarData.fixSlipsData)) {
+                    pagarData.fixSlipsData.forEach(s => s.company = comp);
+                }
+                await storageSet('khata_pagar_data', JSON.stringify(pagarData));
+                localStorage.setItem('khata_pagar_data', JSON.stringify(pagarData));
+
+                try { syncChannel.postMessage({ type: 'company-updated' }); } catch (e) { }
+                setStatus(`Company name updated to "${comp}" on all slips!`, false);
+            } catch (e) { console.error(e); }
+        }
+
+        function openModal() { $('overlay').classList.add('open'); resetModal(); loadCompanyNameInModal(); checkAndAutoPopulateMaster(); setTimeout(() => $('expName').focus(), 80); }
+        function closeModal() { $('overlay').classList.remove('open'); }
+        async function renderCatListContainer() {
+            const container = $('catListContainer');
+            if (!container) return;
+            container.innerHTML = '';
+            if (!categories || !categories.length) {
+                container.style.display = 'none';
+                return;
+            }
+            container.style.display = 'block';
+            categories.forEach(cat => {
+                const item = document.createElement('div');
+                item.className = 'name-list-item';
+                item.innerHTML = `
+                    <span>${escHtml(cat)}</span>
+                    <span class="del-btn" title="Delete category">✕</span>
+                `;
+                item.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('del-btn')) return;
+                    $('expCat').value = cat;
+                    updateCategoryFields();
+                    togglePanel('catAddPanel', 'catPlusBtn');
+                });
+                const delBtn = item.querySelector('.del-btn');
+                delBtn.addEventListener('click', async (e) => {
+                    e.stopPropagation();
+                    if (!confirm(`Delete category "${cat}"?`)) return;
+                    categories = categories.filter(c => c !== cat);
+                    await saveCategories();
+                    rebuildCatSelect();
+                    if ($('expCat').value === cat) {
+                        $('expCat').value = '';
+                        updateCategoryFields();
+                    }
+                    try { syncChannel.postMessage({ type: 'day-updated' }); } catch (err) { }
+                    setStatus(`Deleted category "${cat}".`, false);
+                });
+                container.appendChild(item);
+            });
+        }
+
+        async function renderMasterListContainer() {
+            const container = $('masterListContainer');
+            if (!container) return;
+            container.innerHTML = '';
+            if (!masters || !masters.length) {
+                container.style.display = 'none';
+                return;
+            }
+            container.style.display = 'block';
+            masters.forEach(m => {
+                const item = document.createElement('div');
+                item.className = 'name-list-item';
+                item.innerHTML = `
+                    <span>${escHtml(m)}</span>
+                    <span class="del-btn" title="Delete sub category">✕</span>
+                `;
+                item.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('del-btn')) return;
+                    $('expMaster').value = m;
+                    togglePanel('masterAddPanel', 'masterPlusBtn');
+                });
+                const delBtn = item.querySelector('.del-btn');
+                delBtn.addEventListener('click', async (e) => {
+                    e.stopPropagation();
+                    if (!confirm(`Delete sub category "${m}"?`)) return;
+                    masters = masters.filter(x => x !== m);
+                    await saveMasters();
+                    rebuildMasterSelect();
+                    if ($('expMaster').value === m) {
+                        $('expMaster').value = '';
+                    }
+                    try { syncChannel.postMessage({ type: 'day-updated' }); } catch (err) { }
+                    setStatus(`Deleted sub category "${m}".`, false);
+                });
+                container.appendChild(item);
+            });
+        }
+
+        function rebuildCatSelect() {
+            if ($('expCat')) $('expCat').innerHTML = '<option value="">-- Select Category --</option>' + categories.map(c => `<option value="${escHtml(c)}">${escHtml(c)}</option>`).join('');
+            renderCatListContainer();
+        }
+        function rebuildMasterSelect() {
+            if ($('expMaster')) $('expMaster').innerHTML = '<option value="">-- Select Sub Category --</option>' + masters.map(m => `<option value="${escHtml(m)}">${escHtml(m)}</option>`).join('');
+            renderMasterListContainer();
+        }
+        async function deleteWorkerOrAccountName(targetName, skipConfirm = false) {
+            if (!targetName) return;
+            if (!skipConfirm && !confirm(`Delete "${targetName}" and remove all its data across all pages?`)) return;
+
+            const lower = targetName.toLowerCase();
+
+            workers = workers.filter(w => w && w.toLowerCase() !== lower);
+            await saveWorkers();
+
+            masterEntries = masterEntries.filter(m => m.name && m.name.toLowerCase() !== lower);
+            await saveMasterEntries();
+
+            try {
+                const accsRaw = await storageGet('khata:accounts');
+                if (accsRaw) {
+                    let accs = JSON.parse(accsRaw) || [];
+                    const toDelete = accs.filter(a => a.name && a.name.toLowerCase() === lower);
+                    accs = accs.filter(a => a.name && a.name.toLowerCase() !== lower);
+                    await storageSet('khata:accounts', JSON.stringify(accs));
+                    for (const a of toDelete) {
+                        await storageRemove('khata:acc:' + a.id);
+                    }
+                }
+            } catch (e) { }
+
+            try {
+                await storageRemove('khata:acc:auto:' + lower);
+            } catch (e) { }
+
+            try {
+                const keys = await getAllKeys();
+                const dayKeys = keys.filter(k => k && k.startsWith('khata:day:'));
+                for (const key of dayKeys) {
+                    const v = await storageGet(key);
+                    if (!v) continue;
+                    let dayObj = JSON.parse(v);
+                    let changed = false;
+                    if (dayObj.income) {
+                        const before = dayObj.income.length;
+                        dayObj.income = dayObj.income.filter(e => e.name && e.name.toLowerCase() !== lower);
+                        if (dayObj.income.length !== before) changed = true;
+                    }
+                    if (dayObj.expense) {
+                        const before = dayObj.expense.length;
+                        dayObj.expense = dayObj.expense.filter(e => e.name && e.name.toLowerCase() !== lower);
+                        if (dayObj.expense.length !== before) changed = true;
+                    }
+                    if (changed) {
+                        await storageSet(key, JSON.stringify(dayObj));
+                    }
+                }
+            } catch (e) { }
+
+            await loadDay();
+            await loadPrevNet();
+            renderIncome();
+            renderExpense();
+            renderTotals();
+            await rebuildWorkerDatalist();
+            if ($('expName')) $('expName').value = '';
+            if ($('nameRemoveBtn')) $('nameRemoveBtn').style.display = 'none';
+            checkAndAutoPopulateMaster();
+
+            try { syncChannel.postMessage({ type: 'day-updated' }); } catch (e) { }
+            setStatus(`Deleted "${targetName}" completely.`, false);
+        }
+
+        async function renderNameListContainer() {
+            const container = $('nameListContainer');
+            if (!container) return;
+            container.innerHTML = '';
+
+            const names = new Set();
+            try {
+                const accsRaw = await storageGet('khata:accounts');
+                if (accsRaw) {
+                    const accs = JSON.parse(accsRaw);
+                    accs.forEach(a => { if (a && a.name) names.add(a.name); });
+                }
+            } catch (e) { }
+            workers.forEach(w => { if (w) names.add(w); });
+            masterEntries.forEach(m => { if (m && m.name) names.add(m.name); });
+
+            const sortedNames = Array.from(names).sort((a, b) => a.localeCompare(b));
+            if (!sortedNames.length) {
+                container.style.display = 'none';
+                return;
+            }
+            container.style.display = 'block';
+
+            sortedNames.forEach(name => {
+                const item = document.createElement('div');
+                item.className = 'name-list-item';
+                item.innerHTML = `
+                    <span>${escHtml(name)}</span>
+                    <span class="del-btn" title="Delete from both pages">✕</span>
+                `;
+                item.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('del-btn')) return;
+                    $('expName').value = name;
+                    checkAndAutoPopulateMaster();
+                    togglePanel('nameAddPanel', 'namePlusBtn');
+                });
+                const delBtn = item.querySelector('.del-btn');
+                delBtn.addEventListener('click', async (e) => {
+                    e.stopPropagation();
+                    await deleteWorkerOrAccountName(name);
+                });
+                container.appendChild(item);
+            });
+        }
+
+        async function rebuildWorkerDatalist() {
+            const selectEl = $('expName');
+            if (!selectEl) return;
+            const currVal = selectEl.value;
+            const names = new Set();
+            try {
+                const accsRaw = await storageGet('khata:accounts');
+                if (accsRaw) {
+                    const accs = JSON.parse(accsRaw);
+                    accs.forEach(a => { if (a && a.name) names.add(a.name); });
+                }
+            } catch (e) { }
+            workers.forEach(w => { if (w) names.add(w); });
+            masterEntries.forEach(m => { if (m.name) names.add(m.name); });
+            let html = '<option value="">-- Select Name (worker or item) --</option>';
+            Array.from(names).sort((a, b) => a.localeCompare(b)).forEach(w => {
+                html += `<option value="${escHtml(w)}">${escHtml(w)}</option>`;
+            });
+            selectEl.innerHTML = html;
+            if (currVal && names.has(currVal)) {
+                selectEl.value = currVal;
+            }
+            await renderNameListContainer();
+        }
+        function closeAllPanels() {
+            ['catAddPanel', 'nameAddPanel', 'masterAddPanel'].forEach(id => { if ($(id)) $(id).classList.remove('open'); });
+            ['catPlusBtn', 'namePlusBtn', 'masterPlusBtn'].forEach(id => { if ($(id)) { $(id).classList.remove('active'); $(id).textContent = '+'; } });
+        }
+        function togglePanel(panelId, btnId) {
+            const panel = $(panelId), btn = $(btnId), isOpen = panel.classList.contains('open');
+            closeAllPanels();
+            if (!isOpen) { panel.classList.add('open'); btn.classList.add('active'); btn.textContent = '×'; const inp = panel.querySelector('input'); if (inp) setTimeout(() => inp.focus(), 60); }
+        }
+        function resetModal() {
+            ['expName', 'expFixed', 'expPagarAmount', 'catNewInput', 'nameNewInput', 'masterNewInput', 'entryNote'].forEach(id => { if ($(id)) $(id).value = ''; });
+            if ($('pagarAmountWrap')) $('pagarAmountWrap').style.display = 'none';
+            $('entryErr').style.display = 'none';
+            entryType = 'aavak';
+            closeAllPanels(); rebuildCatSelect(); rebuildMasterSelect(); rebuildWorkerDatalist();
+            // Hide conditional sections on reset
+            if ($('karigarFields')) $('karigarFields').style.display = 'none';
+            if ($('expenseFields')) $('expenseFields').style.display = 'none';
+            if ($('entrySave')) $('entrySave').textContent = 'Add Master';
+            if ($('saveChangeBtn')) $('saveChangeBtn').style.display = 'none';
+        }
+
+        function checkAndAutoPopulateMaster() {
+            const val = ($('expName') ? $('expName').value : '').trim();
+            const saveChangeBtn = $('saveChangeBtn');
+            if (!val) {
+                if ($('entrySave')) $('entrySave').textContent = 'Add Master';
+                if (saveChangeBtn) saveChangeBtn.style.display = 'none';
+                if ($('expCat')) $('expCat').value = '';
+                if ($('expMaster')) $('expMaster').value = '';
+                if ($('expFixed')) $('expFixed').value = '';
+                if ($('entryNote')) $('entryNote').value = '';
+                updateCategoryFields();
+                return;
+            }
+            const found = masterEntries.find(m => m.name && m.name.toLowerCase() === val.toLowerCase());
+            if (found) {
+                if (found.category && $('expCat')) {
+                    $('expCat').value = found.category;
+                    updateCategoryFields();
+                }
+                if (found.master && $('expMaster')) {
+                    $('expMaster').value = found.master;
+                }
+                if (found.fixedLabel && $('expFixed')) {
+                    $('expFixed').value = found.fixedLabel;
+                    if ($('pagarAmountWrap')) $('pagarAmountWrap').style.display = 'block';
+                    if ($('expPagarAmount') && found.pagarAmount) $('expPagarAmount').value = found.pagarAmount;
+                }
+                // Note always blank — user types fresh each day
+                if ($('entryNote')) $('entryNote').value = '';
+            } else {
+                if ($('expCat')) $('expCat').value = '';
+                if ($('expMaster')) $('expMaster').value = '';
+                if ($('expFixed')) $('expFixed').value = '';
+                if ($('pagarAmountWrap')) $('pagarAmountWrap').style.display = 'none';
+                if ($('expPagarAmount')) $('expPagarAmount').value = '';
+                if ($('entryNote')) $('entryNote').value = '';
+                updateCategoryFields();
+            }
+            if ($('entrySave')) $('entrySave').textContent = 'Add Master';
+            if (saveChangeBtn) saveChangeBtn.style.display = 'block';
+        }
+
+        function updateCategoryFields() {
+            const cat = ($('expCat').value || '').toLowerCase().trim();
+            if (cat === 'factory karigar') {
+                if ($('karigarFields')) $('karigarFields').style.display = 'block';
+            } else {
+                if ($('karigarFields')) $('karigarFields').style.display = 'none';
+            }
+            if ($('expenseFields')) $('expenseFields').style.display = 'none';
+        }
+
+        $('masterBtn').addEventListener('click', openModal);
+        $('closeModal').addEventListener('click', closeModal);
+        $('overlay').addEventListener('click', e => { if (e.target === $('overlay')) closeModal(); });
+        $('entryCancel').addEventListener('click', closeModal);
+        $('expCat').addEventListener('change', updateCategoryFields);
+        if ($('expName')) {
+            $('expName').addEventListener('input', checkAndAutoPopulateMaster);
+            $('expName').addEventListener('change', checkAndAutoPopulateMaster);
+        }
+
+        /* ── EDIT AMOUNT MODAL ── */
+        let _eaCallback = null;
+        function closeEditModal() { $('eaOverlay').classList.remove('open'); _eaCallback = null; }
+        $('eaCancel').addEventListener('click', closeEditModal);
+        $('eaOverlay').addEventListener('click', e => { if (e.target === $('eaOverlay')) closeEditModal(); });
+        $('eaSave').addEventListener('click', () => {
+            const parsed = parseFloat($('eaInput').value);
+            if (!isNaN(parsed) && parsed >= 0) { if (_eaCallback) _eaCallback(parsed); closeEditModal(); }
+            else { $('eaInput').style.borderColor = 'var(--rust)'; setTimeout(() => $('eaInput').style.borderColor = '', 600); }
+        });
+        $('eaInput').addEventListener('keydown', e => { if (e.key === 'Enter') $('eaSave').click(); if (e.key === 'Escape') closeEditModal(); });
+
+        /* ── KHATA PICKER ── */
+        let kpAllEntries = [];
+        let kpCurrentType = 'income';
+
+        async function openKhataPicker(pickerType) {
+            kpCurrentType = pickerType;
+            $('kpOverlay').classList.add('open');
+            $('kpSearchInput').value = '';
+            const panelLabels = { income: "Aavak", expense: "Kharch" };
+            $('kpTitle').textContent = 'Add Entry';
+            $('kpSub').textContent = `Tap any entry below to add it to today’s ${panelLabels[pickerType] || 'list'}`;
+            const list = $('kpList');
+            list.innerHTML = '<div style="text-align:center;color:var(--ink-faint);padding:20px">Loading…</div>';
+            let allEntries = [];
+            try {
+                const keys = await getAllKeys();
+                const dayKeys = keys.filter(k => k && k.startsWith('khata:day:'));
+                for (const key of dayKeys) {
+                    const dateStr = key.replace('khata:day:', '');
+                    try {
+                        const v = await storageGet(key);
+                        if (v) {
+                            const p = JSON.parse(v);
+                            // Include ALL entries (income + expense) from ALL days including today
+                            (p.income || []).forEach(e => allEntries.push({ ...e, _dateKey: dateStr, _type: 'income' }));
+                            (p.expense || []).forEach(e => allEntries.push({ ...e, _dateKey: dateStr, _type: 'expense' }));
+                        }
+                    } catch (err) { }
+                }
+            } catch (err) { }
+
+            // Also include saved Master entries created via Master modal
+            masterEntries.forEach(e => {
+                allEntries.push({ ...e, _dateKey: e._dateKey || '9999-12-31', _type: 'income' });
+            });
+            workers.forEach(w => {
+                if (w) allEntries.push({ name: w, category: 'Factory Karigar', master: '', fixedLabel: '', note: '', _dateKey: '9999-12-31', _type: 'income' });
+            });
+            try {
+                const accsRaw = await storageGet('khata:accounts');
+                if (accsRaw) {
+                    const accs = JSON.parse(accsRaw);
+                    (accs || []).forEach(a => {
+                        if (a && a.name) allEntries.push({ name: a.name, category: 'Factory Karigar', master: '', fixedLabel: '', note: '', _dateKey: '9999-12-31', _type: 'income' });
+                    });
+                }
+            } catch (e) { }
+
+            if (!allEntries.length) {
+                list.innerHTML = `<div style="text-align:center;color:var(--ink-faint);padding:20px;font-style:italic">No entries found. Add entries first via the Master button.</div>`;
+                kpAllEntries = []; return;
+            }
+
+            // Deduplicate by name — each name appears EXACTLY ONCE
+            allEntries.sort((a, b) => (a._dateKey || '').localeCompare(b._dateKey || ''));
+            let seen = new Map();
+            let hidden = [];
+            try { const v = await storageGet('khata:hidden_sugg'); if (v) hidden = JSON.parse(v); } catch (err) { }
+            allEntries.forEach(item => {
+                const nm = (item.name || '').trim();
+                if (!nm) return;
+                const nameKey = nm.toLowerCase();
+                const fullKey = nameKey + '|' + (item.category || '').toLowerCase() + '|' + (item.master || '').toLowerCase();
+                if (hidden.includes(nameKey) || hidden.includes(fullKey)) return;
+
+                if (!seen.has(nameKey)) {
+                    seen.set(nameKey, { ...item, name: nm });
+                } else {
+                    const cur = seen.get(nameKey);
+                    if (!cur.category && item.category) cur.category = item.category;
+                    if (!cur.master && item.master) cur.master = item.master;
+                    if (!cur.fixedLabel && item.fixedLabel) cur.fixedLabel = item.fixedLabel;
+                    if (!cur.note && item.note) cur.note = item.note;
+                }
+            });
+            kpAllEntries = Array.from(seen.values()).sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+            renderKpList(kpAllEntries);
+        }
+
+        function renderKpList(entries) {
+            const list = $('kpList'); list.innerHTML = '';
+            if (!entries.length) {
+                list.innerHTML = '<div style="text-align:center;color:var(--ink-faint);padding:20px;font-style:italic">No matching entries found.</div>';
+                return;
+            }
+            entries.forEach(item => {
+                const isInc = item._type === 'income';
+                const div = document.createElement('div');
+                div.style.cssText = 'cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border:1px solid var(--line);border-radius:10px;margin-bottom:6px;background:var(--paper);';
+                let colorStyle = isInc ? 'color:var(--moss)' : 'color:var(--rust)';
+                let bgColor = isInc ? 'var(--moss-bg)' : 'var(--rust-bg)';
+                let typeLabel = isInc ? 'Aavak' : 'Kharch';
+                div.innerHTML = `
+                    <div style="font-size:14px;font-weight:600;color:var(--ink)">${escHtml(item.name || '')}</div>
+                    <div style="font-size:20px;color:var(--ink-soft)">+</div>`;
+                div.addEventListener('mouseenter', () => div.style.borderColor = 'var(--ink-soft)');
+                div.addEventListener('mouseleave', () => div.style.borderColor = 'var(--line)');
+                div.addEventListener('click', async () => {
+                    const target = kpCurrentType;
+                    const nameLower = (item.name || '').toLowerCase();
+                    const panelLabels = { income: 'Aavak', expense: 'Kharch' };
+                    if (target === 'income') {
+                        const existing = dayData.income.find(e => (e.name || '').toLowerCase() === nameLower);
+                        if (existing) {
+                            if (item.category) existing.category = item.category;
+                            if (item.master) existing.master = item.master;
+                            if (item.fixedLabel) existing.fixedLabel = item.fixedLabel;
+                            if (item.note) existing.note = item.note;
+                            setStatus(`"${item.name}" is already in today's Aavak.`, false);
+                        } else {
+                            dayData.income.push({ id: uid(), name: item.name, amount: 0, category: item.category || '', master: item.master || '', fixedLabel: item.fixedLabel || '', note: '' });
+                            setStatus(`Added "${item.name}" to today's Aavak.`, false);
+                        }
+                        renderIncome();
+                    } else if (target === 'expense') {
+                        const existing = dayData.expense.find(e => (e.name || '').toLowerCase() === nameLower);
+                        if (existing) {
+                            if (item.category) existing.category = item.category;
+                            if (item.master) existing.master = item.master;
+                            if (item.fixedLabel) existing.fixedLabel = item.fixedLabel;
+                            if (item.note) existing.note = item.note;
+                            setStatus(`"${item.name}" is already in today's Kharch.`, false);
+                        } else {
+                            dayData.expense.push({ id: uid(), name: item.name, amount: 0, category: item.category || '', master: item.master || '', fixedLabel: item.fixedLabel || '', note: '' });
+                            setStatus(`Added "${item.name}" to today's Kharch.`, false);
+                        }
+                        renderExpense();
+                    }
+                    $('kpOverlay').classList.remove('open');
+                    renderTotals(); await saveDay();
+                });
+                list.appendChild(div);
+            });
+        }
+
+        $('kpSearchInput').addEventListener('input', () => {
+            const q = $('kpSearchInput').value.trim().toLowerCase();
+            if (!q) { renderKpList(kpAllEntries); return; }
+            const filtered = kpAllEntries.filter(item =>
+                (item.name && item.name.toLowerCase().includes(q)) ||
+                (item.category && item.category.toLowerCase().includes(q)) ||
+                (item.master && item.master.toLowerCase().includes(q)) ||
+                (item.note && item.note.toLowerCase().includes(q))
+            );
+            renderKpList(filtered);
+        });
+        $('kpClose').addEventListener('click', () => $('kpOverlay').classList.remove('open'));
+        $('kpOverlay').addEventListener('click', e => { if (e.target === $('kpOverlay')) $('kpOverlay').classList.remove('open'); });
+        if ($('kpMasterBtn')) {
+            $('kpMasterBtn').addEventListener('click', () => {
+                $('kpOverlay').classList.remove('open');
+                openModal();
+            });
+        }
+
+        /* ── SEARCH ── */
+        function openSearchModal() { $('searchOverlay').classList.add('open'); $('searchInput').value = ''; $('searchResults').innerHTML = ''; setTimeout(() => $('searchInput').focus(), 80); }
+        function closeSearchModal() { $('searchOverlay').classList.remove('open'); }
+        $('searchBtn').addEventListener('click', openSearchModal);
+        $('closeSearchModal').addEventListener('click', closeSearchModal);
+        $('searchOverlay').addEventListener('click', e => { if (e.target === $('searchOverlay')) closeSearchModal(); });
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeModal(); closeSearchModal(); closeReportModal(); } });
+
+        async function getAllKeys() {
+            let keys = [];
+            if (window.storage && window.storage.list) { try { let r = await window.storage.list(); if (r && r.keys) keys = r.keys; } catch (e) { } }
+            else { for (let i = 0; i < localStorage.length; i++) keys.push(localStorage.key(i)); }
+            return keys;
+        }
+        let searchTimeout;
+        $('searchInput').addEventListener('input', e => {
+            clearTimeout(searchTimeout);
+            const q = e.target.value.trim().toLowerCase();
+            if (!q) { $('searchResults').innerHTML = ''; return; }
+            searchTimeout = setTimeout(async () => {
+                $('searchResults').innerHTML = '<div class="search-empty">Searching...</div>';
+                let results = [];
+                const keys = await getAllKeys();
+                for (let key of keys) {
+                    if (key && key.startsWith('khata:day:')) {
+                        const dateStr = key.replace('khata:day:', '');
+                        try {
+                            const ds = await storageGet(key);
+                            if (ds) {
+                                const d = JSON.parse(ds);
+                                (d.income || []).forEach(item => {
+                                    if ((item.name && item.name.toLowerCase().includes(q)) || (item.amount && item.amount.toString().includes(q)) || (item.category && item.category.toLowerCase().includes(q)) || (item.master && item.master.toLowerCase().includes(q)) || (item.note && item.note.toLowerCase().includes(q)))
+                                        results.push({ ...item, _date: dateStr, _type: 'Income' });
+                                });
+                                (d.expense || []).forEach(item => {
+                                    if ((item.name && item.name.toLowerCase().includes(q)) || (item.amount && item.amount.toString().includes(q)) || (item.category && item.category.toLowerCase().includes(q)) || (item.master && item.master.toLowerCase().includes(q)) || (item.note && item.note.toLowerCase().includes(q)))
+                                        results.push({ ...item, _date: dateStr, _type: 'Expense' });
+                                });
+                            }
+                        } catch (err) { }
+                    }
+                }
+                results.sort((a, b) => new Date(b._date) - new Date(a._date));
+                renderSearchResults(results);
+            }, 300);
+        });
+        function renderSearchResults(results) {
+            const w = $('searchResults'); w.innerHTML = '';
+            if (!results.length) { w.innerHTML = '<div class="search-empty">No results found.</div>'; return; }
+            results.forEach(item => {
+                const div = document.createElement('div'); div.className = 'search-result-item';
+                const isInc = item._type === 'Income';
+                const dateLabel = fromKey(item._date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+                let metaHtml = '';
+                if (item.category) metaHtml += `<span class="tag cat">${escHtml(item.category)}</span>`;
+                if (item.master) metaHtml += `<span class="tag" style="background:var(--gold-bg);color:var(--gold)">${escHtml(item.master)}</span>`;
+                if (item.note) metaHtml += `<span style="font-size:11px;color:var(--ink-soft)">📝 ${escHtml(item.note)}</span>`;
+                div.innerHTML = `
+                <div class="sr-left">
+                    <div class="sr-date">${dateLabel}</div>
+                    <div class="sr-name">${escHtml(item.name || '')}</div>
+                    ${metaHtml ? `<div class="sr-meta">${metaHtml}</div>` : ''}
+                </div>
+                <div class="sr-right">
+                    <div class="sr-amount ${isInc ? 'inc' : 'exp'}">${(Number(item.amount) < 0 ? '−' : '') + rupee(item.amount || 0)}</div>
+                    <div class="sr-type">${item._type}</div>
+                </div>`;
+                div.addEventListener('click', () => { closeSearchModal(); goToDate(fromKey(item._date)); });
+                w.appendChild(div);
+            });
+        }
+
+        /* ── REPORT ── */
+        // ── CROSS-TAB SYNC ──
+        const syncChannel = (() => { try { return new BroadcastChannel('khata_sync'); } catch (e) { return { postMessage: () => { }, addEventListener: () => { } }; } })();
+        syncChannel.addEventListener('message', async (ev) => {
+            if (!ev.data) return;
+            if (ev.data.type === 'day-updated') {
+                await loadCategories();
+                await loadMasters();
+                await loadMasterEntries();
+                await loadWorkers();
+                rebuildCatSelect();
+                rebuildMasterSelect();
+                rebuildWorkerDatalist();
+                await loadDay();
+                renderIncome();
+                renderExpense();
+                renderTotals();
+            }
+        });
+
+        let repCatFilter = ''; // currently selected category filter
+        function openReportModal() {
+            repCatFilter = '';
+            $('reportOverlay').classList.add('open');
+            buildRepCatPills();
+            buildReport();
+        }
+        function closeReportModal() { $('reportOverlay').classList.remove('open'); }
+
+        function buildRepCatPills() {
+            const container = $('repCatPills');
+            if (!container) return;
+            container.innerHTML = '';
+            // 'All' pill
+            const allPill = document.createElement('button');
+            allPill.type = 'button';
+            allPill.textContent = 'All';
+            allPill.dataset.cat = '';
+            allPill.style.cssText = 'padding:5px 14px;border-radius:20px;border:1.5px solid var(--line);background:var(--ink);color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif;transition:all 0.15s;';
+            allPill.addEventListener('click', () => { repCatFilter = ''; buildRepCatPills(); buildReport(); });
+            container.appendChild(allPill);
+            // One pill per category
+            categories.forEach(cat => {
+                const pill = document.createElement('button');
+                pill.type = 'button';
+                pill.textContent = cat;
+                pill.dataset.cat = cat;
+                const isActive = repCatFilter === cat;
+                pill.style.cssText = `padding:5px 14px;border-radius:20px;border:1.5px solid ${isActive ? 'var(--gold)' : 'var(--line)'};background:${isActive ? 'var(--gold-bg)' : 'transparent'};color:${isActive ? 'var(--gold)' : 'var(--ink-soft)'};font-size:12px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif;transition:all 0.15s;`;
+                pill.addEventListener('click', () => {
+                    repCatFilter = isActive ? '' : cat;
+                    buildRepCatPills();
+                    buildReport();
+                });
+                container.appendChild(pill);
+            });
+            // Update 'All' pill active state
+            if (!repCatFilter) {
+                allPill.style.background = 'var(--ink)';
+                allPill.style.color = '#fff';
+            } else {
+                allPill.style.background = 'transparent';
+                allPill.style.color = 'var(--ink-soft)';
+                allPill.style.borderColor = 'var(--line)';
+            }
+        }
+        async function buildReport() {
+            if (!$('reportTableBody')) return;
+            $('reportTableBody').innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--ink-faint);padding:16px;font-style:italic">Loading…</td></tr>';
+            const fromVal = $('repFilterFrom') ? $('repFilterFrom').value : '';
+            const toVal = $('repFilterTo') ? $('repFilterTo').value : '';
+
+            // Build set of names allowed by category filter
+            let catFilteredNames = null;
+            if (repCatFilter) {
+                catFilteredNames = new Set(
+                    masterEntries
+                        .filter(m => m.name && (m.category || '').toLowerCase() === repCatFilter.toLowerCase())
+                        .map(m => m.name.toLowerCase())
+                );
+            }
+
+            function fmtD(dKey) {
+                if (!dKey || dKey === '9999-12-31') return '';
+                const parts = dKey.split('-');
+                if (parts.length !== 3) return '';
+                const [y, m, d] = parts;
+                return `${d}/${m}/${String(y).slice(-2)}`;
+            }
+
+            function fmtDates(datesSet) {
+                if (!datesSet) return '—';
+                const arr = Array.from(datesSet).filter(d => d && d !== '9999-12-31').sort();
+                if (!arr.length) return '—';
+                const first = fmtD(arr[0]);
+                const last = fmtD(arr[arr.length - 1]);
+                if (first === last) return first;
+                return `${first}–${last}`;
+            }
+
+            const keys = await getAllKeys();
+            const dayKeys = keys.filter(k => k && k.startsWith('khata:day:'));
+            const byName = new Map();
+
+            function getRecord(rawName) {
+                const nm = (rawName || '—').trim();
+                const key = nm.toLowerCase();
+                if (catFilteredNames !== null && !catFilteredNames.has(key)) return null;
+                if (!byName.has(key)) {
+                    byName.set(key, { name: nm, inc: 0, exp: 0, dates: new Set() });
+                }
+                return byName.get(key);
+            }
+
+            for (const key of dayKeys) {
+                try {
+                    const dateStr = key.replace('khata:day:', '');
+                    const v = await storageGet(key); if (!v) continue;
+                    const p = JSON.parse(v);
+                    (p.income || []).forEach(e => {
+                        const entryDate = e.date || dateStr;
+                        if (fromVal && entryDate < fromVal) return;
+                        if (toVal && entryDate > toVal) return;
+                        const rec = getRecord(e.name); if (!rec) return;
+                        rec.inc += Number(e.amount || e.aavak || 0);
+                        if (entryDate) rec.dates.add(entryDate);
+                    });
+                    (p.expense || []).forEach(e => {
+                        const entryDate = e.date || dateStr;
+                        if (fromVal && entryDate < fromVal) return;
+                        if (toVal && entryDate > toVal) return;
+                        const rec = getRecord(e.name); if (!rec) return;
+                        rec.exp += Number(e.amount || e.javak || 0);
+                        if (entryDate) rec.dates.add(entryDate);
+                    });
+                } catch (err) { }
+            }
+
+            // Also include manual khata:acc:* entries (added directly in Khata Book)
+            const idToNameMap = new Map();
+            try {
+                const accsRaw = await storageGet('khata:accounts');
+                if (accsRaw) {
+                    const accs = JSON.parse(accsRaw);
+                    accs.forEach(a => {
+                        if (a && a.id && a.name) {
+                            idToNameMap.set(a.id, a.name);
+                            idToNameMap.set(a.name.toLowerCase(), a.name);
+                        }
+                    });
+                }
+            } catch (e) { }
+
+            const accKeys = keys.filter(k => k && k.startsWith('khata:acc:'));
+            for (const key of accKeys) {
+                try {
+                    const v = await storageGet(key); if (!v) continue;
+                    const entries = JSON.parse(v);
+                    if (!Array.isArray(entries)) continue;
+                    const accId = key.replace('khata:acc:', '');
+                    let targetName = idToNameMap.get(accId);
+                    if (!targetName) {
+                        if (accId.startsWith('auto:')) {
+                            targetName = accId.replace('auto:', '');
+                        } else {
+                            targetName = accId;
+                        }
+                    }
+                    entries.forEach(e => {
+                        const entryDate = e.date || '9999-12-31';
+                        if (fromVal && entryDate < fromVal) return;
+                        if (toVal && entryDate > toVal) return;
+                        const aavak = Number(e.aavak || e.amount || 0);
+                        const javak = Number(e.javak || 0);
+                        const rec = getRecord(targetName);
+                        if (rec) {
+                            rec.inc += aavak;
+                            rec.exp += javak;
+                            if (entryDate && entryDate !== '9999-12-31') rec.dates.add(entryDate);
+                        }
+                    });
+                } catch (err) { }
+            }
+
+            if (!fromVal && !toVal) {
+                try {
+                    const accsRaw = await storageGet('khata:accounts');
+                    if (accsRaw) {
+                        const accs = JSON.parse(accsRaw);
+                        accs.forEach(a => { if (a && a.name) { const r = getRecord(a.name); } });
+                    }
+                } catch (e) { }
+            }
+
+            let totalInc = 0, totalExp = 0;
+            const rows = [];
+            byName.forEach(v => {
+                if (fromVal || toVal) {
+                    if (v.inc === 0 && v.exp === 0) return;
+                }
+                totalInc += v.inc;
+                totalExp += v.exp;
+                rows.push({
+                    name: v.name,
+                    inc: v.inc,
+                    exp: v.exp,
+                    net: v.inc - v.exp,
+                    dateLabel: fmtDates(v.dates)
+                });
+            });
+            rows.sort((a, b) => a.name.localeCompare(b.name));
+
+            const netTotal = totalInc - totalExp;
+            $('repTotalInc').textContent = rupee(totalInc);
+            $('repTotalExp').textContent = rupee(totalExp);
+            const netEl = $('repTotalNet');
+            netEl.textContent = (netTotal < 0 ? '−' : '') + rupee(netTotal);
+            netEl.className = 'rs-val ' + (netTotal >= 0 ? 'pos' : 'neg');
+
+            const catLabel = repCatFilter ? ` · Category: ${repCatFilter}` : '';
+            const filterLabel = (fromVal || toVal) ? `Filtered (${fromVal || 'Start'} to ${toVal || 'Today'})${catLabel} · ` : (catLabel ? catLabel.trim() + ' · ' : '');
+            $('reportSub').textContent = `${filterLabel}Summary across ${rows.length} account${rows.length === 1 ? '' : 's'} · Generated ${new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}`;
+
+            const tbody = $('reportTableBody');
+            tbody.innerHTML = '';
+            if (!rows.length) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--ink-faint);padding:16px;font-style:italic">${repCatFilter ? `No entries for category "${repCatFilter}".` : (fromVal || toVal) ? 'No entries in this date range.' : 'No entries yet.'}</td></tr>`;
+                return;
+            }
+            rows.forEach(r => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="font-size:11.5px;color:var(--ink-soft);white-space:nowrap;">${escHtml(r.dateLabel)}</td>
+                    <td>${escHtml(r.name)}</td>
+                    <td class="num pos">${rupee(r.inc)}</td>
+                    <td class="num neg">${rupee(r.exp)}</td>
+                    <td class="num ${r.net >= 0 ? 'pos' : 'neg'}">${(r.net < 0 ? '−' : '') + rupee(r.net)}</td>`;
+                tbody.appendChild(tr);
+            });
+        }
+        if ($('repFilterFrom')) $('repFilterFrom').addEventListener('change', buildReport);
+        if ($('repFilterTo')) $('repFilterTo').addEventListener('change', buildReport);
+        if ($('repFilterClear')) $('repFilterClear').addEventListener('click', () => {
+            if ($('repFilterFrom')) $('repFilterFrom').value = '';
+            if ($('repFilterTo')) $('repFilterTo').value = '';
+            repCatFilter = '';
+            buildRepCatPills();
+            buildReport();
+        });
+        $('reportBtn').addEventListener('click', openReportModal);
+        $('reportClose').addEventListener('click', closeReportModal);
+        $('reportOverlay').addEventListener('click', e => { if (e.target === $('reportOverlay')) closeReportModal(); });
+        $('reportPrintBtn').addEventListener('click', () => window.print());
+
+        /* ── CATEGORY PANELS ── */
+        if ($('catPlusBtn')) $('catPlusBtn').addEventListener('click', async () => { togglePanel('catAddPanel', 'catPlusBtn'); await renderCatListContainer(); });
+        if ($('namePlusBtn')) $('namePlusBtn').addEventListener('click', async () => { togglePanel('nameAddPanel', 'namePlusBtn'); await renderNameListContainer(); });
+        if ($('masterPlusBtn')) $('masterPlusBtn').addEventListener('click', async () => { togglePanel('masterAddPanel', 'masterPlusBtn'); await renderMasterListContainer(); });
+        if ($('expFixed')) $('expFixed').addEventListener('change', () => {
+            const val = $('expFixed').value;
+            if ($('pagarAmountWrap')) $('pagarAmountWrap').style.display = val ? 'block' : 'none';
+            if (!val && $('expPagarAmount')) $('expPagarAmount').value = '';
+        });
+        async function saveCatNew() {
+            const val = $('catNewInput').value.trim(); if (!val) return;
+            if (!categories.includes(val)) { categories.push(val); await saveCategories(); }
+            rebuildCatSelect(); $('expCat').value = val; $('catNewInput').value = ''; togglePanel('catAddPanel', 'catPlusBtn');
+            updateCategoryFields();
+        }
+        if ($('catNewInput')) $('catNewInput').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); saveCatNew(); } });
+
+        async function saveNameNew() {
+            const val = $('nameNewInput').value.trim(); if (!val) return;
+            await addWorkerIfNew(val); rebuildWorkerDatalist();
+            $('expName').value = val; $('nameNewInput').value = ''; togglePanel('nameAddPanel', 'namePlusBtn');
+        }
+        if ($('nameNewInput')) $('nameNewInput').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); saveNameNew(); } });
+
+        async function saveMasterNew() {
+            const val = $('masterNewInput').value.trim(); if (!val) return;
+            if (!masters.includes(val)) { masters.push(val); await saveMasters(); }
+            rebuildMasterSelect(); $('expMaster').value = val; $('masterNewInput').value = ''; togglePanel('masterAddPanel', 'masterPlusBtn');
+        }
+        if ($('masterNewInput')) $('masterNewInput').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); saveMasterNew(); } });
+
+        /* ── SAVE HANDLER (Save / Update Master entry) ── */
+        async function saveMasterHandler() {
+            if ($('masterCompanyName') && $('masterCompanyName').value.trim()) {
+                await saveGlobalCompanyName($('masterCompanyName').value.trim());
+            }
+
+            let category = ($('expCat') ? $('expCat').value : '').trim(),
+                master = $('expMaster') ? ($('expMaster').value || '') : '',
+                name = ($('expName') ? $('expName').value : '').trim(),
+                fixedLabel = $('expFixed') ? $('expFixed').value.trim() : '',
+                pagarAmount = $('expPagarAmount') ? $('expPagarAmount').value.trim() : '',
+                note = $('entryNote') ? $('entryNote').value.trim() : '',
+                err = $('entryErr');
+
+            const typedName = ($('nameNewInput') ? $('nameNewInput').value : '').trim();
+            if (!name && typedName) {
+                name = typedName;
+                await addWorkerIfNew(name);
+                await rebuildWorkerDatalist();
+                if ($('expName')) $('expName').value = name;
+                if ($('nameNewInput')) $('nameNewInput').value = '';
+            }
+
+            const typedCat = ($('catNewInput') ? $('catNewInput').value : '').trim();
+            if (!category && typedCat) {
+                category = typedCat;
+                if (!categories.includes(category)) {
+                    categories.push(category);
+                    await saveCategories();
+                }
+                rebuildCatSelect();
+                if ($('expCat')) $('expCat').value = category;
+                if ($('catNewInput')) $('catNewInput').value = '';
+                updateCategoryFields();
+            }
+
+            const typedMaster = ($('masterNewInput') ? $('masterNewInput').value : '').trim();
+            if (!master && typedMaster) {
+                master = typedMaster;
+                if (!masters.includes(master)) {
+                    masters.push(master);
+                    await saveMasters();
+                }
+                rebuildMasterSelect();
+                if ($('expMaster')) $('expMaster').value = master;
+                if ($('masterNewInput')) $('masterNewInput').value = '';
+            }
+
+            if (!name) {
+                const compInput = $('masterCompanyName') ? $('masterCompanyName').value.trim() : '';
+                if (compInput) {
+                    closeModal();
+                    return;
+                }
+                err.textContent = 'Enter a name.'; err.style.display = 'block'; return;
+            }
+
+            const existingIdx = masterEntries.findIndex(m => m.name && m.name.toLowerCase() === name.toLowerCase());
+            if (existingIdx !== -1) {
+                masterEntries[existingIdx].category = category;
+                masterEntries[existingIdx].master = master;
+                masterEntries[existingIdx].fixedLabel = fixedLabel;
+                masterEntries[existingIdx].pagarAmount = pagarAmount;
+                masterEntries[existingIdx].note = note;
+            } else {
+                const entry = { id: uid(), category, master, name, amount: 0, fixedLabel, pagarAmount, note, _type: 'income', _dateKey: toKey(currentDate) };
+                masterEntries.push(entry);
+            }
+            await saveMasterEntries();
+            await addWorkerIfNew(name);
+
+            // Register in Khata Book accounts list so it appears in Khata Book immediately
+            try {
+                let accs = [];
+                const v = await storageGet('khata:accounts');
+                if (v) accs = JSON.parse(v) || [];
+                if (!accs.some(a => a && a.name && a.name.toLowerCase() === name.toLowerCase())) {
+                    accs.push({ id: uid(), name });
+                    await storageSet('khata:accounts', JSON.stringify(accs));
+                }
+            } catch (e) { }
+
+            // Un-hide from suggestions list if previously hidden
+            try {
+                const v = await storageGet('khata:hidden_sugg');
+                if (v) {
+                    let hidden = JSON.parse(v);
+                    if (Array.isArray(hidden)) {
+                        const nameLower = name.toLowerCase();
+                        hidden = hidden.filter(k => !k.toLowerCase().startsWith(nameLower + '|'));
+                        await storageSet('khata:hidden_sugg', JSON.stringify(hidden));
+                    }
+                }
+            } catch (e) { }
+
+            // Update any existing entry for this name in today's sheet
+            const nameLower = name.toLowerCase();
+            let dayChanged = false;
+            dayData.income.forEach(e => {
+                if ((e.name || '').toLowerCase() === nameLower) {
+                    if (category) e.category = category;
+                    if (master) e.master = master;
+                    if (fixedLabel) e.fixedLabel = fixedLabel;
+                    if (pagarAmount) e.pagarAmount = pagarAmount;
+                    if (note) e.note = note;
+                    dayChanged = true;
+                }
+            });
+            dayData.expense.forEach(e => {
+                if ((e.name || '').toLowerCase() === nameLower) {
+                    if (category) e.category = category;
+                    if (master) e.master = master;
+                    if (fixedLabel) e.fixedLabel = fixedLabel;
+                    if (note) e.note = note;
+                    dayChanged = true;
+                }
+            });
+
+            if (dayChanged) {
+                renderIncome();
+                renderExpense();
+                renderTotals();
+                await saveDay();
+            }
+
+            try { syncChannel.postMessage({ type: 'day-updated' }); } catch (e) { }
+
+            closeModal();
+            setStatus(`Saved changes for "${name}".`, false);
+        }
+
+        $('entrySave').addEventListener('click', saveMasterHandler);
+        if ($('saveChangeBtn')) $('saveChangeBtn').addEventListener('click', saveMasterHandler);
+        if ($('saveCompanyNameBtn')) {
+            $('saveCompanyNameBtn').addEventListener('click', async () => {
+                const btn = $('saveCompanyNameBtn');
+                const compVal = ($('masterCompanyName') ? $('masterCompanyName').value : '').trim();
+                await saveGlobalCompanyName(compVal);
+                btn.textContent = '✓ Saved!';
+                btn.style.background = '#3D7A5A';
+                setTimeout(() => {
+                    btn.textContent = 'Save Name';
+                    btn.style.background = 'var(--ink)';
+                }, 1500);
+            });
+        }
+
+        /* ── DATE NAV ── */
+        async function goToDate(d) {
+            currentDate = d; renderDateBar(); setStatus('Loading…', false);
+            await loadDay(); await loadPrevNet();
+            renderIncome(); renderExpense(); renderTotals(); setStatus('', false);
+        }
+        $('prevDay').addEventListener('click', () => { const d = new Date(currentDate); d.setDate(d.getDate() - 1); goToDate(d); });
+        $('nextDay').addEventListener('click', () => { const d = new Date(currentDate); d.setDate(d.getDate() + 1); goToDate(d); });
+        $('datePicker').addEventListener('change', e => { if (e.target.value) goToDate(fromKey(e.target.value)); });
+        $('dateLabel').addEventListener('dblclick', () => {
+            const picker = $('datePicker');
+            picker.style.position = 'absolute'; picker.style.opacity = '0';
+            picker.style.pointerEvents = 'auto'; picker.style.width = '1px'; picker.style.height = '1px';
+            try { picker.showPicker(); } catch (e) { picker.click(); }
+            setTimeout(() => { picker.style.pointerEvents = 'none'; picker.style.width = '0'; picker.style.height = '0'; }, 500);
+        });
+
+        /* ── INIT ── */
+        (async function init() {
+            await loadCategories(); await loadMasters(); await loadWorkers(); await loadMasterEntries();
+            await deleteWorkerOrAccountName('goving', true);
+            await deleteWorkerOrAccountName('govind', true);
+            renderDateBar(); await loadDay(); await loadPrevNet();
+            renderIncome(); renderExpense(); renderTotals();
+        })();
+    </script>
+</body>
+
+</html>

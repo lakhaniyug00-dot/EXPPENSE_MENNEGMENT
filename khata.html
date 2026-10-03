@@ -1,0 +1,2328 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Khata Book · Aavak &amp; Javak</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&family=Outfit:wght@400;600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #F5F3EE;
+            --paper: #FAFAF7;
+            --paper-card: #FFFFFF;
+            --ink: #1A1A1A;
+            --ink-soft: #5A5A5A;
+            --ink-faint: #9A9A9A;
+            --line: #E8E5DE;
+            --moss: #3D7A5A;
+            --moss-bg: #EDF4F0;
+            --rust: #C24E1E;
+            --rust-bg: #FDF0EB;
+            --gold: #A0701A;
+            --gold-bg: #FDF5E6;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--ink);
+            min-height: 100vh;
+        }
+
+        /* ── HEADER ── */
+        .top {
+            background: var(--paper-card);
+            border-bottom: 1px solid var(--line);
+            padding: 14px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .top-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .top-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .icon-btn {
+            background: none;
+            border: 1.5px solid var(--line);
+            border-radius: 8px;
+            width: 36px;
+            height: 36px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            cursor: pointer;
+            color: var(--ink-soft);
+            transition: background 0.15s, border-color 0.15s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .icon-btn:hover {
+            background: var(--bg);
+            border-color: var(--ink-faint);
+        }
+
+        .report-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            height: 36px;
+            padding: 0 14px;
+            background: var(--paper-card);
+            color: var(--ink);
+            border: 1.5px solid var(--line);
+            border-radius: 9px;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 0.2px;
+            cursor: pointer;
+            transition: all 0.18s ease;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+            white-space: nowrap;
+        }
+
+        .report-btn:hover {
+            background: var(--ink);
+            color: #ffffff;
+            border-color: var(--ink);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.12);
+            transform: translateY(-1px);
+        }
+
+        .report-btn:active {
+            transform: translateY(0);
+        }
+
+        .back-btn {
+            background: none;
+            border: 1.5px solid var(--line);
+            border-radius: 8px;
+            padding: 6px 12px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--ink-soft);
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .back-btn:hover {
+            background: var(--bg);
+        }
+
+        .logo {
+            font-family: 'Outfit', sans-serif;
+            font-size: 20px;
+            font-weight: 800;
+        }
+
+        .logo span {
+            color: var(--moss);
+        }
+
+        .add-btn {
+            background: var(--moss);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            padding: 9px 18px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: opacity 0.15s;
+        }
+
+        .add-btn:hover {
+            opacity: 0.88;
+        }
+
+        /* ── WRAP ── */
+        .wrap {
+            max-width: 760px;
+            margin: 0 auto;
+            padding: 20px 14px 60px;
+        }
+
+        /* ── ACCOUNT CARDS ── */
+        .accounts-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .section-hdr {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 15px;
+            font-weight: 800;
+            padding: 6px 4px 2px;
+            margin-top: 6px;
+        }
+
+        .section-hdr.inc {
+            color: var(--moss);
+        }
+
+        .section-hdr.exp {
+            color: var(--rust);
+        }
+
+        .section-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .section-dot.inc {
+            background: var(--moss);
+        }
+
+        .section-dot.exp {
+            background: var(--rust);
+        }
+
+        .account-card {
+            background: var(--paper-card);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: 16px;
+            cursor: pointer;
+            transition: box-shadow 0.15s, transform 0.1s;
+        }
+
+        .account-card:hover {
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            transform: translateY(-1px);
+        }
+
+        .account-hdr {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .account-name {
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .account-net {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .account-net.pos {
+            color: var(--moss);
+        }
+
+        .account-net.neg {
+            color: var(--rust);
+        }
+
+        .account-cols {
+            display: flex;
+            gap: 10px;
+        }
+
+        .account-col {
+            flex: 1;
+            background: var(--bg);
+            border-radius: 8px;
+            padding: 9px 12px;
+        }
+
+        .col-label {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 3px;
+        }
+
+        .col-label.inc {
+            color: var(--moss);
+        }
+
+        .col-label.exp {
+            color: var(--rust);
+        }
+
+        .col-val {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        /* ── DETAIL VIEW ── */
+        .detail-view {
+            display: none;
+        }
+
+        .detail-view.active {
+            display: block;
+        }
+
+        .accounts-view.hidden {
+            display: none;
+        }
+
+        .detail-hdr {
+            margin-bottom: 12px;
+        }
+
+        .detail-title-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 18px;
+            gap: 12px;
+        }
+
+        .detail-name {
+            font-family: 'Outfit', sans-serif;
+            font-size: 28px;
+            font-weight: 800;
+        }
+
+        .net-val {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 24px;
+            font-weight: 800;
+        }
+
+        .net-val.pos {
+            color: var(--moss);
+        }
+
+        .net-val.neg {
+            color: var(--rust);
+        }
+
+        /* ── TWO-PANEL BOARD ── */
+        .board {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .panel {
+            background: var(--paper-card);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel h2 {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 15px;
+            font-weight: 800;
+            padding: 13px 14px 10px;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .panel.income h2 {
+            color: var(--moss);
+        }
+
+        .panel.expense h2 {
+            color: var(--rust);
+        }
+
+        .dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .dot.income {
+            background: var(--moss);
+        }
+
+        .dot.expense {
+            background: var(--rust);
+        }
+
+        .panel-rows {
+            flex: 1;
+        }
+
+        .p-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--line);
+            gap: 6px;
+        }
+
+        .p-row:last-child {
+            border-bottom: none;
+        }
+
+        .p-row:hover {
+            background: var(--bg);
+        }
+
+        .p-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .p-date {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--ink-faint);
+        }
+
+        .p-note {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--ink);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .p-amt {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .p-amt.inc {
+            color: var(--moss);
+        }
+
+        .p-amt.exp {
+            color: var(--rust);
+        }
+
+        .p-del {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--ink-faint);
+            font-size: 13px;
+            padding: 2px 5px;
+            border-radius: 5px;
+            flex-shrink: 0;
+        }
+
+        .p-del:hover {
+            color: var(--rust);
+            background: var(--rust-bg);
+        }
+
+        .panel-total {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 12px;
+            background: var(--bg);
+            border-top: 2px solid var(--line);
+        }
+
+        .panel-total span {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            color: var(--ink-soft);
+        }
+
+        .panel-total b {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            font-weight: 800;
+        }
+
+        .panel.income .panel-total b {
+            color: var(--moss);
+        }
+
+        .panel.expense .panel-total b {
+            color: var(--rust);
+        }
+
+        .empty-panel {
+            padding: 24px 12px;
+            text-align: center;
+            color: var(--ink-faint);
+            font-size: 12px;
+            font-style: italic;
+        }
+
+        /* ── DATE FILTER ── */
+        .date-filter {
+            background: var(--paper-card);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: 13px 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+        }
+
+        .date-filter-label {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--ink-soft);
+            white-space: nowrap;
+        }
+
+        .date-inputs {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+            flex-wrap: wrap;
+        }
+
+        .date-input {
+            padding: 8px 11px;
+            background: var(--bg);
+            border: 1.5px solid var(--line);
+            border-radius: 9px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--ink);
+            font-family: 'Inter', sans-serif;
+            outline: none;
+            transition: border-color 0.15s;
+            cursor: pointer;
+        }
+
+        .date-input:focus {
+            border-color: var(--moss);
+        }
+
+        .date-sep {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--ink-faint);
+        }
+
+        .filter-clear-btn {
+            background: none;
+            border: 1.5px solid var(--line);
+            border-radius: 8px;
+            padding: 7px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--ink-soft);
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            white-space: nowrap;
+            transition: all 0.15s;
+        }
+
+        .filter-clear-btn:hover {
+            background: var(--rust-bg);
+            border-color: var(--rust);
+            color: var(--rust);
+        }
+
+        .filter-active-badge {
+            background: var(--moss-bg);
+            color: var(--moss);
+            border-radius: 20px;
+            padding: 3px 10px;
+            font-size: 11px;
+            font-weight: 700;
+            display: none;
+        }
+
+        .filter-active-badge.show {
+            display: inline-block;
+        }
+
+        @media (max-width: 520px) {
+            .board {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ── ENTRY FORM ── */
+        .entry-form {
+            background: var(--paper-card);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: 18px;
+        }
+
+        .entry-form h3 {
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 14px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .form-field {
+            flex: 1;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--ink-soft);
+            margin-bottom: 5px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 11px 12px;
+            background: var(--bg);
+            border: 1.5px solid var(--line);
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--ink);
+            font-family: 'Inter', sans-serif;
+            outline: none;
+            transition: border-color 0.15s;
+        }
+
+        .form-input:focus {
+            border-color: var(--moss);
+        }
+
+        /* hide spinners */
+        .form-input[type=number]::-webkit-outer-spin-button,
+        .form-input[type=number]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+        }
+
+        .form-input[type=number] {
+            -moz-appearance: textfield;
+        }
+
+        .type-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .type-btn {
+            flex: 1;
+            padding: 11px;
+            border: 2px solid var(--line);
+            border-radius: 10px;
+            background: none;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.15s;
+        }
+
+        .type-btn.inc.sel {
+            border-color: var(--moss);
+            background: var(--moss-bg);
+            color: var(--moss);
+        }
+
+        .type-btn.exp.sel {
+            border-color: var(--rust);
+            background: var(--rust-bg);
+            color: var(--rust);
+        }
+
+        .save-btn {
+            width: 100%;
+            padding: 13px;
+            background: var(--moss);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: opacity 0.15s;
+            margin-top: 2px;
+        }
+
+        .save-btn:hover {
+            opacity: 0.88;
+        }
+
+        /* ── NEW ACCOUNT MODAL ── */
+        .overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.45);
+            backdrop-filter: blur(4px);
+            z-index: 200;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .overlay.open {
+            display: flex;
+        }
+
+        .modal-box {
+            background: var(--paper-card);
+            border-radius: 18px;
+            padding: 26px;
+            width: min(360px, 92vw);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-box h3 {
+            font-size: 18px;
+            font-weight: 800;
+            margin-bottom: 6px;
+        }
+
+        .modal-box p {
+            font-size: 13px;
+            color: var(--ink-soft);
+            margin-bottom: 16px;
+        }
+
+        .modal-btns {
+            display: flex;
+            gap: 8px;
+            margin-top: 14px;
+        }
+
+        .modal-cancel {
+            flex: 1;
+            padding: 11px;
+            border: 1.5px solid var(--line);
+            border-radius: 10px;
+            background: none;
+            color: var(--ink-soft);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* ── SEARCH / REPORT MODALS ── */
+        .rs-modal {
+            background: var(--paper-card);
+            border-radius: 18px;
+            padding: 22px;
+            width: min(480px, 92vw);
+            max-height: 82vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+
+        .rs-modal h3 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 18px;
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
+
+        .rs-modal .rs-sub {
+            font-size: 12.5px;
+            color: var(--ink-soft);
+            margin-bottom: 14px;
+        }
+
+        .rs-close {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            border: none;
+            background: transparent;
+            font-size: 16px;
+            color: var(--ink-soft);
+            cursor: pointer;
+            padding: 4px 7px;
+            border-radius: 6px;
+        }
+
+        .rs-close:hover {
+            background: var(--bg);
+        }
+
+        .rs-search-input {
+            width: 100%;
+            padding: 11px 12px;
+            background: var(--bg);
+            border: 1.5px solid var(--line);
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--ink);
+            font-family: 'Inter', sans-serif;
+            outline: none;
+            margin-bottom: 12px;
+        }
+
+        .rs-search-input:focus {
+            border-color: var(--moss);
+        }
+
+        .rs-result {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 12px;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            background: var(--bg);
+            transition: border-color 0.15s;
+        }
+
+        .rs-result:hover {
+            border-color: var(--moss);
+        }
+
+        .rs-result-left {
+            min-width: 0;
+        }
+
+        .rs-result-name {
+            font-size: 13.5px;
+            font-weight: 700;
+        }
+
+        .rs-result-meta {
+            font-size: 11px;
+            color: var(--ink-soft);
+            margin-top: 2px;
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .rs-result-amt {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            font-size: 14px;
+            flex-shrink: 0;
+            margin-left: 8px;
+        }
+
+        .rs-result-amt.inc {
+            color: var(--moss);
+        }
+
+        .rs-result-amt.exp {
+            color: var(--rust);
+        }
+
+        .rs-empty {
+            text-align: center;
+            color: var(--ink-faint);
+            font-style: italic;
+            padding: 24px 0;
+            font-size: 13px;
+        }
+
+        /* ── REPORT ── */
+        .report-summary {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .report-stat {
+            background: var(--bg);
+            border-radius: 10px;
+            padding: 12px 10px;
+            text-align: center;
+        }
+
+        .report-stat .rs-label {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            color: var(--ink-soft);
+            margin-bottom: 4px;
+        }
+
+        .report-stat .rs-val {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 800;
+            font-size: 15px;
+        }
+
+        .report-stat.inc .rs-val {
+            color: var(--moss);
+        }
+
+        .report-stat.exp .rs-val {
+            color: var(--rust);
+        }
+
+        .report-stat.net .rs-val.pos {
+            color: var(--moss);
+        }
+
+        .report-stat.net .rs-val.neg {
+            color: var(--rust);
+        }
+
+        .report-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12.5px;
+        }
+
+        .report-table th {
+            text-align: left;
+            font-size: 10.5px;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            color: var(--ink-soft);
+            padding: 6px 8px;
+            border-bottom: 2px solid var(--line);
+        }
+
+        .report-table td {
+            padding: 8px;
+            border-bottom: 1px solid var(--line);
+            font-weight: 600;
+        }
+
+        .report-table td.num {
+            font-family: 'JetBrains Mono', monospace;
+            text-align: right;
+        }
+
+        .report-table td.num.pos {
+            color: var(--moss);
+        }
+
+        .report-table td.num.neg {
+            color: var(--rust);
+        }
+
+        .report-print-btn {
+            width: 100%;
+            padding: 11px;
+            background: var(--moss);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 14px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .report-print-btn:hover {
+            opacity: 0.88;
+        }
+
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+
+            #reportOverlay,
+            #reportOverlay * {
+                visibility: visible;
+            }
+
+            #reportOverlay {
+                position: absolute;
+                inset: 0;
+                background: #fff;
+            }
+
+            .rs-close,
+            .report-print-btn {
+                display: none !important;
+            }
+        }
+
+        /* ── STATUS ── */
+        .status-bar {
+            position: fixed;
+            bottom: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--ink);
+            color: #fff;
+            padding: 9px 22px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            z-index: 999;
+            white-space: nowrap;
+        }
+
+        .status-bar.show {
+            opacity: 1;
+        }
+
+        @media (max-width: 480px) {
+            .form-row {
+                flex-direction: column;
+            }
+
+            .detail-name {
+                font-size: 20px;
+            }
+        }
+
+        .master-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            background: var(--ink);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            letter-spacing: 0.2px;
+            transition: opacity 0.15s;
+        }
+
+        .master-btn:hover {
+            opacity: 0.88;
+        }
+
+        .master-btn .icon {
+            width: 16px;
+            height: 16px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 3px;
+        }
+
+        .master-btn .icon span {
+            display: block;
+            height: 2px;
+            background: #fff;
+            border-radius: 2px;
+        }
+
+        .master-btn .icon span:nth-child(1) {
+            width: 14px;
+        }
+
+        .master-btn .icon span:nth-child(2) {
+            width: 9px;
+        }
+
+        .master-btn .icon span:nth-child(3) {
+            width: 14px;
+        }
+
+        .picker-btn {
+            display: inline-block;
+            padding: 8px 14px;
+            background: var(--moss-bg);
+            color: var(--moss);
+            border: 1px dashed var(--moss);
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            margin: 10px auto;
+            transition: background 0.15s;
+        }
+
+        .picker-btn:hover {
+            background: #dceada;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="top">
+        <div class="top-left">
+            <a class="back-btn" href="dilyex.html">← Rojmel</a>
+            <a class="back-btn" href="pagar.html"
+                style="background:var(--gold-bg);color:var(--gold);border-color:var(--gold);font-weight:700;">💼
+                Pagar</a>
+            <div class="logo">Khata <span>Book</span></div>
+        </div>
+        <div class="top-right">
+            <button class="backup-data-btn" id="backupDataBtn" style="background:#2563eb;color:#ffffff;border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:4px;box-shadow:0 1px 3px rgba(0,0,0,0.12);" title="Save, Export & Import Data Backup">💾 Data</button>
+            <button class="report-btn" id="reportBtn" title="Report">Report</button>
+            <button class="icon-btn" id="searchBtn" title="Search">🔍</button>
+        </div>
+    </header>
+
+    <!-- ACCOUNTS LIST VIEW -->
+    <div class="accounts-view" id="accountsView">
+        <div class="wrap">
+            <div class="accounts-grid" id="accountsGrid">
+                <div style="text-align:center;color:var(--ink-faint);padding:40px;font-style:italic">Loading…</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DETAIL / LEDGER VIEW -->
+    <div class="detail-view" id="detailView">
+        <div class="wrap">
+            <div class="detail-hdr">
+                <button class="back-btn" id="backToList">← All Khata</button>
+            </div>
+
+            <div class="detail-title-row">
+                <div style="display:flex;flex-direction:row;align-items:center;gap:10px;flex-wrap:wrap;min-width:0;">
+                    <div class="detail-name" id="detailName">—</div>
+                    <div id="detailTags" style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;"></div>
+                </div>
+                <div class="net-val pos" id="detailNet">₹0</div>
+            </div>
+
+            <!-- DATE RANGE FILTER -->
+            <div class="date-filter">
+                <div class="date-filter-label">📅 Filter</div>
+                <div class="date-inputs">
+                    <input type="date" class="date-input" id="filterFrom" title="From Date">
+                    <span class="date-sep">→</span>
+                    <input type="date" class="date-input" id="filterTo" title="To Date">
+                </div>
+                <span class="filter-active-badge" id="filterBadge">Filtered</span>
+                <button class="filter-clear-btn" id="filterClear" onclick="clearDateFilter()">✕ Clear</button>
+            </div>
+
+            <div class="board">
+                <!-- AAVAK PANEL -->
+                <section class="panel income">
+                    <h2><span class="dot income"></span>Aavak</h2>
+                    <div class="panel-rows" id="aavakRows"></div>
+                    <div class="panel-total">
+                        <span>Total Aavak</span>
+                        <b id="totalAavak">₹0</b>
+                    </div>
+                </section>
+                <!-- JAVAK PANEL -->
+                <section class="panel expense">
+                    <h2><span class="dot expense"></span>Javak</h2>
+                    <div class="panel-rows" id="javakRows"></div>
+                    <div class="panel-total">
+                        <span>Total Javak</span>
+                        <b id="totalJavak">₹0</b>
+                    </div>
+                </section>
+            </div>
+
+
+        </div>
+    </div>
+
+    <!-- SEARCH MODAL -->
+    <div class="overlay" id="searchOverlay">
+        <div class="rs-modal">
+            <button class="rs-close" id="searchClose">✕</button>
+            <h3>Search Khata</h3>
+            <div class="rs-sub">Search accounts and entries — by name, note, date or amount</div>
+            <input type="text" class="rs-search-input" id="khataSearchInput" placeholder="Type to search…"
+                autocomplete="off">
+            <div id="khataSearchResults"></div>
+        </div>
+    </div>
+
+    <!-- REPORT MODAL -->
+    <div class="overlay" id="reportOverlay">
+        <div class="rs-modal">
+            <button class="rs-close" id="reportClose">✕</button>
+            <h3>Khata Report</h3>
+            <div class="rs-sub" id="reportSub">Summary across all accounts</div>
+
+            <!-- REPORT DATE FILTER -->
+            <div class="rep-date-filter"
+                style="background:var(--bg);border:1.5px solid var(--line);border-radius:12px;padding:10px 14px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+                <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;flex:1;">
+                    <div
+                        style="font-size:11px;font-weight:700;letter-spacing:0.5px;color:var(--ink-soft);text-transform:uppercase;white-space:nowrap;display:flex;align-items:center;gap:4px;">
+                        <span>📅</span> FILTER
+                    </div>
+                    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                        <input type="date" id="repFilterFrom" class="date-input"
+                            style="padding:6px 10px;font-size:12.5px;" title="From Date">
+                        <span class="date-sep">→</span>
+                        <input type="date" id="repFilterTo" class="date-input"
+                            style="padding:6px 10px;font-size:12.5px;" title="To Date">
+                    </div>
+                </div>
+                <button type="button" id="repFilterClear" class="filter-clear-btn"
+                    style="padding:5px 11px;font-size:12px;">✕ Clear</button>
+            </div>
+
+            <!-- CATEGORY FILTER PILLS -->
+            <div id="repCatPills" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;"></div>
+
+            <div class="report-summary">
+                <div class="report-stat inc">
+                    <div class="rs-label">Total Aavak</div>
+                    <div class="rs-val" id="repTotalInc">₹0</div>
+                </div>
+                <div class="report-stat exp">
+                    <div class="rs-label">Total Javak</div>
+                    <div class="rs-val" id="repTotalExp">₹0</div>
+                </div>
+                <div class="report-stat net">
+                    <div class="rs-label">Net</div>
+                    <div class="rs-val" id="repTotalNet">₹0</div>
+                </div>
+            </div>
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th style="width:105px;">Date</th>
+                        <th>Account</th>
+                        <th style="text-align:right">Aavak</th>
+                        <th style="text-align:right">Javak</th>
+                        <th style="text-align:right">Net</th>
+                    </tr>
+                </thead>
+                <tbody id="reportTableBody"></tbody>
+            </table>
+            <button class="report-print-btn" id="reportPrintBtn">🖨️ Print Report</button>
+        </div>
+    </div>
+
+    <!-- ADD MASTER MODAL -->
+    <div class="overlay" id="masterOverlay">
+        <div class="rs-modal" style="width:min(420px, 92vw);">
+            <button class="rs-close" id="masterClose">✕</button>
+            <h3>Add Master</h3>
+            <div class="rs-sub">Fill in details to save to Master entries list &amp; Khata Book</div>
+
+            <div style="display:flex;flex-direction:column;gap:10px;margin-top:12px;">
+                <!-- COMPANY NAME FIELD -->
+                <div style="padding-bottom:10px;border-bottom:1px dashed var(--line);">
+                    <label
+                        style="display:block;font-size:12px;font-weight:700;color:var(--ink-soft);margin-bottom:4px;">
+                        🏢 Company Name
+                    </label>
+                    <input type="text" id="masterCompanyName" placeholder="e.g. TAPU FAB" value="TAPU FAB"
+                        class="form-input" style="width:100%;">
+                </div>
+                <div>
+                    <label
+                        style="display:block;font-size:11px;font-weight:700;color:var(--ink-soft);margin-bottom:4px;text-transform:uppercase;">1. Name (Account or Worker)</label>
+                    <input type="text" id="expName" list="workerDatalist" class="form-input" placeholder="Type or select name..." autocomplete="off" style="width:100%;">
+                    <datalist id="workerDatalist"></datalist>
+                </div>
+                <div>
+                    <label
+                        style="display:block;font-size:11px;font-weight:700;color:var(--ink-soft);margin-bottom:4px;text-transform:uppercase;">2. Category</label>
+                    <select id="expCat" class="form-input"></select>
+                </div>
+                <div>
+                    <label
+                        style="display:block;font-size:11px;font-weight:700;color:var(--ink-soft);margin-bottom:4px;text-transform:uppercase;">3. 💼 Pagar Type</label>
+                    <select id="expPagarType" class="form-input">
+                        <option value="">-- Select Pagar Type --</option>
+                        <option value="fix">Fix Pagar (Fixed Salary)</option>
+                        <option value="daily">Daily Pagar (Operator/Karigar)</option>
+                    </select>
+                </div>
+                <div>
+                    <label
+                        style="display:block;font-size:11px;font-weight:700;color:var(--ink-soft);margin-bottom:4px;text-transform:uppercase;">4. Sub Category / Designation</label>
+                    <select id="expMaster" class="form-input"></select>
+                </div>
+                <div>
+                    <label
+                        style="display:block;font-size:11px;font-weight:700;color:var(--ink-soft);margin-bottom:4px;text-transform:uppercase;">5. Amount / Fix Monthly Salary (Optional)</label>
+                    <input type="number" id="expAmount" class="form-input" placeholder="0">
+                </div>
+                <div>
+                    <label
+                        style="display:block;font-size:11px;font-weight:700;color:var(--ink-soft);margin-bottom:4px;text-transform:uppercase;">Note</label>
+                    <input type="text" id="entryNote" class="form-input" placeholder="Optional note">
+                </div>
+                <div id="masterErr" style="color:var(--rust);font-size:12px;font-weight:600;display:none;"></div>
+                <div style="display:flex;gap:8px;margin-top:8px;">
+                    <button class="modal-cancel" id="masterCancel" type="button">Cancel</button>
+                    <button class="add-btn" id="masterSave" type="button" style="flex:1;">Add Master</button>
+                    <button class="add-btn" id="saveChangeBtn" type="button"
+                        style="flex:1;display:none;background:var(--rust,#d9534f);">Save Change</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- KHATA PICKER MODAL -->
+    <div class="overlay" id="kpOverlay">
+        <div class="rs-modal" style="width:min(440px, 92vw);max-height:80vh;display:flex;flex-direction:column;">
+            <button class="rs-close" id="kpClose">✕</button>
+            <h3 id="kpTitle">Tap to Past Income</h3>
+            <div class="rs-sub" id="kpSub">Tap any entry below to add it to Aavak</div>
+            <input type="text" class="rs-search-input" id="kpSearchInput" placeholder="Search past entries..."
+                autocomplete="off">
+            <div id="kpList" style="overflow-y:auto;flex:1;"></div>
+            <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--line);">
+                <button id="kpMasterBtn" type="button"
+                    style="width:100%;padding:10px;background:var(--ink);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:opacity 0.15s;">
+                    ⚙️ Master
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="status-bar" id="statusBar"></div>
+
+    <script>
+        const $ = id => document.getElementById(id);
+        const rupee = n => '₹' + Math.round(Math.abs(n)).toLocaleString('en-IN');
+        const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+        const toKey = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        const escHtml = s => String(s || '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+        // ── STORAGE ──
+        // NOTE: window.storage.get returns {value:...}, so we extract .value — same as dilyex.html
+        const storageGet = async k => {
+            try {
+                if (window.storage) { const r = await window.storage.get(k, false); return r ? r.value : null; }
+                return localStorage.getItem(k);
+            } catch (e) { return null; }
+        };
+        const storageSet = async (k, v) => {
+            try {
+                if (window.storage) return await window.storage.set(k, v, false);
+                localStorage.setItem(k, v); return true;
+            } catch (e) { return false; }
+        };
+        const storageList = async () => {
+            let keys = [];
+            if (window.storage && window.storage.list) { try { const r = await window.storage.list(); if (r && r.keys) keys = r.keys; } catch (e) { } }
+            else { for (let i = 0; i < localStorage.length; i++) keys.push(localStorage.key(i)); }
+            return keys;
+        };
+
+        let accounts = [];
+        let currentAccount = null;
+
+        function setStatus(msg, isErr) {
+            const s = $('statusBar');
+            s.textContent = msg;
+            s.style.background = isErr ? '#C24E1E' : '#2D3436';
+            s.classList.add('show');
+            setTimeout(() => s.classList.remove('show'), 2500);
+        }
+
+        async function loadAccounts() {
+            try { const v = await storageGet('khata:accounts'); if (v) accounts = JSON.parse(v) || []; } catch (e) { accounts = []; }
+        }
+        async function saveAccounts() { await storageSet('khata:accounts', JSON.stringify(accounts)); }
+
+        async function loadManualEntries(accId, accName) {
+            let entries = [];
+            try { const v = await storageGet('khata:acc:' + accId); if (v) entries = entries.concat(JSON.parse(v) || []); } catch (e) { }
+            if (accName) {
+                const autoKey = 'khata:acc:auto:' + accName.toLowerCase();
+                if (autoKey !== 'khata:acc:' + accId) {
+                    try {
+                        const v = await storageGet(autoKey);
+                        if (v) {
+                            const extra = JSON.parse(v) || [];
+                            extra.forEach(e => {
+                                if (!entries.some(existing => existing.id === e.id)) {
+                                    entries.push(e);
+                                }
+                            });
+                        }
+                    } catch (e) { }
+                }
+            }
+            return entries;
+        }
+        async function saveManualEntries(accId, entries) { await storageSet('khata:acc:' + accId, JSON.stringify(entries)); }
+
+        async function getDailyEntries(accountName) {
+            const keys = await storageList();
+            const dayKeys = keys.filter(k => k && k.startsWith('khata:day:'));
+            let entries = [];
+            for (const key of dayKeys) {
+                try {
+                    const dateStr = key.replace('khata:day:', '');
+                    const v = await storageGet(key);
+                    if (!v) continue;
+                    const p = JSON.parse(v);
+                    (p.income || []).forEach(e => {
+                        const nm = (e.name || '').toLowerCase();
+                        const target = accountName.toLowerCase();
+                        if (nm === target)
+                            entries.push({ id: e.id, date: dateStr, aavak: e.amount || 0, javak: 0, note: e.note || '', category: e.category || '', master: e.master || '', fixedLabel: e.fixedLabel || '', pagarAmount: e.pagarAmount || '', _source: 'daily' });
+                    });
+                    (p.expense || []).forEach(e => {
+                        const nm = (e.name || '').toLowerCase();
+                        const target = accountName.toLowerCase();
+                        if (nm === target)
+                            entries.push({ id: e.id, date: dateStr, aavak: 0, javak: e.amount || 0, note: e.note || '', category: e.category || '', master: e.master || '', fixedLabel: e.fixedLabel || '', pagarAmount: e.pagarAmount || '', _source: 'daily' });
+                    });
+                } catch (e) { }
+            }
+            return entries;
+        }
+
+        async function getAccountSummary(acc, fromVal, toVal) {
+            const manual = await loadManualEntries(acc.id, acc.name);
+            const daily = await getDailyEntries(acc.name);
+            let all = [...daily, ...manual];
+            if (fromVal || toVal) {
+                all = all.filter(e => {
+                    const dateStr = e.date || '9999-12-31';
+                    if (fromVal && dateStr < fromVal) return false;
+                    if (toVal && dateStr > toVal) return false;
+                    return true;
+                });
+            }
+            const aavak = all.reduce((s, e) => s + (e.aavak || 0), 0);
+            const javak = all.reduce((s, e) => s + (e.javak || 0), 0);
+            return { aavak, javak, net: aavak - javak };
+        }
+
+        async function getAllKhataNames() {
+            const keys = await storageList();
+            const dayKeys = keys.filter(k => k && k.startsWith('khata:day:'));
+            const seen = new Map();
+            accounts.forEach(a => seen.set(a.name.toLowerCase(), { name: a.name, id: a.id }));
+
+            // Include master entries names as well so they show in Khata Book accounts list
+            masterEntries.forEach(e => {
+                if (e.name && !seen.has(e.name.toLowerCase())) {
+                    seen.set(e.name.toLowerCase(), { name: e.name, id: 'auto:' + e.name.toLowerCase() });
+                }
+            });
+
+            for (const key of dayKeys) {
+                try {
+                    const v = await storageGet(key);
+                    if (!v) continue;
+                    const p = JSON.parse(v);
+                    (p.income || []).forEach(e => { if (e.name && !seen.has(e.name.toLowerCase())) seen.set(e.name.toLowerCase(), { name: e.name, id: 'auto:' + e.name.toLowerCase() }); });
+                    (p.expense || []).forEach(e => { if (e.name && !seen.has(e.name.toLowerCase())) seen.set(e.name.toLowerCase(), { name: e.name, id: 'auto:' + e.name.toLowerCase() }); });
+                } catch (e) { }
+            }
+            return Array.from(seen.values()).sort((a, b) => a.name.localeCompare(b.name));
+        }
+
+        async function getAccountTags(accName) {
+            let category = '', master = '', fixedLabel = '', pagarAmount = '';
+            const me = masterEntries.find(m => m.name && m.name.toLowerCase() === accName.toLowerCase());
+            if (me) {
+                if (me.category) category = me.category;
+                if (me.master) master = me.master;
+                if (me.fixedLabel) fixedLabel = me.fixedLabel;
+                if (me.pagarAmount) pagarAmount = me.pagarAmount;
+            }
+            try {
+                const daily = await getDailyEntries(accName);
+                if (daily.length > 0) {
+                    const sorted = [...daily].sort((a, b) => b.date.localeCompare(a.date));
+                    for (const e of sorted) {
+                        if (!category && e.category) category = e.category;
+                        if (!master && e.master) master = e.master;
+                        if (!fixedLabel && e.fixedLabel) fixedLabel = e.fixedLabel;
+                        if (!pagarAmount && e.pagarAmount) pagarAmount = e.pagarAmount;
+                    }
+                }
+            } catch (e) { }
+            return { category, master, fixedLabel, pagarAmount };
+        }
+
+        async function renderAccountsList() {
+            const grid = $('accountsGrid');
+            grid.innerHTML = '<div style="text-align:center;color:var(--ink-faint);padding:40px;font-style:italic">Loading…</div>';
+            const allAccounts = await getAllKhataNames();
+            grid.innerHTML = '';
+            if (!allAccounts.length) {
+                grid.innerHTML = '<div style="text-align:center;color:var(--ink-faint);padding:50px;font-style:italic">No entries yet in Rojmel.<br>Add income or expense entries first.</div>';
+                return;
+            }
+
+            // Load summaries for all accounts
+            const summaries = [];
+            for (const acc of allAccounts) {
+                const sum = await getAccountSummary(acc);
+                summaries.push({ acc, ...sum });
+            }
+
+            // Show every account together in one list — sorted alphabetically —
+            // instead of splitting into separate Aavak / Kharch sections.
+            summaries.sort((a, b) => a.acc.name.localeCompare(b.acc.name));
+
+            function makeCard({ acc, aavak, javak, net }) {
+                const card = document.createElement('div');
+                card.className = 'account-card';
+                card.innerHTML = `
+                <div class="account-hdr">
+                    <div>
+                        <div class="account-name">${escHtml(acc.name)}</div>
+                    </div>
+                    <div class="account-net ${net >= 0 ? 'pos' : 'neg'}">${net < 0 ? '−' : ''}${rupee(net)}</div>
+                </div>
+                <div class="account-cols">
+                    <div class="account-col">
+                        <div class="col-label inc">Aavak ↑</div>
+                        <div class="col-val">${rupee(aavak)}</div>
+                    </div>
+                    <div class="account-col">
+                        <div class="col-label exp">Javak ↓</div>
+                        <div class="col-val">${rupee(javak)}</div>
+                    </div>
+                </div>`;
+                card.addEventListener('click', () => openDetail(acc));
+                return card;
+            }
+
+            summaries.forEach(s => grid.appendChild(makeCard(s)));
+        }
+
+        async function openDetail(acc) {
+            currentAccount = acc;
+            $('accountsView').classList.add('hidden');
+            $('detailView').classList.add('active');
+            $('reportBtn').style.display = 'none';
+            $('detailName').textContent = acc.name;
+            const tagsEl = $('detailTags');
+            if (tagsEl) {
+                tagsEl.innerHTML = '';
+                const tags = await getAccountTags(acc.name);
+                if (tags.category) {
+                    const t = document.createElement('span');
+                    t.textContent = tags.category;
+                    t.style.cssText = 'font-size:11px;font-weight:700;background:var(--rust-bg);color:var(--rust);padding:3px 9px;border-radius:20px;white-space:nowrap;';
+                    tagsEl.appendChild(t);
+                }
+                if (tags.master) {
+                    const t = document.createElement('span');
+                    t.textContent = tags.master;
+                    t.style.cssText = 'font-size:11px;font-weight:700;background:var(--gold-bg);color:var(--gold);padding:3px 9px;border-radius:20px;white-space:nowrap;';
+                    tagsEl.appendChild(t);
+                }
+                if (tags.fixedLabel) {
+                    const t = document.createElement('span');
+                    t.textContent = tags.pagarAmount
+                        ? `${tags.fixedLabel}: ${rupee(Number(tags.pagarAmount))}`
+                        : tags.fixedLabel;
+                    t.style.cssText = 'font-size:11px;font-weight:700;background:#E8F5E9;color:#2E7D32;padding:3px 9px;border-radius:20px;white-space:nowrap;border:1px solid #A5D6A7;';
+                    tagsEl.appendChild(t);
+                }
+            }
+            renderLedger();
+        }
+
+        function backToList() {
+            currentAccount = null;
+            $('detailView').classList.remove('active');
+            $('accountsView').classList.remove('hidden');
+            $('reportBtn').style.display = '';
+            renderAccountsList();
+        }
+
+        function buildPanelRows(containerId, entries, amtClass, deleteCallback) {
+            const container = $(containerId);
+            container.innerHTML = '';
+            if (!entries.length) {
+                container.innerHTML = '<div class="empty-panel">No entries</div>';
+                return;
+            }
+            entries.forEach(e => {
+                const row = document.createElement('div');
+                row.className = 'p-row';
+                const [y, m, d] = e.date.split('-');
+                const dateLabel = `${d}/${m}/${String(y).slice(-2)}`;
+                row.innerHTML = `
+                    <div class="p-info" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                        <div class="p-date">${dateLabel}</div>
+                        ${e.note ? `<div class="p-note">${escHtml(e.note)}</div>` : ''}
+                        ${e.master ? `<span style="font-size:10px;font-weight:700;background:#FDF5E6;color:#A0701A;padding:2px 7px;border-radius:20px;">${escHtml(e.master)}</span>` : ''}
+                    </div>
+                    <div class="p-amt ${amtClass}">${rupee(amtClass === 'inc' ? e.aavak : e.javak)}</div>
+                    <button class="p-del" data-id="${e.id}" data-date="${e.date}" title="Delete">✕</button>`;
+                container.appendChild(row);
+            });
+            container.querySelectorAll('.p-del').forEach(btn => {
+                btn.addEventListener('click', () => deleteCallback(btn.dataset.id, btn.dataset.date));
+            });
+        }
+
+        async function renderLedger() {
+            if (!currentAccount) return;
+            const manual = await loadManualEntries(currentAccount.id, currentAccount.name);
+            const daily = await getDailyEntries(currentAccount.name);
+            const all = [...daily, ...manual].sort((a, b) => a.date.localeCompare(b.date));
+
+            // ── DATE FILTER ──
+            const fromVal = $('filterFrom').value; // 'YYYY-MM-DD' or ''
+            const toVal = $('filterTo').value;
+            const isFiltered = fromVal || toVal;
+
+            function inRange(dateStr) {
+                if (fromVal && dateStr < fromVal) return false;
+                if (toVal && dateStr > toVal) return false;
+                return true;
+            }
+
+            const filtered = isFiltered ? all.filter(e => inRange(e.date)) : all;
+
+            const aavakEntries = filtered.filter(e => e.aavak > 0);
+            const javakEntries = filtered.filter(e => e.javak > 0);
+
+            // Update badge & subtitle
+            const badge = $('filterBadge');
+            if (isFiltered) {
+                badge.classList.add('show');
+                const fLabel = fromVal ? fromVal.split('-').reverse().join('/') : '…';
+                const tLabel = toVal ? toVal.split('-').reverse().join('/') : '…';
+                // optional: could update a label somewhere, but sub was removed
+            } else {
+                badge.classList.remove('show');
+            }
+
+            const doDelete = async (id, dateStr) => {
+                if (!confirm('Delete this entry?')) return;
+                const dailyKey = 'khata:day:' + dateStr;
+                try {
+                    const v = await storageGet(dailyKey);
+                    if (v) {
+                        let dayData = JSON.parse(v);
+                        if (dayData.income) dayData.income = dayData.income.filter(e => e.id !== id);
+                        if (dayData.expense) dayData.expense = dayData.expense.filter(e => e.id !== id);
+                        await storageSet(dailyKey, JSON.stringify(dayData));
+                    }
+                } catch (e) { }
+                let entries = await loadManualEntries(currentAccount.id, currentAccount.name);
+                if (entries.some(e => e.id === id)) {
+                    entries = entries.filter(e => e.id !== id);
+                    await saveManualEntries(currentAccount.id, entries);
+                }
+                await renderLedger();
+            };
+
+            buildPanelRows('aavakRows', aavakEntries, 'inc', doDelete);
+            buildPanelRows('javakRows', javakEntries, 'exp', doDelete);
+
+
+
+            const totalAavak = aavakEntries.reduce((s, e) => s + (e.aavak || 0), 0);
+            const totalJavak = javakEntries.reduce((s, e) => s + (e.javak || 0), 0);
+            const net = totalAavak - totalJavak;
+            $('totalAavak').textContent = rupee(totalAavak);
+            $('totalJavak').textContent = rupee(totalJavak);
+            $('detailNet').textContent = (net < 0 ? '−' : '') + rupee(net);
+            $('detailNet').className = 'net-val ' + (net >= 0 ? 'pos' : 'neg');
+        }
+
+        function clearDateFilter() {
+            $('filterFrom').value = '';
+            $('filterTo').value = '';
+            renderLedger();
+        }
+
+        // ── BACK ──
+        $('backToList').addEventListener('click', backToList);
+
+        // ── DATE FILTER LISTENERS ──
+        $('filterFrom').addEventListener('change', renderLedger);
+        $('filterTo').addEventListener('change', renderLedger);
+
+        // ── SEARCH ──
+        function openSearchModal() {
+            $('searchOverlay').classList.add('open');
+            $('khataSearchInput').value = '';
+            $('khataSearchResults').innerHTML = '';
+            setTimeout(() => $('khataSearchInput').focus(), 80);
+        }
+        function closeSearchModal() { $('searchOverlay').classList.remove('open'); }
+        $('searchBtn').addEventListener('click', openSearchModal);
+        $('searchClose').addEventListener('click', closeSearchModal);
+        $('searchOverlay').addEventListener('click', e => { if (e.target === $('searchOverlay')) closeSearchModal(); });
+
+        let khataSearchTimeout;
+        $('khataSearchInput').addEventListener('input', () => {
+            clearTimeout(khataSearchTimeout);
+            const q = $('khataSearchInput').value.trim().toLowerCase();
+            const resultsEl = $('khataSearchResults');
+            if (!q) { resultsEl.innerHTML = ''; return; }
+            resultsEl.innerHTML = '<div class="rs-empty">Searching…</div>';
+            khataSearchTimeout = setTimeout(async () => {
+                const allAccounts = await getAllKhataNames();
+                let results = [];
+                for (const acc of allAccounts) {
+                    const manual = await loadManualEntries(acc.id, acc.name);
+                    const daily = await getDailyEntries(acc.name);
+                    const all = [...daily, ...manual];
+                    let matchedAny = false;
+                    all.forEach(e => {
+                        const hay = `${acc.name} ${e.note || ''} ${e.date || ''} ${e.aavak || ''} ${e.javak || ''}`.toLowerCase();
+                        if (hay.includes(q)) { results.push({ acc, entry: e }); matchedAny = true; }
+                    });
+                    if (!matchedAny && acc.name.toLowerCase().includes(q)) {
+                        results.push({ acc, entry: null });
+                    }
+                }
+                renderKhataSearchResults(results);
+            }, 250);
+        });
+
+        function renderKhataSearchResults(results) {
+            const el = $('khataSearchResults');
+            el.innerHTML = '';
+            if (!results.length) { el.innerHTML = '<div class="rs-empty">No matches found.</div>'; return; }
+            results.slice(0, 60).forEach(({ acc, entry }) => {
+                const row = document.createElement('div');
+                row.className = 'rs-result';
+                if (entry) {
+                    const [y, m, d] = entry.date.split('-');
+                    const dateLabel = `${d}/${m}/${String(y).slice(-2)}`;
+                    const isInc = entry.aavak > 0;
+                    row.innerHTML = `
+                        <div class="rs-result-left">
+                            <div class="rs-result-name">${escHtml(acc.name)}</div>
+                            <div class="rs-result-meta"><span>${dateLabel}</span>${entry.note ? `<span>· ${escHtml(entry.note)}</span>` : ''}</div>
+                        </div>
+                        <div class="rs-result-amt ${isInc ? 'inc' : 'exp'}">${rupee(isInc ? entry.aavak : entry.javak)}</div>`;
+                } else {
+                    row.innerHTML = `
+                        <div class="rs-result-left">
+                            <div class="rs-result-name">${escHtml(acc.name)}</div>
+                            <div class="rs-result-meta"><span>Account</span></div>
+                        </div>`;
+                }
+                row.addEventListener('click', () => { closeSearchModal(); openDetail(acc); });
+                el.appendChild(row);
+            });
+        }
+
+        // ── REPORT ──
+        async function buildReportModal() {
+            if (!$('reportTableBody')) return;
+            $('reportTableBody').innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--ink-faint);padding:16px;font-style:italic">Loading…</td></tr>';
+            const fromVal = $('repFilterFrom') ? $('repFilterFrom').value : '';
+            const toVal = $('repFilterTo') ? $('repFilterTo').value : '';
+
+            function fmtD(dKey) {
+                if (!dKey || dKey === '9999-12-31') return '';
+                const parts = dKey.split('-');
+                if (parts.length !== 3) return '';
+                const [y, m, d] = parts;
+                return `${d}/${m}/${String(y).slice(-2)}`;
+            }
+
+            function fmtDates(datesSet) {
+                if (!datesSet) return '—';
+                const arr = Array.from(datesSet).filter(d => d && d !== '9999-12-31').sort();
+                if (!arr.length) return '—';
+                const first = fmtD(arr[0]);
+                const last = fmtD(arr[arr.length - 1]);
+                if (first === last) return first;
+                return `${first}–${last}`;
+            }
+
+            let catFilteredNames = null;
+            if (repCatFilter) {
+                catFilteredNames = new Set(
+                    masterEntries
+                        .filter(m => m.name && (m.category || '').toLowerCase() === repCatFilter.toLowerCase())
+                        .map(m => m.name.toLowerCase())
+                );
+            }
+
+            const keys = await storageList();
+            const dayKeys = keys.filter(k => k && k.startsWith('khata:day:'));
+            const byName = new Map();
+
+            function getRecord(rawName) {
+                const nm = (rawName || '—').trim();
+                const key = nm.toLowerCase();
+                if (catFilteredNames !== null && !catFilteredNames.has(key)) return null;
+                if (!byName.has(key)) {
+                    byName.set(key, { name: nm, inc: 0, exp: 0, dates: new Set() });
+                }
+                return byName.get(key);
+            }
+
+            for (const key of dayKeys) {
+                try {
+                    const dateStr = key.replace('khata:day:', '');
+                    const v = await storageGet(key); if (!v) continue;
+                    const p = JSON.parse(v);
+                    (p.income || []).forEach(e => {
+                        const entryDate = e.date || dateStr;
+                        if (fromVal && entryDate < fromVal) return;
+                        if (toVal && entryDate > toVal) return;
+                        const rec = getRecord(e.name); if (!rec) return;
+                        rec.inc += Number(e.amount || e.aavak || 0);
+                        if (entryDate) rec.dates.add(entryDate);
+                    });
+                    (p.expense || []).forEach(e => {
+                        const entryDate = e.date || dateStr;
+                        if (fromVal && entryDate < fromVal) return;
+                        if (toVal && entryDate > toVal) return;
+                        const rec = getRecord(e.name); if (!rec) return;
+                        rec.exp += Number(e.amount || e.javak || 0);
+                        if (entryDate) rec.dates.add(entryDate);
+                    });
+                } catch (err) { }
+            }
+
+            // Also include manual khata:acc:* entries (added directly in Khata Book)
+            const idToNameMap = new Map();
+            try {
+                const accsRaw = await storageGet('khata:accounts');
+                if (accsRaw) {
+                    const accs = JSON.parse(accsRaw);
+                    accs.forEach(a => {
+                        if (a && a.id && a.name) {
+                            idToNameMap.set(a.id, a.name);
+                            idToNameMap.set(a.name.toLowerCase(), a.name);
+                        }
+                    });
+                }
+            } catch (e) { }
+
+            const accKeys = keys.filter(k => k && k.startsWith('khata:acc:'));
+            for (const key of accKeys) {
+                try {
+                    const v = await storageGet(key); if (!v) continue;
+                    const entries = JSON.parse(v);
+                    if (!Array.isArray(entries)) continue;
+                    const accId = key.replace('khata:acc:', '');
+                    let targetName = idToNameMap.get(accId);
+                    if (!targetName) {
+                        if (accId.startsWith('auto:')) {
+                            targetName = accId.replace('auto:', '');
+                        } else {
+                            targetName = accId;
+                        }
+                    }
+                    entries.forEach(e => {
+                        const entryDate = e.date || '9999-12-31';
+                        if (fromVal && entryDate < fromVal) return;
+                        if (toVal && entryDate > toVal) return;
+                        const aavak = Number(e.aavak || e.amount || 0);
+                        const javak = Number(e.javak || 0);
+                        const rec = getRecord(targetName);
+                        if (rec) {
+                            rec.inc += aavak;
+                            rec.exp += javak;
+                            if (entryDate && entryDate !== '9999-12-31') rec.dates.add(entryDate);
+                        }
+                    });
+                } catch (err) { }
+            }
+
+            if (!fromVal && !toVal) {
+                try {
+                    const accsRaw = await storageGet('khata:accounts');
+                    if (accsRaw) {
+                        const accs = JSON.parse(accsRaw);
+                        accs.forEach(a => { if (a && a.name) { getRecord(a.name); } });
+                    }
+                } catch (e) { }
+            }
+
+            let totalInc = 0, totalExp = 0;
+            const rows = [];
+            byName.forEach(v => {
+                if (fromVal || toVal) {
+                    if (v.inc === 0 && v.exp === 0) return;
+                }
+                totalInc += v.inc;
+                totalExp += v.exp;
+                rows.push({
+                    name: v.name,
+                    inc: v.inc,
+                    exp: v.exp,
+                    net: v.inc - v.exp,
+                    dateLabel: fmtDates(v.dates)
+                });
+            });
+            rows.sort((a, b) => a.name.localeCompare(b.name));
+
+            const netTotal = totalInc - totalExp;
+            $('repTotalInc').textContent = rupee(totalInc);
+            $('repTotalExp').textContent = rupee(totalExp);
+            const netEl = $('repTotalNet');
+            netEl.textContent = (netTotal < 0 ? '−' : '') + rupee(netTotal);
+            netEl.className = 'rs-val ' + (netTotal >= 0 ? 'pos' : 'neg');
+
+            const catLabel = repCatFilter ? ` · Category: ${repCatFilter}` : '';
+            const filterLabel = (fromVal || toVal) ? `Filtered (${fromVal || 'Start'} to ${toVal || 'Today'})${catLabel} · ` : (catLabel ? catLabel.trim() + ' · ' : '');
+            $('reportSub').textContent = `${filterLabel}Summary across ${rows.length} account${rows.length === 1 ? '' : 's'} · Generated ${new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}`;
+
+            const tbody = $('reportTableBody');
+            tbody.innerHTML = '';
+            if (!rows.length) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--ink-faint);padding:16px;font-style:italic">${repCatFilter ? `No entries for category "${repCatFilter}".` : (fromVal || toVal) ? 'No entries in this date range.' : 'No entries yet.'}</td></tr>`;
+                return;
+            }
+            rows.forEach(r => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="font-size:11.5px;color:var(--ink-soft);white-space:nowrap;">${escHtml(r.dateLabel)}</td>
+                    <td>${escHtml(r.name)}</td>
+                    <td class="num pos">${rupee(r.inc)}</td>
+                    <td class="num neg">${rupee(r.exp)}</td>
+                    <td class="num ${r.net >= 0 ? 'pos' : 'neg'}">${(r.net < 0 ? '−' : '') + rupee(r.net)}</td>`;
+                tbody.appendChild(tr);
+            });
+        }
+
+        let repCatFilter = '';
+        async function openReportModal() {
+            repCatFilter = '';
+            $('reportOverlay').classList.add('open');
+            buildRepCatPills();
+            await buildReportModal();
+        }
+        function closeReportModal() { $('reportOverlay').classList.remove('open'); }
+
+        function buildRepCatPills() {
+            const container = $('repCatPills');
+            if (!container) return;
+            container.innerHTML = '';
+            const allPill = document.createElement('button');
+            allPill.type = 'button';
+            allPill.textContent = 'All';
+            allPill.style.cssText = 'padding:5px 14px;border-radius:20px;border:1.5px solid var(--line);background:var(--ink);color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif;transition:all 0.15s;';
+            allPill.addEventListener('click', () => { repCatFilter = ''; buildRepCatPills(); buildReportModal(); });
+            container.appendChild(allPill);
+            categories.forEach(cat => {
+                const pill = document.createElement('button');
+                pill.type = 'button';
+                pill.textContent = cat;
+                const isActive = repCatFilter === cat;
+                pill.style.cssText = `padding:5px 14px;border-radius:20px;border:1.5px solid ${isActive ? 'var(--gold)' : 'var(--line)'};background:${isActive ? 'var(--gold-bg)' : 'transparent'};color:${isActive ? 'var(--gold)' : 'var(--ink-soft)'};font-size:12px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif;transition:all 0.15s;`;
+                pill.addEventListener('click', () => {
+                    repCatFilter = isActive ? '' : cat;
+                    buildRepCatPills();
+                    buildReportModal();
+                });
+                container.appendChild(pill);
+            });
+            if (!repCatFilter) {
+                allPill.style.background = 'var(--ink)';
+                allPill.style.color = '#fff';
+            } else {
+                allPill.style.background = 'transparent';
+                allPill.style.color = 'var(--ink-soft)';
+                allPill.style.borderColor = 'var(--line)';
+            }
+        }
+
+        if ($('repFilterFrom')) $('repFilterFrom').addEventListener('change', buildReportModal);
+        if ($('repFilterTo')) $('repFilterTo').addEventListener('change', buildReportModal);
+        if ($('repFilterClear')) $('repFilterClear').addEventListener('click', () => {
+            if ($('repFilterFrom')) $('repFilterFrom').value = '';
+            if ($('repFilterTo')) $('repFilterTo').value = '';
+            repCatFilter = '';
+            buildRepCatPills();
+            buildReportModal();
+        });
+        $('reportBtn').addEventListener('click', openReportModal);
+        $('reportClose').addEventListener('click', closeReportModal);
+        $('reportOverlay').addEventListener('click', e => { if (e.target === $('reportOverlay')) closeReportModal(); });
+        $('reportPrintBtn').addEventListener('click', () => window.print());
+
+        // ── MASTER & PAST INCOME logic ──
+        let categories = ['Factory Karigar', 'Factory Expense'];
+        let masters = ['Weaving', 'Dyeing', 'Finishing', 'Other'];
+        let workers = [];
+        let masterEntries = [];
+
+        async function loadCategories() {
+            try { const v = await storageGet('khata:categories'); if (v) { const p = JSON.parse(v); if (Array.isArray(p) && p.length) categories = p; } } catch (e) { }
+            if (!categories.includes('Factory Karigar')) categories.unshift('Factory Karigar');
+            if (!categories.includes('Factory Expense')) categories.push('Factory Expense');
+            categories = ['Factory Karigar', ...categories.filter(c => c !== 'Factory Karigar')];
+        }
+        async function saveCategories() { await storageSet('khata:categories', JSON.stringify(categories)); }
+        async function loadMasters() { try { const v = await storageGet('khata:masters'); if (v) { const p = JSON.parse(v); if (Array.isArray(p) && p.length) masters = p; } } catch (e) { } }
+        async function saveMasters() { await storageSet('khata:masters', JSON.stringify(masters)); }
+        async function loadWorkers() { try { const v = await storageGet('khata:workers'); if (v) { const p = JSON.parse(v); if (Array.isArray(p)) workers = p; } } catch (e) { } }
+        async function saveWorkers() { await storageSet('khata:workers', JSON.stringify(workers)); }
+        async function addWorkerIfNew(name) { if (name && !workers.includes(name)) { workers.push(name); await saveWorkers(); } }
+        async function loadMasterEntries() { try { const v = await storageGet('khata:master_entries'); if (v) { const p = JSON.parse(v); if (Array.isArray(p)) masterEntries = p; } } catch (e) { } }
+        async function saveMasterEntries() { await storageSet('khata:master_entries', JSON.stringify(masterEntries)); }
+
+        function rebuildCatSelect() { if ($('expCat')) $('expCat').innerHTML = '<option value="">-- Select Category --</option>' + categories.map(c => `<option value="${escHtml(c)}">${escHtml(c)}</option>`).join(''); }
+        function rebuildMasterSelect() { if ($('expMaster')) $('expMaster').innerHTML = '<option value="">-- Select Sub Category --</option>' + masters.map(m => `<option value="${escHtml(m)}">${escHtml(m)}</option>`).join(''); }
+        function rebuildWorkerDatalist() {
+            const datalistEl = $('workerDatalist');
+            if (!datalistEl) return;
+            const names = new Set();
+            accounts.forEach(a => { if (a.name) names.add(a.name); });
+            masterEntries.forEach(m => { if (m.name) names.add(m.name); });
+            let html = '';
+            Array.from(names).sort((a, b) => a.localeCompare(b)).forEach(w => {
+                html += `<option value="${escHtml(w)}">`;
+            });
+            datalistEl.innerHTML = html;
+        }
+
+        function checkAndAutoPopulateMaster() {
+            const val = ($('expName') ? $('expName').value : '').trim();
+            const saveChangeBtn = $('saveChangeBtn');
+            if (!val) {
+                if ($('masterSave')) $('masterSave').textContent = 'Add Master';
+                if (saveChangeBtn) saveChangeBtn.style.display = 'none';
+                if ($('expCat')) $('expCat').value = '';
+                if ($('expMaster')) $('expMaster').value = '';
+                if ($('entryNote')) $('entryNote').value = '';
+                if ($('expAmount')) $('expAmount').value = '';
+                if ($('expPagarType')) $('expPagarType').value = '';
+                return;
+            }
+            const found = masterEntries.find(m => m.name && m.name.toLowerCase() === val.toLowerCase());
+            if (found) {
+                if (found.category && $('expCat')) $('expCat').value = found.category;
+                if (found.master && $('expMaster')) $('expMaster').value = found.master;
+                if (found.note && $('entryNote')) $('entryNote').value = found.note;
+                if (found.amount && $('expAmount')) $('expAmount').value = found.amount;
+                if ($('expPagarType')) $('expPagarType').value = found.pagarType || '';
+            } else {
+                if ($('expCat')) $('expCat').value = '';
+                if ($('expMaster')) $('expMaster').value = '';
+                if ($('entryNote')) $('entryNote').value = '';
+                if ($('expAmount')) $('expAmount').value = '';
+                if ($('expPagarType')) $('expPagarType').value = '';
+            }
+            if ($('masterSave')) $('masterSave').textContent = 'Add Master';
+            if (saveChangeBtn) saveChangeBtn.style.display = 'block';
+        }
+
+        function openMasterModal() {
+            rebuildCatSelect(); rebuildMasterSelect(); rebuildWorkerDatalist();
+            if ($('expName')) $('expName').value = currentAccount ? currentAccount.name : '';
+            if ($('expAmount')) $('expAmount').value = '';
+            if ($('expPagarType')) $('expPagarType').value = '';
+            if ($('entryNote')) $('entryNote').value = '';
+            if ($('masterErr')) $('masterErr').style.display = 'none';
+            if ($('masterSave')) $('masterSave').textContent = 'Add Master';
+            if ($('saveChangeBtn')) $('saveChangeBtn').style.display = 'none';
+            $('masterOverlay').classList.add('open');
+            setTimeout(() => $('expName') && $('expName').focus(), 80);
+            checkAndAutoPopulateMaster();
+        }
+        function closeMasterModal() { $('masterOverlay').classList.remove('open'); }
+
+
+        $('masterClose').addEventListener('click', closeMasterModal);
+        $('masterCancel').addEventListener('click', closeMasterModal);
+        $('masterOverlay').addEventListener('click', e => { if (e.target === $('masterOverlay')) closeMasterModal(); });
+        if ($('expName')) {
+            $('expName').addEventListener('input', checkAndAutoPopulateMaster);
+            $('expName').addEventListener('change', checkAndAutoPopulateMaster);
+        }
+
+        async function saveMasterHandler() {
+            let category = ($('expCat') ? $('expCat').value : '').trim(),
+                master = ($('expMaster') ? $('expMaster').value : '').trim(),
+                name = ($('expName') ? $('expName').value : '').trim(),
+                amount = parseFloat($('expAmount') ? $('expAmount').value : 0) || 0,
+                pagarType = $('expPagarType') ? $('expPagarType').value.trim() : '',
+                note = $('entryNote') ? $('entryNote').value.trim() : '',
+                err = $('masterErr');
+
+            const typedName = ($('nameNewInput') ? $('nameNewInput').value : '').trim();
+            if (!name && typedName) {
+                name = typedName;
+                await addWorkerIfNew(name);
+                await rebuildWorkerDatalist();
+                if ($('expName')) $('expName').value = name;
+                if ($('nameNewInput')) $('nameNewInput').value = '';
+            }
+
+            const typedCat = ($('catNewInput') ? $('catNewInput').value : '').trim();
+            if (!category && typedCat) {
+                category = typedCat;
+                if (!categories.includes(category)) {
+                    categories.push(category);
+                    await saveCategories();
+                }
+                rebuildCatSelect();
+                if ($('expCat')) $('expCat').value = category;
+                if ($('catNewInput')) $('catNewInput').value = '';
+            }
+
+            const typedMaster = ($('masterNewInput') ? $('masterNewInput').value : '').trim();
+            if (!master && typedMaster) {
+                master = typedMaster;
+                if (!masters.includes(master)) {
+                    masters.push(master);
+                    await saveMasters();
+                }
+                rebuildMasterSelect();
+                if ($('expMaster')) $('expMaster').value = master;
+                if ($('masterNewInput')) $('masterNewInput').value = '';
+            }
+
+            if (!name) { err.textContent = 'Enter a name.'; err.style.display = 'block'; return; }
+
+            masterEntries = masterEntries.filter(m => m && m.name && m.name.toLowerCase() !== name.toLowerCase());
+            const entry = { id: uid(), category, master, name, amount, pagarType, note, _type: 'income', _dateKey: toKey(new Date()) };
+            masterEntries.push(entry);
+            await saveMasterEntries();
+            await addWorkerIfNew(name);
+
+            // Register in Khata Book accounts list so it appears immediately
+            if (!accounts.some(a => a && a.name && a.name.toLowerCase() === name.toLowerCase())) {
+                accounts.push({ id: uid(), name });
+                await saveAccounts();
+            }
+
+            // Un-hide from suggestions list if previously hidden
+            try {
+                const v = await storageGet('khata:hidden_sugg');
+                if (v) {
+                    let hidden = JSON.parse(v);
+                    if (Array.isArray(hidden)) {
+                        const nameLower = name.toLowerCase();
+                        hidden = hidden.filter(k => !k.toLowerCase().startsWith(nameLower + '|'));
+                        await storageSet('khata:hidden_sugg', JSON.stringify(hidden));
+                    }
+                }
+            } catch (e) { }
+
+            try { syncChannel.postMessage({ type: 'day-updated' }); } catch (e) { }
+
+            closeMasterModal();
+            await renderAccountsList();
+            setStatus(`Saved "${name}" to Master & Khata Book.`, false);
+        }
+
+        $('masterSave').addEventListener('click', saveMasterHandler);
+        if ($('saveChangeBtn')) $('saveChangeBtn').addEventListener('click', saveMasterHandler);
+        if ($('saveCompanyNameBtn')) {
+            $('saveCompanyNameBtn').addEventListener('click', async () => {
+                const btn = $('saveCompanyNameBtn');
+                const compVal = ($('masterCompanyName') ? $('masterCompanyName').value : '').trim();
+                await saveGlobalCompanyName(compVal);
+                btn.textContent = '✓ Saved!';
+                btn.style.background = '#3D7A5A';
+                setTimeout(() => {
+                    btn.textContent = 'Save Name';
+                    btn.style.background = 'var(--ink)';
+                }, 1500);
+            });
+        }
+
+        // ── KHATA PICKER (Tap to Past Income) ──
+        let kpAllEntries = [];
+        async function openKhataPicker() {
+            $('kpOverlay').classList.add('open');
+            $('kpSearchInput').value = '';
+            $('kpTitle').textContent = 'Tap to Past Income';
+            $('kpSub').textContent = currentAccount ? `Tap an entry below to add it to ${escHtml(currentAccount.name)}'s Aavak` : 'Tap an entry below';
+            const list = $('kpList');
+            list.innerHTML = '<div style="text-align:center;color:var(--ink-faint);padding:20px">Loading…</div>';
+            let allEntries = [];
+            try {
+                const keys = await storageList();
+                const dayKeys = keys.filter(k => k && k.startsWith('khata:day:'));
+                for (const key of dayKeys) {
+                    const dateStr = key.replace('khata:day:', '');
+                    try {
+                        const v = await storageGet(key);
+                        if (v) {
+                            const p = JSON.parse(v);
+                            (p.income || []).forEach(e => allEntries.push({ ...e, _dateKey: dateStr, _type: 'income' }));
+                            (p.expense || []).forEach(e => allEntries.push({ ...e, _dateKey: dateStr, _type: 'expense' }));
+                        }
+                    } catch (err) { }
+                }
+            } catch (err) { }
+
+            masterEntries.forEach(e => {
+                allEntries.push({ ...e, _dateKey: e._dateKey || '9999-12-31', _type: 'income' });
+            });
+
+            if (!allEntries.length) {
+                list.innerHTML = `<div style="text-align:center;color:var(--ink-faint);padding:20px;font-style:italic">No entries found. Add entries first via the Master button.</div>`;
+                kpAllEntries = []; return;
+            }
+
+            allEntries.sort((a, b) => (a._dateKey || '9999-12-31').localeCompare(b._dateKey || '9999-12-31'));
+            let seen = new Map();
+            let hidden = [];
+            try { const v = await storageGet('khata:hidden_sugg'); if (v) hidden = JSON.parse(v); } catch (err) { }
+            allEntries.forEach(item => {
+                const key = (item.name || '').toLowerCase();
+                if (!hidden.includes(key)) {
+                    seen.set(key, item);
+                }
+            });
+            kpAllEntries = Array.from(seen.values()).sort((a, b) => (b._dateKey || '9999-12-31').localeCompare(a._dateKey || '9999-12-31'));
+            renderKpList(kpAllEntries);
+        }
+
+        function renderKpList(entries) {
+            const list = $('kpList'); list.innerHTML = '';
+            if (!entries.length) {
+                list.innerHTML = '<div style="text-align:center;color:var(--ink-faint);padding:20px;font-style:italic">No matching entries found.</div>';
+                return;
+            }
+            entries.forEach(item => {
+                const div = document.createElement('div');
+                div.style.cssText = 'cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border:1px solid var(--line);border-radius:10px;margin-bottom:6px;background:var(--bg);';
+                div.innerHTML = `
+                    <div style="font-size:14px;font-weight:600;color:var(--ink)">${escHtml(item.name || '')}</div>
+                    <div style="font-size:20px;color:var(--ink-soft)">+</div>`;
+                div.addEventListener('click', async () => {
+                    let targetAcc = currentAccount;
+                    if (!targetAcc) {
+                        let accName = item.name || 'General';
+                        targetAcc = accounts.find(a => a.name.toLowerCase() === accName.toLowerCase());
+                        if (!targetAcc) {
+                            targetAcc = { id: uid(), name: accName };
+                            accounts.push(targetAcc); await saveAccounts();
+                        }
+                        openDetail(targetAcc);
+                    }
+                    const manual = await loadManualEntries(targetAcc.id, targetAcc.name);
+                    const todayStr = toKey(new Date());
+                    manual.push({
+                        id: uid(),
+                        date: todayStr,
+                        aavak: item.amount || 0,
+                        javak: 0,
+                        note: item.note ? item.note : item.category || 'Aavak'
+                    });
+                    await saveManualEntries(targetAcc.id, manual);
+                    $('kpOverlay').classList.remove('open');
+                    await renderLedger();
+                    setStatus(`Added "${item.name}" to Aavak in ${targetAcc.name}.`, false);
+                });
+                list.appendChild(div);
+            });
+        }
+
+        $('kpSearchInput').addEventListener('input', () => {
+            const q = $('kpSearchInput').value.trim().toLowerCase();
+            if (!q) { renderKpList(kpAllEntries); return; }
+            const filtered = kpAllEntries.filter(item =>
+                (item.name && item.name.toLowerCase().includes(q)) ||
+                (item.category && item.category.toLowerCase().includes(q)) ||
+                (item.master && item.master.toLowerCase().includes(q)) ||
+                (item.note && item.note.toLowerCase().includes(q))
+            );
+            renderKpList(filtered);
+        });
+        $('kpClose').addEventListener('click', () => $('kpOverlay').classList.remove('open'));
+        $('kpOverlay').addEventListener('click', e => { if (e.target === $('kpOverlay')) $('kpOverlay').classList.remove('open'); });
+        if ($('kpMasterBtn')) {
+            $('kpMasterBtn').addEventListener('click', () => {
+                $('kpOverlay').classList.remove('open');
+                openMasterModal();
+            });
+        }
+
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') { closeSearchModal(); closeReportModal(); closeMasterModal(); $('kpOverlay').classList.remove('open'); }
+        });
+
+        // ── INIT ──
+        (async () => {
+            await loadCategories();
+            await loadMasters();
+            await loadWorkers();
+            await loadMasterEntries();
+            await loadAccounts();
+            await renderAccountsList();
+        })();
+
+        // ── CROSS-TAB SYNC ──
+        // Listen for changes made in dilyex.html and auto-refresh
+        const syncChannel = (() => { try { return new BroadcastChannel('khata_sync'); } catch (e) { return { addEventListener: () => { } }; } })();
+        syncChannel.addEventListener('message', async (ev) => {
+            if (!ev.data) return;
+            if (ev.data.type === 'day-updated') {
+                await loadMasterEntries(); omniroute
+                await loadWorkers();
+                await loadAccounts();
+                if (currentAccount) {
+                    await renderLedger();
+                } else {
+                    await renderAccountsList();
+                }
+            }
+        });
+        // Also listen via storage event (same-origin, different tabs)
+        window.addEventListener('storage', async (ev) => {
+            if (ev.key && ev.key.startsWith('khata:day:')) {
+                await loadAccounts();
+                if (currentAccount) {
+                    await renderLedger();
+                } else {
+                    await renderAccountsList();
+                }
+            }
+        });
+    </script>
+    <script src="data-backup.js"></script>
+</body>
+
+</html>

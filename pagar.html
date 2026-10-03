@@ -1,0 +1,1879 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Pagar Book · Monthly Payroll System</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700;800&family=Outfit:wght@400;600;700;800&display=swap"
+        rel="stylesheet" />
+    <style>
+        :root {
+            --bg: #F5F3EE;
+            --paper: #FAFAF7;
+            --paper-card: #FFFFFF;
+            --ink: #1A1A1A;
+            --ink-soft: #5A5A5A;
+            --ink-faint: #9A9A9A;
+            --line: #E8E5DE;
+            --moss: #3D7A5A;
+            --moss-bg: #EDF4F0;
+            --rust: #C24E1E;
+            --rust-bg: #FDF0EB;
+            --gold: #A0701A;
+            --gold-bg: #FDF5E6;
+            --carry: #3F51B5;
+            --carry-bg: #E8EAF6;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--ink);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .top {
+            background: var(--paper-card);
+            border-bottom: 1px solid var(--line);
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+        }
+
+        .top-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .logo {
+            font-family: 'Outfit', sans-serif;
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--ink);
+        }
+
+        .logo span {
+            color: var(--gold);
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: 9px;
+            font-size: 13px;
+            font-weight: 700;
+            text-decoration: none;
+            color: var(--ink-soft);
+            border: 1.5px solid var(--line);
+            background: var(--paper-card);
+            transition: all 0.15s ease;
+            cursor: pointer;
+        }
+
+        .nav-btn:hover {
+            background: var(--bg);
+            color: var(--ink);
+            border-color: var(--ink-faint);
+        }
+
+        .nav-btn.active {
+            background: var(--gold-bg);
+            color: var(--gold);
+            border-color: var(--gold);
+        }
+
+        .top-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .tab-bar-wrap {
+            background: var(--paper-card);
+            border-bottom: 1px solid var(--line);
+            padding: 10px 24px;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+
+        .tab-bar {
+            display: inline-flex;
+            gap: 8px;
+            max-width: 100%;
+        }
+
+        .tab-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            border: 1.5px solid var(--line);
+            background: var(--bg);
+            color: var(--ink-soft);
+            cursor: pointer;
+            transition: all 0.18s ease;
+        }
+
+        .tab-btn:hover {
+            background: var(--paper-card);
+            color: var(--ink);
+            border-color: var(--ink-faint);
+        }
+
+        .tab-btn.active {
+            background: var(--ink);
+            color: #ffffff;
+            border-color: var(--ink);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.12);
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+            width: 100%;
+            flex: 1;
+        }
+
+        .section-hdr {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .section-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 20px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .pagination-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--paper-card);
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 10px 16px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .page-pills {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .page-pill {
+            padding: 5px 12px;
+            border-radius: 8px;
+            border: 1.5px solid var(--line);
+            background: var(--bg);
+            color: var(--ink-soft);
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .page-pill:hover {
+            background: var(--paper);
+            border-color: var(--ink-faint);
+        }
+
+        .page-pill.active {
+            background: var(--gold);
+            color: #fff;
+            border-color: var(--gold);
+        }
+
+        .page-nav-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 14px;
+            background: var(--ink);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 12.5px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: opacity 0.15s;
+        }
+
+        .page-nav-btn:hover {
+            opacity: 0.88;
+        }
+
+        .page-nav-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .page-info {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--ink-soft);
+        }
+
+        .slips-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .slip-card {
+            background: var(--paper-card);
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 0;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.03);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+        }
+
+        .table-card {
+            background: var(--paper-card);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+            margin-bottom: 20px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 13.5px;
+        }
+
+        .data-table th {
+            background: var(--paper);
+            color: var(--ink-soft);
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .data-table th.num,
+        .data-table td.num {
+            text-align: right;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .data-table td {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .data-table tr:hover {
+            background: var(--bg);
+        }
+
+        .table-foot {
+            background: var(--paper);
+            font-weight: 800;
+            border-top: 2px solid var(--line);
+        }
+
+        .table-foot td {
+            padding: 14px;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--paper-card);
+            border: 1.5px solid var(--line);
+            border-radius: 10px;
+            padding: 7px 12px;
+            width: 280px;
+        }
+
+        .search-box input {
+            border: none;
+            outline: none;
+            background: transparent;
+            font-size: 13px;
+            width: 100%;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-action {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            background: var(--moss);
+            color: #fff;
+            border: none;
+            border-radius: 9px;
+            font-size: 12.5px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: opacity 0.15s;
+        }
+
+        .btn-action:hover {
+            opacity: 0.88;
+        }
+
+        .btn-print {
+            background: var(--ink);
+            color: #fff;
+        }
+
+        input.cell-edit,
+        select.cell-edit {
+            width: 100%;
+            padding: 4px 6px;
+            border: 1px solid var(--line);
+            border-radius: 6px;
+            font-size: 12px;
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            outline: none;
+        }
+
+        input.cell-edit:focus,
+        select.cell-edit:focus {
+            border-color: var(--moss);
+            background: #fff;
+        }
+
+        .add-row-btn {
+            background: none;
+            border: 1px dashed var(--line);
+            border-radius: 6px;
+            padding: 3px 8px;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--moss);
+            cursor: pointer;
+            margin-top: 4px;
+        }
+
+        .add-row-btn:hover {
+            background: var(--moss-bg);
+        }
+
+        .badge-status {
+            display: inline-block;
+            padding: 3px 9px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+
+        .badge-status.paid {
+            background: var(--moss-bg);
+            color: var(--moss);
+            border: 1px solid var(--moss);
+        }
+
+        .badge-status.due {
+            background: var(--rust-bg);
+            color: var(--rust);
+            border: 1px solid var(--rust);
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(3px);
+            z-index: 250;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+
+        .overlay.open {
+            display: flex;
+        }
+
+        .master-modal {
+            background: var(--paper-card);
+            border-radius: 16px;
+            padding: 24px;
+            width: min(440px, 94vw);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+            position: relative;
+        }
+
+        .master-modal h3 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 19px;
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
+
+        .master-modal .sub-text {
+            font-size: 12.5px;
+            color: var(--ink-soft);
+            margin-bottom: 16px;
+        }
+
+        .modal-field {
+            margin-bottom: 12px;
+        }
+
+        .modal-field label {
+            display: block;
+            font-size: 11px;
+            font-weight: 800;
+            color: var(--ink-soft);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+        }
+
+        .modal-field input,
+        .modal-field select {
+            width: 100%;
+            padding: 9px 12px;
+            border: 1.5px solid var(--line);
+            border-radius: 8px;
+            font-size: 13.5px;
+            outline: none;
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+        }
+
+        .modal-field input:focus,
+        .modal-field select:focus {
+            border-color: var(--moss);
+            background: #fff;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 18px;
+        }
+
+        .modal-actions button {
+            flex: 1;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .btn-cancel {
+            background: none;
+            border: 1.5px solid var(--line);
+            color: var(--ink-soft);
+        }
+
+        .btn-save-master {
+            background: var(--ink);
+            color: #fff;
+            border: none;
+        }
+
+        @media print {
+            @page {
+                size: A4 portrait;
+                margin: 2.5mm 3.5mm;
+            }
+
+            html,
+            body {
+                background: #fff !important;
+                color: #000 !important;
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                font-size: 10.5px !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            .top,
+            .tab-bar-wrap,
+            .section-hdr,
+            .filter-bar,
+            .pagination-bar,
+            .search-box,
+            .btn-action,
+            .add-row-btn,
+            button,
+            .no-print {
+                display: none !important;
+            }
+
+            .container {
+                max-width: 100% !important;
+                width: 100% !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+
+            .slips-grid {
+                display: grid !important;
+                grid-template-columns: repeat(2, 1fr) !important;
+                grid-auto-rows: 91mm !important;
+                gap: 2mm 3mm !important;
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            .slip-card {
+                background: #fff !important;
+                border: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                box-shadow: none !important;
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+                box-sizing: border-box !important;
+                height: 91mm !important;
+                max-height: 91mm !important;
+                overflow: hidden !important;
+            }
+
+            .slip-card:nth-child(6n) {
+                page-break-after: always !important;
+                break-after: page !important;
+            }
+
+            .slip-card>div {
+                border: 1.5px solid #000 !important;
+                border-radius: 4px !important;
+                height: 100% !important;
+                display: flex !important;
+                flex-direction: column !important;
+                justify-content: space-between !important;
+                box-sizing: border-box !important;
+            }
+
+            .slip-card td,
+            .slip-card th {
+                padding: 1.5px 3px !important;
+                font-size: 10px !important;
+                line-height: 1.2 !important;
+            }
+
+            .slip-card input.cell-edit,
+            .slip-card select.cell-edit {
+                font-size: 10px !important;
+                padding: 0 !important;
+                border: none !important;
+                background: transparent !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="top">
+        <div class="top-left">
+            <div class="logo">ROJMEL <span>PAGAR</span></div>
+            <nav class="nav-links">
+                <a class="nav-btn" href="dilyex.html">📘 Rojmel</a>
+                <a class="nav-btn" href="khata.html">📒 Khata Book</a>
+                <a class="nav-btn active" href="pagar.html">💼 Pagar Book</a>
+            </nav>
+        </div>
+        <div class="top-right">
+            <button class="backup-data-btn" id="backupDataBtn" style="background:#2563eb;color:#ffffff;border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:4px;box-shadow:0 1px 3px rgba(0,0,0,0.12);" title="Save, Export & Import Data Backup">💾 Data</button>
+        </div>
+    </header>
+
+    <div class="tab-bar-wrap">
+        <div class="tab-bar">
+            <button class="tab-btn active" id="tabSetRate" onclick="switchTab('rates')">⚙️ SET OPRATER PAGAR</button>
+            <button class="tab-btn" id="tabOpSlip" onclick="switchTab('op_slips')">📄 OPRATER PAGAR SLIP (1-36)</button>
+            <button class="tab-btn" id="tabOpTotal" onclick="switchTab('op_total')">📊 OPRATER TOTAL PAGAR</button>
+            <button class="tab-btn" id="tabFixTotal" onclick="switchTab('fix_total')">📊 FIX TOTAL PAGAR</button>
+            <button class="tab-btn" id="tabFixSlip" onclick="switchTab('fix_slips')">📄 FIX PAGAR SLIP (1-36)</button>
+        </div>
+    </div>
+
+    <main class="container">
+        <!-- VIEW 1: SET OPRATER PAGAR -->
+        <section id="viewRates">
+            <div class="section-hdr">
+                <h2 class="section-title">⚙️ SET OPRATER PAGAR</h2>
+                <button class="btn-action" onclick="addNewRateRow()">+ Add Duty / Rate Task</button>
+            </div>
+            <div class="table-card">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th style="width:60px;">No</th>
+                            <th>Task / Duty Description</th>
+                            <th class="num" style="width:200px;">Rate per Duty / Day (₹)</th>
+                            <th class="num" style="width:120px;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ratesTableBody"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- VIEW 2: OPRATER PAGAR SLIP -->
+        <section id="viewOpSlips" style="display:none;">
+            <div class="section-hdr">
+                <h2 class="section-title">📄 OPRATER PAGAR SLIP (1–36)</h2>
+                <button class="btn-action btn-print" onclick="printAllOpSlips()">🖨️ Print Slips (6 per page)</button>
+            </div>
+            <div class="filter-bar no-print"
+                style="background:var(--paper-card);border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+                <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;flex:1;">
+                    <div
+                        style="font-size:11px;font-weight:700;letter-spacing:0.5px;color:var(--ink-soft);text-transform:uppercase;white-space:nowrap;">
+                        📅 FILTER</div>
+                    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                        <input id="opFilterFrom" onchange="applyOpDateFilter()"
+                            style="padding:6px 10px;background:var(--bg);border:1px solid var(--line);border-radius:8px;font-size:12.5px;color:var(--ink);outline:none;font-family:'Inter',sans-serif;"
+                            title="From Date" type="date" />
+                        <span style="font-size:13px;color:var(--ink-soft);font-weight:700;">→</span>
+                        <input id="opFilterTo" onchange="applyOpDateFilter()"
+                            style="padding:6px 10px;background:var(--bg);border:1px solid var(--line);border-radius:8px;font-size:12.5px;color:var(--ink);outline:none;font-family:'Inter',sans-serif;"
+                            title="To Date" type="date" />
+                    </div>
+                </div>
+                <button onclick="clearOpDateFilter()"
+                    style="background:none;border:1px solid var(--line);border-radius:8px;padding:5px 12px;font-size:12px;font-weight:600;color:var(--ink-soft);cursor:pointer;"
+                    type="button">✕ Clear</button>
+            </div>
+            <div class="pagination-bar">
+                <button class="page-nav-btn" id="opPrevPageBtn" onclick="navOpPage(-1)">‹ Prev 6 Slips</button>
+                <div class="page-pills" id="opPagePills"></div>
+                <span class="page-info" id="opPageInfo">Page 1 of 6</span>
+                <button class="page-nav-btn" id="opNextPageBtn" onclick="navOpPage(1)">Next 6 Slips ›</button>
+            </div>
+            <div class="slips-grid" id="opSlipsGrid"></div>
+        </section>
+
+        <!-- VIEW 3: OPRATER TOTAL PAGAR -->
+        <section id="viewOpTotal" style="display:none;">
+            <div class="section-hdr">
+                <h2 class="section-title">📊 OPRATER TOTAL PAGAR</h2>
+                <div style="display:flex;gap:10px;">
+                    <div class="search-box"><span>🔍</span><input id="opSearchInput" oninput="renderOpTotalTable()"
+                            placeholder="Search operator..." type="text" /></div>
+                    <button class="btn-action btn-print" onclick="window.print()">🖨️ Print Statement</button>
+                </div>
+            </div>
+            <div class="table-card">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th style="width:60px;">No</th>
+                            <th>Operator Title</th>
+                            <th>Worker Name</th>
+                            <th class="num">Gross Pagar (₹)</th>
+                            <th class="num">Total Upad / Kharchi (₹)</th>
+                            <th class="num">Net Payable (₹)</th>
+                            <th style="text-align:center;">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="opTotalTableBody"></tbody>
+                    <tfoot class="table-foot" id="opTotalTableFoot"></tfoot>
+                </table>
+            </div>
+        </section>
+
+        <!-- VIEW 4: FIX TOTAL PAGAR -->
+        <section id="viewFixTotal" style="display:none;">
+            <div class="section-hdr">
+                <h2 class="section-title">📊 FIX TOTAL PAGAR</h2>
+                <div style="display:flex;gap:10px;">
+                    <div class="search-box"><span>🔍</span><input id="fixSearchInput" oninput="renderFixTotalTable()"
+                            placeholder="Search staff name..." type="text" /></div>
+                    <button class="btn-action btn-print" onclick="window.print()">🖨️ Print Statement</button>
+                </div>
+            </div>
+            <div style="display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap;">
+                <div class="table-card" style="flex:1;min-width:550px;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th style="width:60px;">No</th>
+                                <th>Category / Designation</th>
+                                <th>Staff Name</th>
+                                <th class="num">Fix Monthly Salary (₹)</th>
+                                <th class="num">Total Upad / Kharchi (₹)</th>
+                                <th class="num">Net Payable (₹)</th>
+                                <th style="text-align:center;">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="fixTotalTableBody"></tbody>
+                        <tfoot class="table-foot" id="fixTotalTableFoot"></tfoot>
+                    </table>
+                </div>
+                <!-- CATEGORY SUMMARY TABLE (right side) -->
+                <div style="width:350px;flex-shrink:0;">
+                    <div
+                        style="border:2px solid #000;border-radius:4px;overflow:hidden;background:#fff;box-shadow:0 3px 10px rgba(0,0,0,0.04);">
+                        <table
+                            style="width:100%;border-collapse:collapse;font-size:13px;font-family:'Inter',sans-serif;">
+                            <thead>
+                                <tr style="border-bottom:2px solid #000;background:#fff;">
+                                    <th
+                                        style="padding:7px 10px;text-align:left;font-weight:800;border-right:1.5px solid #000;color:#000;font-size:12px;text-transform:uppercase;">
+                                        Category / Designation</th>
+                                    <th
+                                        style="padding:7px 8px;text-align:center;font-weight:800;border-right:1.5px solid #000;width:55px;color:#000;font-size:12px;text-transform:uppercase;">
+                                        Count</th>
+                                    <th
+                                        style="padding:7px 10px;text-align:right;font-weight:800;color:#000;font-size:12px;text-transform:uppercase;">
+                                        Total Pagar</th>
+                                </tr>
+                            </thead>
+                            <tbody id="fixCategorySummaryBody"></tbody>
+                            <tfoot id="fixCategorySummaryFoot"></tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 5: FIX PAGAR SLIP -->
+        <section id="viewFixSlips" style="display:none;">
+            <div class="section-hdr">
+                <h2 class="section-title">📄 FIX PAGAR SLIP (1–36)</h2>
+                <button class="btn-action btn-print" onclick="printAllFixSlips()">🖨️ Print Slips (6 per page)</button>
+            </div>
+            <div class="filter-bar no-print"
+                style="background:var(--paper-card);border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+                <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;flex:1;">
+                    <div
+                        style="font-size:11px;font-weight:700;letter-spacing:0.5px;color:var(--ink-soft);text-transform:uppercase;white-space:nowrap;">
+                        📅 FILTER</div>
+                    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                        <input id="fixFilterFrom" onchange="applyFixDateFilter()"
+                            style="padding:6px 10px;background:var(--bg);border:1px solid var(--line);border-radius:8px;font-size:12.5px;color:var(--ink);outline:none;font-family:'Inter',sans-serif;"
+                            title="From Date" type="date" />
+                        <span style="font-size:13px;color:var(--ink-soft);font-weight:700;">→</span>
+                        <input id="fixFilterTo" onchange="applyFixDateFilter()"
+                            style="padding:6px 10px;background:var(--bg);border:1px solid var(--line);border-radius:8px;font-size:12.5px;color:var(--ink);outline:none;font-family:'Inter',sans-serif;"
+                            title="To Date" type="date" />
+                    </div>
+                </div>
+                <button onclick="clearFixDateFilter()"
+                    style="background:none;border:1px solid var(--line);border-radius:8px;padding:5px 12px;font-size:12px;font-weight:600;color:var(--ink-soft);cursor:pointer;"
+                    type="button">✕ Clear</button>
+            </div>
+            <div class="pagination-bar">
+                <button class="page-nav-btn" id="fixPrevPageBtn" onclick="navFixPage(-1)">‹ Prev 6 Slips</button>
+                <div class="page-pills" id="fixPagePills"></div>
+                <span class="page-info" id="fixPageInfo">Page 1 of 6</span>
+                <button class="page-nav-btn" id="fixNextPageBtn" onclick="navFixPage(1)">Next 6 Slips ›</button>
+            </div>
+            <div class="slips-grid" id="fixSlipsGrid"></div>
+        </section>
+    </main>
+
+    <script>
+        const rupee = n => '₹' + Math.abs(Math.round(n || 0)).toLocaleString('en-IN');
+
+        const storageGet = async k => {
+            try { if (window.storage) { const r = await window.storage.get(k, false); return r ? r.value : null; } return localStorage.getItem(k); } catch (e) { return localStorage.getItem(k); }
+        };
+        const storageSet = async (k, v) => {
+            try { if (window.storage) return await window.storage.set(k, v, false); localStorage.setItem(k, v); return true; } catch (e) { localStorage.setItem(k, v); return false; }
+        };
+        const getAllKeys = async () => {
+            let keys = [];
+            if (window.storage && window.storage.list) { try { let r = await window.storage.list(); if (r && r.keys) keys = r.keys; } catch (e) { } }
+            else { for (let i = 0; i < localStorage.length; i++) keys.push(localStorage.key(i)); }
+            return keys;
+        };
+
+        let globalCompanyName = 'TAPU FAB';
+        let globalMonthLabel = (() => { const mn = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]; const now = new Date(); return `${mn[now.getMonth()]} ${now.getFullYear()} पगार`; })();
+
+        let ratesData = [
+            { id: 1, task: '36 Oprater :-', rate: 700 },
+            { id: 2, task: 'Beam  चालू', rate: 1200 },
+            { id: 3, task: ' હાજરી ', rate: 100 },
+            { id: 4, task: 'MC धुलाई', rate: 1400 },
+            { id: 5, task: '24 घंटे', rate: 2100 },
+            { id: 6, task: '24 घंटे में 2 डबल Line चलाया', rate: 2600 },
+            { id: 7, task: '36 घंटे', rate: 1900 },
+            { id: 8, task: '36 घंटे में 1 डबल Line चलाया', rate: 3100 },
+            { id: 9, task: '36 घंटे में 2 डबल Line चलाया', rate: 3600 },
+            { id: 10, task: '24 घंटे में  2 डबल Line चलाया', rate: 350 },
+            { id: 11, task: 'Beam  चालू 7 PAVDI', rate: 400 },
+            { id: 12, task: 'Beam  चालू 4 PAVDI', rate: 400 },
+            { id: 13, task: 'RO       :-', rate: 1000 },
+            { id: 14, task: 'GAS DIPO', rate: 800 }
+        ];
+
+        let opSlipsData = [];
+        for (let i = 1; i <= 36; i++) {
+            opSlipsData.push({ slipNo: i, name: '', company: globalCompanyName, month: globalMonthLabel, duties: [], upad: [] });
+        }
+
+        let fixSlipsData = [];
+        for (let i = 1; i <= 36; i++) {
+            fixSlipsData.push({ slipNo: i, category: 'HELPAR :-', name: '', company: globalCompanyName, month: globalMonthLabel, salary: 0, days: 30, upad: [], duties: [] });
+        }
+
+        let currentTab = 'rates';
+        let opCurrentPage = 1;
+        let fixCurrentPage = 1;
+        const SLIPS_PER_PAGE = 6;
+        let allKhataWorkers = [];
+        let fixKhataWorkers = [];
+        let opKhataWorkers = [];
+        let opWorkerDuties = {};
+        let fixWorkerDuties = {};
+
+        function loadLocalStorageState() {
+            try {
+                const compOverride = localStorage.getItem('khata:company_name');
+                const s = localStorage.getItem('khata_pagar_data');
+                if (s) {
+                    const parsed = JSON.parse(s);
+                    if (compOverride && compOverride.trim()) globalCompanyName = compOverride.trim();
+                    else if (parsed.globalCompanyName) globalCompanyName = parsed.globalCompanyName;
+
+                    if (parsed.ratesData) ratesData = parsed.ratesData;
+                    if (parsed.opWorkerDuties) opWorkerDuties = parsed.opWorkerDuties;
+                    if (parsed.fixWorkerDuties) fixWorkerDuties = parsed.fixWorkerDuties;
+
+                    if (parsed.opSlipsData && Array.isArray(parsed.opSlipsData)) {
+                        opSlipsData = parsed.opSlipsData.map((slip, idx) => ({
+                            slipNo: slip.slipNo || (idx + 1),
+                            name: slip.name || '',
+                            company: globalCompanyName,
+                            month: globalMonthLabel,
+                            duties: slip.name && opWorkerDuties[slip.name] ? opWorkerDuties[slip.name] : ((slip.duties || []).filter(d => d.qty > 0 || (d.task && d.task !== '36 Oprater :-'))),
+                            upad: slip.upad || []
+                        }));
+                    }
+                    if (parsed.fixSlipsData && Array.isArray(parsed.fixSlipsData)) {
+                        fixSlipsData = parsed.fixSlipsData.map((slip, idx) => ({
+                            slipNo: slip.slipNo || (idx + 1),
+                            category: slip.category || 'HELPAR :-',
+                            name: slip.name || '',
+                            company: globalCompanyName,
+                            month: globalMonthLabel,
+                            salary: slip.salary || 0,
+                            days: slip.days !== undefined ? slip.days : 30,
+                            upad: slip.upad || [],
+                            duties: slip.name && fixWorkerDuties[slip.name] ? fixWorkerDuties[slip.name] : (slip.duties || [])
+                        }));
+                    }
+                }
+                (opSlipsData || []).forEach(slip => {
+                    if (slip.name && !slip.name.startsWith('Operator #') && slip.duties && slip.duties.length > 0) {
+                        if (!opWorkerDuties[slip.name]) opWorkerDuties[slip.name] = slip.duties;
+                    }
+                });
+                (fixSlipsData || []).forEach(slip => {
+                    if (slip.name && !slip.name.startsWith('Fix Worker #') && slip.duties && slip.duties.length > 0) {
+                        if (!fixWorkerDuties[slip.name]) fixWorkerDuties[slip.name] = slip.duties;
+                    }
+                });
+                if (compOverride && compOverride.trim()) {
+                    globalCompanyName = compOverride.trim();
+                    opSlipsData.forEach(s => s.company = globalCompanyName);
+                    fixSlipsData.forEach(s => s.company = globalCompanyName);
+                }
+            } catch (e) { }
+        }
+
+        function saveStorage() {
+            try {
+                localStorage.setItem('khata_pagar_data', JSON.stringify({ globalCompanyName, ratesData, opSlipsData, fixSlipsData, opWorkerDuties, fixWorkerDuties }));
+                localStorage.setItem('khata:company_name', globalCompanyName);
+            } catch (e) { }
+        }
+
+        // ── CROSS-TAB SYNC ──
+        const syncChannel = (() => { try { return new BroadcastChannel('khata_sync'); } catch (e) { return { postMessage: () => { }, addEventListener: () => { } }; } })();
+        syncChannel.addEventListener('message', async (ev) => {
+            if (!ev.data) return;
+            if (ev.data.type === 'company-updated' || ev.data.type === 'day-updated') {
+                loadLocalStorageState();
+                await syncAllKhataData();
+                if (currentTab === 'op_slips') renderOpSlips();
+                if (currentTab === 'fix_slips') renderFixSlips();
+                if (currentTab === 'op_total') renderOpTotalTable();
+                if (currentTab === 'fix_total') renderFixTotalTable();
+            }
+        });
+
+        window.addEventListener('focus', async () => {
+            loadLocalStorageState();
+            await syncAllKhataData();
+            if (currentTab === 'op_slips') renderOpSlips();
+            if (currentTab === 'fix_slips') renderFixSlips();
+            if (currentTab === 'op_total') renderOpTotalTable();
+            if (currentTab === 'fix_total') renderFixTotalTable();
+        });
+
+        // ── KHATA SYNC ──
+        async function getKhataMasterWorkers() {
+            const fixMasterSet = new Set();   // pagarType === 'fix' in Master
+            const opMasterSet = new Set();    // pagarType === 'daily' in Master
+            const khataAllNames = new Set();  // all names from Khata accounts + rojmel
+
+            try {
+                // Step 1: Read Master entries — strict pagarType assignment
+                const mastersRaw = await storageGet('khata:master_entries');
+                if (mastersRaw) {
+                    const masterEntries = JSON.parse(mastersRaw) || [];
+                    masterEntries.forEach(m => {
+                        if (m && m.name && m.name.trim()) {
+                            const nm = m.name.trim();
+                            if (m.pagarType === 'fix') {
+                                fixMasterSet.add(nm);
+                            } else if (m.pagarType === 'daily') {
+                                opMasterSet.add(nm);
+                            }
+                            // Also track all master names regardless of pagarType
+                            khataAllNames.add(nm);
+                        }
+                    });
+                }
+            } catch (e) { }
+
+            try {
+                // Step 2: Read Khata accounts list (all accounts in Khata Book)
+                const accountsRaw = await storageGet('khata:accounts');
+                if (accountsRaw) {
+                    const accs = JSON.parse(accountsRaw) || [];
+                    accs.forEach(a => { if (a && a.name && a.name.trim()) khataAllNames.add(a.name.trim()); });
+                }
+            } catch (e) { }
+
+            try {
+                // Step 3: Read Rojmel (dilyex) daily entries for worker names
+                const keys = await getAllKeys();
+                for (const key of (keys || []).filter(k => k && k.startsWith('khata:day:'))) {
+                    try {
+                        const raw = await storageGet(key);
+                        if (raw) {
+                            const dayObj = JSON.parse(raw);
+                            // Income entries (aavak) — worker names
+                            (dayObj.income || []).forEach(item => {
+                                if (item && item.name && item.name.trim()) khataAllNames.add(item.name.trim());
+                            });
+                            // Expense entries (javak) — worker names
+                            (dayObj.expense || []).forEach(item => {
+                                if (item && item.name && item.name.trim()) khataAllNames.add(item.name.trim());
+                            });
+                        }
+                    } catch (e) { }
+                }
+            } catch (e) { }
+
+            // Enforce mutual exclusivity: if same name in both, fix takes priority
+            opMasterSet.forEach(ow => {
+                const owLower = ow.trim().toLowerCase();
+                fixMasterSet.forEach(fw => {
+                    if (fw.trim().toLowerCase() === owLower) opMasterSet.delete(ow);
+                });
+            });
+
+            // Build final sets:
+            // fixWorkers = ONLY explicitly set as 'fix' in Master
+            const fixSet = new Set(fixMasterSet);
+
+            // opWorkers = explicitly 'daily' in Master PLUS any Khata/Rojmel name NOT in fixSet
+            // (because workers in Khata are daily pagar by default unless explicitly set as fix)
+            const opSet = new Set(opMasterSet);
+            khataAllNames.forEach(nm => {
+                const nmLower = nm.trim().toLowerCase();
+                const isFixWorker = Array.from(fixSet).some(f => f.trim().toLowerCase() === nmLower);
+                if (!isFixWorker) {
+                    opSet.add(nm);
+                }
+            });
+
+            const fixList = Array.from(fixSet).sort();
+            const opList = Array.from(opSet).sort();
+            return { allWorkers: Array.from(new Set([...opList, ...fixList])).sort(), opWorkers: opList, fixWorkers: fixList };
+        }
+
+        async function fetchWorkerUpadFromKhata(workerName) {
+            if (!workerName) return [];
+            const nameLower = workerName.trim().toLowerCase();
+            let upadEntries = [];
+            const seenKeys = new Set();
+            const addEntry = (ref, date, amount, id) => {
+                const numAmt = Number(amount || 0);
+                if (numAmt <= 0) return;
+                const key = (id || '') + '|' + (date || '') + '|' + (ref || '') + '|' + numAmt;
+                if (seenKeys.has(key)) return;
+                seenKeys.add(key);
+                let dt = date || '';
+                if (dt.includes('-')) { const p = dt.split('-'); if (p.length === 3) dt = `${p[2]}-${p[1]}`; }
+                upadEntries.push({ ref: (ref && ref.trim()) ? ref.trim() : 'Kharchi', note: (ref && ref.trim()) ? ref.trim() : 'Kharchi', date: dt, amount: numAmt });
+            };
+            try {
+                const keys = await getAllKeys();
+                for (const key of keys.filter(k => k && k.startsWith('khata:day:'))) {
+                    const dateStr = key.replace('khata:day:', '');
+                    try {
+                        const raw = await storageGet(key);
+                        if (raw) {
+                            const dayObj = JSON.parse(raw);
+                            (dayObj.expense || []).forEach(item => {
+                                if ((item.name || '').trim().toLowerCase() === nameLower) {
+                                    const amt = Number(item.amount || item.javak || 0);
+                                    if (amt > 0) addEntry(item.note || item.description || item.category || item.master || 'Rojmel Kharch', dateStr, amt, item.id);
+                                }
+                            });
+                        }
+                    } catch (e) { }
+                }
+            } catch (e) { }
+            return upadEntries;
+        }
+
+        async function fetchWorkerMasterFromKhata(workerName) {
+            if (!workerName) return null;
+            const nameLower = workerName.trim().toLowerCase();
+            try {
+                const mastersRaw = await storageGet('khata:master_entries');
+                if (mastersRaw) {
+                    const masterEntries = JSON.parse(mastersRaw) || [];
+                    const found = masterEntries.find(m => m && m.name && m.name.trim().toLowerCase() === nameLower);
+                    if (found) {
+                        const cat = (found.master && found.master.trim()) 
+                            ? found.master.trim() 
+                            : ((found.subCategory && found.subCategory.trim()) 
+                                ? found.subCategory.trim() 
+                                : ((found.category && found.category.trim()) ? found.category.trim() : ''));
+                        const amt = found.amount || found.pagarAmount || found.salary || '';
+                        return { category: cat, pagarAmount: amt, pagarType: found.pagarType || '' };
+                    }
+                }
+            } catch (e) { }
+            return null;
+        }
+
+        async function syncAllKhataData() {
+            try {
+                const { allWorkers, opWorkers, fixWorkers } = await getKhataMasterWorkers();
+                allKhataWorkers = allWorkers;
+                opKhataWorkers = opWorkers;
+                fixKhataWorkers = fixWorkers;
+
+                const opSetLower = new Set(opWorkers.map(w => w.trim().toLowerCase()));
+                const fixSetLower = new Set(fixWorkers.map(w => w.trim().toLowerCase()));
+
+                // Remove workers from Fix Slips if they are now Daily/Op workers or not in fixWorkers
+                for (let i = 0; i < fixSlipsData.length; i++) {
+                    if (fixSlipsData[i].name && !fixSlipsData[i].name.startsWith('Fix Worker #')) {
+                        const nameNorm = fixSlipsData[i].name.trim().toLowerCase();
+                        if (!fixSetLower.has(nameNorm) || opSetLower.has(nameNorm)) {
+                            fixSlipsData[i].name = '';
+                            fixSlipsData[i].salary = 0;
+                            fixSlipsData[i].upad = [];
+                            fixSlipsData[i].duties = [];
+                        }
+                    }
+                }
+
+                // Remove workers from Op Slips if they are now Fix workers or not in opWorkers
+                for (let i = 0; i < opSlipsData.length; i++) {
+                    if (opSlipsData[i].name && !opSlipsData[i].name.startsWith('Operator #')) {
+                        const nameNorm = opSlipsData[i].name.trim().toLowerCase();
+                        if (!opSetLower.has(nameNorm) || fixSetLower.has(nameNorm)) {
+                            opSlipsData[i].name = '';
+                            opSlipsData[i].upad = [];
+                            opSlipsData[i].duties = [];
+                        }
+                    }
+                }
+
+                // Auto-assign unassigned fixWorkers to fixSlipsData
+                for (const workerName of fixWorkers) {
+                    const exists = fixSlipsData.some(s => s.name && s.name.trim().toLowerCase() === workerName.trim().toLowerCase());
+                    if (!exists) {
+                        const emptySlot = fixSlipsData.find(s => !s.name || s.name.trim() === '' || s.name.startsWith('Fix Worker #'));
+                        if (emptySlot) {
+                            emptySlot.name = workerName;
+                        }
+                    }
+                }
+
+                // Auto-assign unassigned opWorkers to opSlipsData
+                for (const workerName of opWorkers) {
+                    const exists = opSlipsData.some(s => s.name && s.name.trim().toLowerCase() === workerName.trim().toLowerCase());
+                    if (!exists) {
+                        const emptySlot = opSlipsData.find(s => !s.name || s.name.trim() === '' || s.name.startsWith('Operator #'));
+                        if (emptySlot) {
+                            emptySlot.name = workerName;
+                        }
+                    }
+                }
+
+                // Sync upad & master info for Op Slips
+                for (let i = 0; i < opSlipsData.length; i++) {
+                    if (opSlipsData[i].name && !opSlipsData[i].name.startsWith('Operator #')) {
+                        opSlipsData[i].upad = await fetchWorkerUpadFromKhata(opSlipsData[i].name);
+                    }
+                }
+
+                // Sync upad & master info (Category & Salary) for Fix Slips
+                for (let i = 0; i < fixSlipsData.length; i++) {
+                    if (fixSlipsData[i].name && !fixSlipsData[i].name.startsWith('Fix Worker #')) {
+                        const mInfo = await fetchWorkerMasterFromKhata(fixSlipsData[i].name);
+                        if (mInfo) {
+                            if (mInfo.category) fixSlipsData[i].category = mInfo.category;
+                            if (mInfo.pagarAmount) fixSlipsData[i].salary = parseFloat(mInfo.pagarAmount) || fixSlipsData[i].salary;
+                        }
+                        fixSlipsData[i].upad = await fetchWorkerUpadFromKhata(fixSlipsData[i].name);
+                    }
+                }
+                saveStorage();
+            } catch (e) { }
+        }
+
+        // ── TAB SWITCHING ──
+        async function switchTab(tabKey) {
+            currentTab = tabKey;
+            await syncAllKhataData();
+            ['viewRates', 'viewOpSlips', 'viewOpTotal', 'viewFixTotal', 'viewFixSlips'].forEach(id => document.getElementById(id).style.display = 'none');
+            ['tabSetRate', 'tabOpSlip', 'tabOpTotal', 'tabFixTotal', 'tabFixSlip'].forEach(id => document.getElementById(id).classList.remove('active'));
+            if (tabKey === 'rates') { document.getElementById('viewRates').style.display = 'block'; document.getElementById('tabSetRate').classList.add('active'); renderRatesTable(); }
+            else if (tabKey === 'op_slips') { document.getElementById('viewOpSlips').style.display = 'block'; document.getElementById('tabOpSlip').classList.add('active'); renderOpSlips(); }
+            else if (tabKey === 'op_total') { document.getElementById('viewOpTotal').style.display = 'block'; document.getElementById('tabOpTotal').classList.add('active'); renderOpTotalTable(); }
+            else if (tabKey === 'fix_total') { document.getElementById('viewFixTotal').style.display = 'block'; document.getElementById('tabFixTotal').classList.add('active'); renderFixTotalTable(); }
+            else if (tabKey === 'fix_slips') { document.getElementById('viewFixSlips').style.display = 'block'; document.getElementById('tabFixSlip').classList.add('active'); renderFixSlips(); }
+        }
+
+        // ── VIEW 1: RATES TABLE ──
+        function renderRatesTable() {
+            const tbody = document.getElementById('ratesTableBody');
+            tbody.innerHTML = '';
+            ratesData.forEach((item, idx) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${idx + 1}</td>
+                    <td><input class="cell-edit" type="text" value="${item.task}" onchange="updateRateTask(${idx}, this.value)"></td>
+                    <td class="num"><input class="cell-edit" type="number" style="text-align:right;" value="${item.rate}" onchange="updateRateVal(${idx}, this.value)"></td>
+                    <td class="num"><button style="background:none;border:none;color:var(--rust);cursor:pointer;font-weight:700;" onclick="deleteRateRow(${idx})">✕ Delete</button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+        function updateRateTask(idx, val) { ratesData[idx].task = val; saveStorage(); }
+        function updateRateVal(idx, val) { ratesData[idx].rate = parseFloat(val) || 0; saveStorage(); }
+        function deleteRateRow(idx) { ratesData.splice(idx, 1); saveStorage(); renderRatesTable(); }
+        function addNewRateRow() { ratesData.push({ id: Date.now(), task: 'New Duty Task', rate: 500 }); saveStorage(); renderRatesTable(); }
+
+        function getTaskOptionsHtml(selectedTask) {
+            let html = '<option value="">-- Select Task --</option>';
+            ratesData.forEach(r => {
+                const isSel = (r.task.trim().toLowerCase() === (selectedTask || '').trim().toLowerCase());
+                html += `<option value="${r.task}" ${isSel ? 'selected' : ''}>${r.task}</option>`;
+            });
+            return html;
+        }
+
+        function formatUpadDate(dStr) {
+            if (!dStr) return '';
+            let str = String(dStr).trim();
+            if (str.includes('/')) return str;
+            if (str.includes('-')) {
+                const p = str.split('-');
+                if (p.length === 3) return `${p[2]}/${p[1]}/${p[0].slice(-2)}`;
+                if (p.length === 2) return `${p[0]}/${p[1]}/26`;
+            }
+            return str;
+        }
+
+        function calcOpSlip(slip) {
+            const hasWorker = slip.name && slip.name.trim() !== '' && !slip.name.startsWith('Operator #');
+            let gross = 0;
+            if (hasWorker) {
+                (slip.duties || []).forEach(d => { gross += (Number(d.qty) || 0) * (Number(d.rate) || 0); });
+            }
+            let totalUpad = hasWorker ? (slip.upad || []).reduce((s, u) => s + Math.abs(Number(u.amount) || 0), 0) : 0;
+            return { gross, totalUpad, net: gross - totalUpad };
+        }
+
+        function calcFixSlip(slip) {
+            const hasWorker = slip.name && slip.name.trim() !== '' && !slip.name.startsWith('Fix Worker #');
+            const salary = hasWorker ? (Number(slip.salary) || 0) : 0;
+            const days = (slip.days === undefined || slip.days === '' || slip.days === null) ? 30 : Number(slip.days);
+            const dailyRate = Math.round(salary / 30);
+            const basePay = Math.round(dailyRate * days);
+            const dutiesTotal = (slip.duties || []).reduce((s, d) => s + ((d.qty || 0) * (d.rate || 0)), 0);
+            const gross = basePay + dutiesTotal;
+            let totalUpad = (slip.upad || []).reduce((s, u) => s + Math.abs(Number(u.amount) || 0), 0);
+            return { gross, totalUpad, net: gross - totalUpad, dailyRate, days, salary };
+        }
+
+        // ── VIEW 2: OP SLIPS ──
+        let opDateFilter = { from: null, to: null };
+        let fixDateFilter = { from: null, to: null };
+
+        function _inDateRange(dateStr, fromD, toD) {
+            if (!dateStr) return false;
+            const d = new Date(dateStr);
+            return (!fromD || d >= fromD) && (!toD || d <= toD);
+        }
+
+        function formatFilterMonthLabel(filterState, defaultMonth) {
+            const { from, to } = filterState || {};
+            if (!from && !to) return defaultMonth || globalMonthLabel;
+            const mn = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            if (from && to) {
+                // Count days per month in the range → show dominant month
+                const monthCount = {};
+                const cur = new Date(from);
+                cur.setHours(0, 0, 0, 0);
+                const end = new Date(to);
+                end.setHours(0, 0, 0, 0);
+                while (cur <= end) {
+                    const key = `${cur.getFullYear()}-${cur.getMonth()}`;
+                    monthCount[key] = (monthCount[key] || 0) + 1;
+                    cur.setDate(cur.getDate() + 1);
+                }
+                // Find the month key with max days
+                let maxKey = null, maxDays = 0;
+                for (const [key, days] of Object.entries(monthCount)) {
+                    if (days > maxDays) { maxDays = days; maxKey = key; }
+                }
+                if (maxKey) {
+                    const [yr, mo] = maxKey.split('-');
+                    return `${mn[parseInt(mo)]} ${yr} पगार`;
+                }
+                // Fallback: same month check
+                const fm = mn[from.getMonth()], tm = mn[to.getMonth()];
+                return (fm === tm && from.getFullYear() === to.getFullYear())
+                    ? `${fm} ${from.getFullYear()} पगार`
+                    : `${fm}-${tm} ${from.getFullYear()} पगार`;
+            } else if (from) return `${mn[from.getMonth()]} ${from.getFullYear()} पगार`;
+            return defaultMonth || globalMonthLabel;
+        }
+
+        function navOpPage(dir) {
+            const totalPages = Math.ceil(opSlipsData.length / SLIPS_PER_PAGE);
+            opCurrentPage = Math.max(1, Math.min(totalPages, opCurrentPage + dir));
+            renderOpSlips();
+        }
+        function setOpPage(p) { opCurrentPage = p; renderOpSlips(); }
+
+        function getWorkerSelectOptionsHtml(currentName, isFix = false, currentSlipIndex = -1) {
+            // For Fix Pagar slip: show Fix Master workers + all Khata accounts (so dropdown is never empty)
+            // For Operator slip: show only opKhataWorkers (daily workers, excluding fix workers)
+            let list;
+            if (isFix) {
+                // Combine fixKhataWorkers + allKhataWorkers — so fix slip always has options
+                const combined = new Set([...(fixKhataWorkers || []), ...(allKhataWorkers || [])]);
+                list = Array.from(combined).sort();
+            } else {
+                list = opKhataWorkers || [];
+            }
+
+            const usedOpNames = new Set();
+            const usedFixNames = new Set();
+            (opSlipsData || []).forEach((s, idx) => {
+                if (s.name && s.name.trim() !== '' && !s.name.startsWith('Operator #')) {
+                    usedOpNames.add(s.name.trim().toLowerCase());
+                }
+            });
+            (fixSlipsData || []).forEach((s, idx) => {
+                if (s.name && s.name.trim() !== '' && !s.name.startsWith('Fix Worker #')) {
+                    usedFixNames.add(s.name.trim().toLowerCase());
+                }
+            });
+
+            const nameSet = new Set(list);
+            if (currentName && !currentName.startsWith('Operator #') && !currentName.startsWith('Fix Worker #')) nameSet.add(currentName);
+            let html = `<option value="">-- Select Worker --</option>`;
+            Array.from(nameSet).sort().forEach(w => {
+                const wNorm = w.trim().toLowerCase();
+                const isSelected = (currentName && currentName.trim().toLowerCase() === wNorm);
+                // For fix slip: mark as used if already in another fix slip
+                // For op slip: mark as used if already in another op slip
+                const isUsed = isFix
+                    ? (usedFixNames.has(wNorm) && !isSelected)
+                    : (usedOpNames.has(wNorm) && !isSelected);
+                if (isUsed) {
+                    html += `<option value="${w}" disabled style="color:#aaa;">${w} (Already Selected)</option>`;
+                } else {
+                    html += `<option value="${w}" ${isSelected ? 'selected' : ''}>${w}</option>`;
+                }
+            });
+            return html;
+        }
+
+        function renderOpSlips() {
+            const grid = document.getElementById('opSlipsGrid');
+            grid.innerHTML = '';
+            const totalPages = Math.ceil(opSlipsData.length / SLIPS_PER_PAGE);
+            const startIndex = (opCurrentPage - 1) * SLIPS_PER_PAGE;
+            const pageSlips = opSlipsData.slice(startIndex, startIndex + SLIPS_PER_PAGE);
+
+            const pills = document.getElementById('opPagePills');
+            pills.innerHTML = '';
+            for (let p = 1; p <= totalPages; p++) {
+                const btn = document.createElement('button');
+                btn.className = `page-pill ${p === opCurrentPage ? 'active' : ''}`;
+                btn.textContent = `Slips ${(p - 1) * 6 + 1}–${Math.min(p * 6, opSlipsData.length)}`;
+                btn.onclick = () => setOpPage(p);
+                pills.appendChild(btn);
+            }
+            document.getElementById('opPageInfo').textContent = `Page ${opCurrentPage} of ${totalPages} (Slips ${startIndex + 1}–${Math.min(startIndex + SLIPS_PER_PAGE, opSlipsData.length)})`;
+            document.getElementById('opPrevPageBtn').disabled = (opCurrentPage === 1);
+            document.getElementById('opNextPageBtn').disabled = (opCurrentPage === totalPages);
+
+            pageSlips.forEach(slip => {
+                const sIdx = slip.slipNo - 1;
+                const { gross, totalUpad } = calcOpSlip(slip);
+                const { from: opFD, to: opTD } = opDateFilter;
+                const filteredUpad = (opFD || opTD) ? (slip.upad || []).filter(u => _inDateRange(u.date, opFD, opTD)) : (slip.upad || []);
+                const displayUpad = filteredUpad.reduce((s, u) => s + Math.abs(u.amount || 0), 0);
+                const displayNet = gross - displayUpad;
+                const isPaid = displayNet >= 0;
+
+                const card = document.createElement('div');
+                card.className = 'slip-card';
+
+                const hasWorker = slip.name && slip.name.trim() !== '' && !slip.name.startsWith('Operator #');
+                let dutiesHtml = hasWorker ? (slip.duties || []).map((d, dIdx) => `
+                    <tr>
+                        <td style="padding:3px 5px;width:60%;"><select class="cell-edit" onchange="onOpTaskSelectChange(${sIdx}, ${dIdx}, this.value)" style="font-weight:700;font-size:13px;width:100%;">${getTaskOptionsHtml(d.task)}</select></td>
+                        <td class="num" style="padding:3px 5px;text-align:right;white-space:nowrap;font-size:13px;">
+                            <input class="cell-edit" type="number" style="width:48px;text-align:right;font-size:13px;font-family:'JetBrains Mono',monospace;" value="${d.qty}" onchange="updateOpDutyQty(${sIdx}, ${dIdx}, this.value)"> &times;
+                            <input class="cell-edit" type="number" style="width:68px;text-align:right;font-size:13px;font-family:'JetBrains Mono',monospace;" value="${d.rate}" onchange="updateOpDutyRate(${sIdx}, ${dIdx}, this.value)">
+                        </td>
+                        <td class="num" style="padding:3px 5px;text-align:right;font-weight:800;font-size:14px;font-family:'JetBrains Mono',monospace;">${rupee((d.qty || 0) * (d.rate || 0))}</td>
+                    </tr>`).join('') : '';
+
+                let upadHtml = hasWorker ? filteredUpad.map((u, uIdx) => {
+                    const realIdx = (slip.upad || []).indexOf(u);
+                    return `<div style="display:flex;align-items:center;justify-content:space-between;gap:4px;padding:3px 0;border-bottom:1px solid #f8d0d0;color:#c00;">
+                        <input class="cell-edit" type="text" style="width:58px;font-size:11px;font-weight:700;color:#c00;border:none;background:transparent;padding:0;outline:none;" value="${formatUpadDate(u.date)}" onchange="updateOpUpadDate(${sIdx}, ${realIdx}, this.value)">
+                        <input class="cell-edit" type="text" style="flex:1;font-size:12px;font-weight:700;color:#c00;border:none;background:transparent;padding:1px 4px;margin-left:4px;" value="${u.ref || u.note || ''}" placeholder="Kharchi note" onchange="updateOpUpadRef(${sIdx}, ${realIdx}, this.value)">
+                        <div style="font-weight:800;font-size:12px;font-family:'JetBrains Mono',monospace;color:#c00;">₹ -<input class="cell-edit" type="number" style="width:48px;text-align:right;color:#c00;font-weight:800;font-size:12px;font-family:'JetBrains Mono',monospace;padding:0;border:none;background:transparent;" value="${Math.abs(u.amount)}" onchange="updateOpUpadAmt(${sIdx}, ${realIdx}, this.value)"></div>
+                    </div>`;
+                }).join('') : '';
+
+                card.innerHTML = `
+                    <div style="border:2px solid #000;background:#fff;border-radius:4px;height:100%;display:flex;flex-direction:column;justify-content:space-between;">
+                        <div style="padding:8px 12px;border-bottom:1.5px solid #000;background:#fff;">
+                            <div style="text-align:center;font-size:17px;font-weight:900;letter-spacing:1px;margin-bottom:4px;color:#000;"><span style="text-decoration:underline;">${slip.company || globalCompanyName}</span></div>
+                            <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+                                <div style="font-size:14px;font-weight:800;color:#000;display:flex;align-items:center;gap:6px;flex:1;">
+                                    <span>${slip.slipNo} Oprater</span>
+                                    <select class="cell-edit" style="font-size:14px;font-weight:800;max-width:200px;" onchange="onOpWorkerNameChange(${sIdx}, this.value)">${getWorkerSelectOptionsHtml(slip.name, false, sIdx)}</select>
+                                </div>
+                                <div style="font-size:14px;font-weight:900;color:#c00;">${formatFilterMonthLabel(opDateFilter, slip.month)}</div>
+                            </div>
+                        </div>
+                        <div style="display:grid;grid-template-columns:1fr 260px;min-height:190px;flex:1;">
+                            <div style="padding:8px 10px;border-right:1.5px solid #000;display:flex;flex-direction:column;justify-content:space-between;">
+                                <div>
+                                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;" class="no-print">
+                                        <span style="font-size:11px;font-weight:800;color:var(--ink-soft);text-transform:uppercase;">Duty Tasks:</span>
+                                        <button class="add-row-btn" onclick="addOpDutyRow(${sIdx})">+ Add Duty</button>
+                                    </div>
+                                    <table style="width:100%;border-collapse:collapse;"><tbody>${dutiesHtml}</tbody></table>
+                                </div>
+                                <div style="margin-top:8px;">
+                                    <div style="border-top:1.5px solid #000;padding-top:4px;display:flex;justify-content:space-between;font-weight:800;font-size:14px;"><span>Total પગાર</span><span style="font-family:'JetBrains Mono',monospace;">${rupee(gross)}</span></div>
+                                    <div style="display:flex;justify-content:space-between;font-weight:800;font-size:14px;color:#c00;margin-top:2px;"><span>ખર્ચો <small style="font-size:11px;">(₹)</small></span><span style="font-family:'JetBrains Mono',monospace;">₹ -${displayUpad.toLocaleString('en-IN')}</span></div>
+                                    <div style="border-top:3px double #000;margin:4px 0;"></div>
+                                    <div style="display:flex;justify-content:space-between;align-items:center;font-weight:900;font-size:16px;"><span>${isPaid ? 'हिसाब चुकते' : 'हिसाब बाकी'}</span><span style="font-family:'JetBrains Mono',monospace;">${displayNet < 0 ? '₹ -' + Math.abs(displayNet).toLocaleString('en-IN') : rupee(displayNet)}</span></div>
+                                </div>
+                            </div>
+                            <div style="padding:8px 10px;background:#f2f4f8;display:flex;flex-direction:column;justify-content:space-between;">
+                                <div>
+                                    <div style="margin-bottom:4px;"><span style="font-weight:900;font-size:13.5px;color:#c00;text-decoration:underline;"><u>ખર્ચો</u> <small style="font-size:11px;">(₹)</small></span></div>
+                                    <div style="width:100%;">${upadHtml}</div>
+                                </div>
+                                <div style="border-top:1.5px solid #000;padding-top:4px;margin-top:4px;text-align:right;font-weight:900;font-size:14px;color:#c00;font-family:'JetBrains Mono',monospace;">₹ -${displayUpad.toLocaleString('en-IN')}</div>
+                            </div>
+                        </div>
+                    </div>`;
+                grid.appendChild(card);
+            });
+        }
+
+        // ── VIEW 5: FIX SLIPS ──
+        function navFixPage(dir) {
+            const totalPages = Math.ceil(fixSlipsData.length / SLIPS_PER_PAGE);
+            fixCurrentPage = Math.max(1, Math.min(totalPages, fixCurrentPage + dir));
+            renderFixSlips();
+        }
+        function setFixPage(p) { fixCurrentPage = p; renderFixSlips(); }
+
+        function renderFixSlips() {
+            const grid = document.getElementById('fixSlipsGrid');
+            grid.innerHTML = '';
+            const totalPages = Math.ceil(fixSlipsData.length / SLIPS_PER_PAGE);
+            const startIndex = (fixCurrentPage - 1) * SLIPS_PER_PAGE;
+            const pageSlips = fixSlipsData.slice(startIndex, startIndex + SLIPS_PER_PAGE);
+
+            const pills = document.getElementById('fixPagePills');
+            pills.innerHTML = '';
+            for (let p = 1; p <= totalPages; p++) {
+                const btn = document.createElement('button');
+                btn.className = `page-pill ${p === fixCurrentPage ? 'active' : ''}`;
+                btn.textContent = `Slips ${(p - 1) * 6 + 1}–${Math.min(p * 6, fixSlipsData.length)}`;
+                btn.onclick = () => setFixPage(p);
+                pills.appendChild(btn);
+            }
+            document.getElementById('fixPageInfo').textContent = `Page ${fixCurrentPage} of ${totalPages} (Slips ${startIndex + 1}–${Math.min(startIndex + SLIPS_PER_PAGE, fixSlipsData.length)})`;
+            document.getElementById('fixPrevPageBtn').disabled = (fixCurrentPage === 1);
+            document.getElementById('fixNextPageBtn').disabled = (fixCurrentPage === totalPages);
+
+            pageSlips.forEach(slip => {
+                const sIdx = slip.slipNo - 1;
+                const { gross, totalUpad, dailyRate, days, salary } = calcFixSlip(slip);
+                const { from: fixFD, to: fixTD } = fixDateFilter;
+                const filteredUpad = (fixFD || fixTD) ? (slip.upad || []).filter(u => _inDateRange(u.date, fixFD, fixTD)) : (slip.upad || []);
+                const displayUpad = filteredUpad.reduce((s, u) => s + Math.abs(u.amount || 0), 0);
+                const displayNet = gross - displayUpad;
+                const isPaid = displayNet >= 0;
+
+                const card = document.createElement('div');
+                card.className = 'slip-card';
+
+                const hasWorker = slip.name && slip.name.trim() !== '' && !slip.name.startsWith('Fix Worker #');
+                let upadHtml = hasWorker ? filteredUpad.map((u, uIdx) => {
+                    const realIdx = (slip.upad || []).indexOf(u);
+                    return `<div style="display:flex;align-items:center;justify-content:space-between;gap:4px;padding:3px 0;border-bottom:1px solid #f8d0d0;color:#c00;">
+                        <input class="cell-edit" type="text" style="width:58px;font-size:11px;font-weight:700;color:#c00;border:none;background:transparent;padding:0;outline:none;" value="${formatUpadDate(u.date)}" onchange="updateFixUpadDate(${sIdx}, ${realIdx}, this.value)">
+                        <input class="cell-edit" type="text" style="flex:1;font-size:12px;font-weight:700;color:#c00;border:none;background:transparent;padding:1px 4px;margin-left:4px;" value="${u.ref || u.note || ''}" placeholder="Kharchi note" onchange="updateFixUpadRef(${sIdx}, ${realIdx}, this.value)">
+                        <div style="font-weight:800;font-size:12px;font-family:'JetBrains Mono',monospace;color:#c00;">₹ -<input class="cell-edit" type="number" style="width:48px;text-align:right;color:#c00;font-weight:800;font-size:12px;font-family:'JetBrains Mono',monospace;padding:0;border:none;background:transparent;" value="${Math.abs(u.amount)}" onchange="updateFixUpadAmt(${sIdx}, ${realIdx}, this.value)"></div>
+                    </div>`;
+                }).join('') : '';
+
+                let fixDutiesHtml = hasWorker ? (slip.duties || []).map(function (d, dIdx) {
+                    return '<tr style="border-bottom:1px solid #eee;"><td style="padding:4px 6px;"><select class="cell-edit" style="width:100%;font-size:12px;font-weight:700;" onchange="onFixTaskSelectChange(' + sIdx + ',' + dIdx + ',this.value)">' + getTaskOptionsHtml(d.task) + '</select></td><td style="text-align:right;padding:4px 6px;"><input class="cell-edit" type="number" style="width:44px;text-align:right;font-size:12px;font-weight:800;" value="' + (d.qty || 1) + '" onchange="updateFixDutyQty(' + sIdx + ',' + dIdx + ',this.value)"></td><td style="text-align:right;padding:4px 6px;"><input class="cell-edit" type="number" style="width:52px;text-align:right;font-size:12px;font-weight:700;" value="' + (d.rate || 0) + '" onchange="updateFixDutyRate(' + sIdx + ',' + dIdx + ',this.value)"></td><td style="text-align:right;padding:4px 6px;font-size:13px;font-weight:900;">' + rupee((d.qty || 0) * (d.rate || 0)) + '</td></tr>';
+                }).join('') : '';
+                card.innerHTML = `
+                    <div style="border:2px solid #000;background:#fff;border-radius:4px;height:100%;display:flex;flex-direction:column;justify-content:space-between;">
+                        <div style="padding:8px 12px;border-bottom:1.5px solid #000;background:#fff;">
+                            <div style="text-align:center;font-size:17px;font-weight:900;letter-spacing:1px;margin-bottom:4px;color:#000;"><span style="text-decoration:underline;">${slip.company || globalCompanyName}</span></div>
+                            <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+                                <div style="font-size:14px;font-weight:800;color:#000;display:flex;align-items:center;gap:6px;">
+                                    <input class="cell-edit" type="text" value="${slip.category || 'HELPAR :-'}" style="max-width:130px;font-weight:800;border:1px solid #000;" onchange="updateFixCategory(${sIdx}, this.value)">
+                                    <select class="cell-edit" style="font-size:14px;font-weight:800;max-width:150px;" onchange="onFixWorkerNameChange(${sIdx}, this.value)">${getWorkerSelectOptionsHtml(slip.name, true, sIdx)}</select>
+                                </div>
+                                <div style="display:flex;align-items:center;gap:10px;">
+                                    <div style="display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:700;color:#555;">
+                                        <span>Base:</span>
+                                        <span style="background:#F6F4EB;border:1.5px solid #D0C9B8;border-radius:6px;padding:1px 7px;font-size:13px;font-weight:900;font-family:'JetBrains Mono',monospace;color:#000;">₹${salary}</span>
+                                    </div>
+                                    <div style="font-size:14px;font-weight:900;color:#c00;">${formatFilterMonthLabel(fixDateFilter, slip.month)}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="display:grid;grid-template-columns:1fr 260px;min-height:190px;flex:1;">
+                            <div style="padding:8px 10px;border-right:1.5px solid #000;display:flex;flex-direction:column;justify-content:space-between;">
+                                <div>
+                                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;" class="no-print">
+                                        <span style="font-size:11px;font-weight:800;color:var(--ink-soft);text-transform:uppercase;">Duty Tasks:</span>
+                                        <button class="add-row-btn" onclick="addFixDutyRow(${sIdx})">+ Add Duty</button>
+                                    </div>
+                                    <table style="width:100%;border-collapse:collapse;">
+                                        <thead>
+                                            <tr style="border-bottom:1.5px solid #000;background:#f5f5f5;">
+                                                <th style="text-align:left;padding:4px 6px;font-size:11px;font-weight:900;color:#444;text-transform:uppercase;">DESCRIPTION</th>
+                                                <th style="text-align:right;padding:4px 6px;font-size:11px;font-weight:900;color:#444;text-transform:uppercase;">DAYS</th>
+                                                <th style="text-align:right;padding:4px 6px;font-size:11px;font-weight:900;color:#444;text-transform:uppercase;">RATE/DAY</th>
+                                                <th style="text-align:right;padding:4px 6px;font-size:11px;font-weight:900;color:#444;text-transform:uppercase;">AMOUNT</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr style="border-bottom:1px solid #ddd;background:#f9f9f2;">
+                                                <td style="padding:6px 6px;font-size:12px;font-weight:700;color:#555;vertical-align:middle;">Fix Salary</td>
+                                                <td style="text-align:right;padding:6px;vertical-align:middle;"><input class="cell-edit" type="number" style="width:44px;text-align:right;font-size:13px;font-family:'JetBrains Mono',monospace;font-weight:800;" value="${days}" onchange="updateFixDays(${sIdx}, this.value)"></td>
+                                                <td style="text-align:right;padding:6px;font-size:13px;font-family:'JetBrains Mono',monospace;font-weight:700;white-space:nowrap;vertical-align:middle;">${rupee(dailyRate)}</td>
+                                                <td style="text-align:right;padding:6px;font-size:14px;font-family:'JetBrains Mono',monospace;font-weight:900;white-space:nowrap;color:#000;vertical-align:middle;">${rupee(gross)}</td>
+                                            </tr>
+                                            ${fixDutiesHtml}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div style="margin-top:8px;">
+                                    <div style="border-top:1.5px solid #000;padding-top:4px;display:flex;justify-content:space-between;font-weight:800;font-size:14px;"><span>Total પગાર</span><span style="font-family:'JetBrains Mono',monospace;">${rupee(gross)}</span></div>
+                                    <div style="display:flex;justify-content:space-between;font-weight:800;font-size:14px;color:#c00;margin-top:2px;"><span>ખર્ચો <small style="font-size:11px;">(₹)</small></span><span style="font-family:'JetBrains Mono',monospace;">₹ -${displayUpad.toLocaleString('en-IN')}</span></div>
+                                    <div style="border-top:3px double #000;margin:4px 0;"></div>
+                                    <div style="display:flex;justify-content:space-between;align-items:center;font-weight:900;font-size:16px;"><span>${isPaid ? 'हिसाब चुकते' : 'हिसाब बाकी'}</span><span style="font-family:'JetBrains Mono',monospace;">${displayNet < 0 ? '₹ -' + Math.abs(displayNet).toLocaleString('en-IN') : rupee(displayNet)}</span></div>
+                                </div>
+                            </div>
+                            <div style="padding:8px 10px;background:#f2f4f8;display:flex;flex-direction:column;justify-content:space-between;">
+                                <div>
+                                    <div style="margin-bottom:4px;"><span style="font-weight:900;font-size:13.5px;color:#c00;text-decoration:underline;"><u>ખર્ચો</u> <small style="font-size:11px;">(₹)</small></span></div>
+                                    <div style="width:100%;">${upadHtml}</div>
+                                </div>
+                                <div style="border-top:1.5px solid #000;padding-top:4px;margin-top:4px;text-align:right;font-weight:900;font-size:14px;color:#c00;font-family:'JetBrains Mono',monospace;">₹ -${displayUpad.toLocaleString('en-IN')}</div>
+                            </div>
+                        </div>
+                    </div>`;
+                grid.appendChild(card);
+            });
+        }
+
+        // ── EVENT HANDLERS ──
+        async function onOpWorkerNameChange(sIdx, newName) {
+            opSlipsData[sIdx].name = newName;
+            if (newName && !newName.startsWith('Operator #')) {
+                if (!opWorkerDuties[newName]) opWorkerDuties[newName] = opSlipsData[sIdx].duties || [];
+                opSlipsData[sIdx].duties = opWorkerDuties[newName];
+                opSlipsData[sIdx].upad = await fetchWorkerUpadFromKhata(newName) || [];
+            } else {
+                opSlipsData[sIdx].upad = [];
+                opSlipsData[sIdx].duties = [];
+            }
+            saveStorage(); renderOpSlips();
+        }
+        async function onFixWorkerNameChange(sIdx, newName) {
+            fixSlipsData[sIdx].name = newName;
+            if (newName && !newName.startsWith('Fix Worker #')) {
+                const masterInfo = await fetchWorkerMasterFromKhata(newName);
+                if (masterInfo) {
+                    if (masterInfo.category) fixSlipsData[sIdx].category = masterInfo.category;
+                    if (masterInfo.pagarAmount) fixSlipsData[sIdx].salary = parseFloat(masterInfo.pagarAmount) || 0;
+                }
+                if (!fixWorkerDuties[newName]) fixWorkerDuties[newName] = fixSlipsData[sIdx].duties || [];
+                fixSlipsData[sIdx].duties = fixWorkerDuties[newName];
+                fixSlipsData[sIdx].upad = await fetchWorkerUpadFromKhata(newName) || [];
+            } else {
+                fixSlipsData[sIdx].salary = 0;
+                fixSlipsData[sIdx].upad = [];
+                fixSlipsData[sIdx].duties = [];
+            }
+            saveStorage(); renderFixSlips();
+        }
+        function onOpTaskSelectChange(sIdx, dIdx, selectedTask) {
+            const slip = opSlipsData[sIdx];
+            slip.duties[dIdx].task = selectedTask;
+            const found = ratesData.find(r => r.task.trim().toLowerCase() === selectedTask.trim().toLowerCase());
+            if (found) slip.duties[dIdx].rate = found.rate;
+            if (slip.name && !slip.name.startsWith('Operator #')) opWorkerDuties[slip.name] = slip.duties;
+            saveStorage(); renderOpSlips();
+        }
+        function updateOpDutyQty(sIdx, dIdx, val) {
+            const slip = opSlipsData[sIdx];
+            slip.duties[dIdx].qty = parseFloat(val) || 0;
+            if (slip.name && !slip.name.startsWith('Operator #')) opWorkerDuties[slip.name] = slip.duties;
+            saveStorage(); renderOpSlips();
+        }
+        function updateOpDutyRate(sIdx, dIdx, val) {
+            const slip = opSlipsData[sIdx];
+            slip.duties[dIdx].rate = parseFloat(val) || 0;
+            if (slip.name && !slip.name.startsWith('Operator #')) opWorkerDuties[slip.name] = slip.duties;
+            saveStorage(); renderOpSlips();
+        }
+        function updateOpUpadRef(sIdx, uIdx, val) { opSlipsData[sIdx].upad[uIdx].ref = val; saveStorage(); }
+        function updateOpUpadDate(sIdx, uIdx, val) { opSlipsData[sIdx].upad[uIdx].date = val; saveStorage(); }
+        function updateOpUpadAmt(sIdx, uIdx, val) { opSlipsData[sIdx].upad[uIdx].amount = parseFloat(val) || 0; saveStorage(); renderOpSlips(); }
+        function addOpDutyRow(sIdx) {
+            const slip = opSlipsData[sIdx];
+            if (!slip.duties) slip.duties = [];
+            slip.duties.push({ task: '', qty: 1, rate: 0, date: '' });
+            if (slip.name && !slip.name.startsWith('Operator #')) opWorkerDuties[slip.name] = slip.duties;
+            saveStorage(); renderOpSlips();
+        }
+        function updateFixCategory(idx, val) { fixSlipsData[idx].category = val; saveStorage(); }
+        function updateFixSalary(idx, val) { fixSlipsData[idx].salary = parseFloat(val) || 0; saveStorage(); renderFixSlips(); }
+        function updateFixDays(idx, val) { fixSlipsData[idx].days = parseFloat(val) || 30; saveStorage(); renderFixSlips(); }
+        function updateFixUpadRef(sIdx, uIdx, val) { fixSlipsData[sIdx].upad[uIdx].ref = val; saveStorage(); }
+        function updateFixUpadDate(sIdx, uIdx, val) { fixSlipsData[sIdx].upad[uIdx].date = val; saveStorage(); }
+        function updateFixUpadAmt(sIdx, uIdx, val) { fixSlipsData[sIdx].upad[uIdx].amount = parseFloat(val) || 0; saveStorage(); renderFixSlips(); }
+        function addFixDutyRow(sIdx) {
+            const slip = fixSlipsData[sIdx];
+            if (!slip.duties) slip.duties = [];
+            slip.duties.push({ task: "", qty: 1, rate: 0 });
+            if (slip.name && !slip.name.startsWith('Fix Worker #')) fixWorkerDuties[slip.name] = slip.duties;
+            saveStorage(); renderFixSlips();
+        }
+        function onFixTaskSelectChange(sIdx, dIdx, selectedTask) {
+            const slip = fixSlipsData[sIdx];
+            if (!slip.duties || !slip.duties[dIdx]) return;
+            slip.duties[dIdx].task = selectedTask;
+            const found = ratesData.find(r => r.task && r.task.trim().toLowerCase() === selectedTask.trim().toLowerCase());
+            if (found) slip.duties[dIdx].rate = found.rate;
+            if (slip.name && !slip.name.startsWith('Fix Worker #')) fixWorkerDuties[slip.name] = slip.duties;
+            saveStorage(); renderFixSlips();
+        }
+        function updateFixDutyTask(sIdx, dIdx, val) {
+            const slip = fixSlipsData[sIdx];
+            slip.duties[dIdx].task = val;
+            if (slip.name && !slip.name.startsWith('Fix Worker #')) fixWorkerDuties[slip.name] = slip.duties;
+            saveStorage();
+        }
+        function updateFixDutyQty(sIdx, dIdx, val) {
+            const slip = fixSlipsData[sIdx];
+            slip.duties[dIdx].qty = parseFloat(val) || 0;
+            if (slip.name && !slip.name.startsWith('Fix Worker #')) fixWorkerDuties[slip.name] = slip.duties;
+            saveStorage(); renderFixSlips();
+        }
+        function updateFixDutyRate(sIdx, dIdx, val) {
+            const slip = fixSlipsData[sIdx];
+            slip.duties[dIdx].rate = parseFloat(val) || 0;
+            if (slip.name && !slip.name.startsWith('Fix Worker #')) fixWorkerDuties[slip.name] = slip.duties;
+            saveStorage(); renderFixSlips();
+        }
+
+        // ── TOTAL TABLES ──
+        function renderOpTotalTable() {
+            const tbody = document.getElementById('opTotalTableBody');
+            const tfoot = document.getElementById('opTotalTableFoot');
+            const q = (document.getElementById('opSearchInput').value || '').toLowerCase().trim();
+            tbody.innerHTML = '';
+            let sumGross = 0, sumUpad = 0, sumNet = 0;
+            let count = 0;
+            opSlipsData.forEach(slip => {
+                const hasName = slip.name && slip.name.trim() !== '' && !slip.name.startsWith('Operator #');
+                if (!hasName) return;
+                if (q && !slip.name.toLowerCase().includes(q)) return;
+                count++;
+                const { gross, totalUpad, net } = calcOpSlip(slip);
+                sumGross += gross; sumUpad += totalUpad; sumNet += net;
+                const isPaid = net >= 0;
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${slip.slipNo}</td>
+                    <td><b>${slip.slipNo} Oprater :-</b></td>
+                    <td><b>${slip.name}</b></td>
+                    <td class="num">${rupee(gross)}</td>
+                    <td class="num" style="color:var(--rust);">−${rupee(totalUpad)}</td>
+                    <td class="num" style="font-weight:800;color:${net < 0 ? 'var(--rust)' : 'var(--moss)'};">${(net < 0 ? '−' : '') + rupee(net)}</td>
+                    <td style="text-align:center;"><span class="badge-status ${isPaid ? 'paid' : 'due'}">${isPaid ? 'हिसाब चुकते' : 'हिसाब बाकी'}</span></td>`;
+                tbody.appendChild(tr);
+            });
+            tfoot.innerHTML = `<tr><td colspan="3"><b>TOTAL OPERATOR PAYROLL SUMMARY (TOTAL OPERATORS: ${count})</b></td><td class="num"><b>${rupee(sumGross)}</b></td><td class="num" style="color:var(--rust);"><b>−${rupee(sumUpad)}</b></td><td class="num" style="font-size:15px;color:${sumNet < 0 ? 'var(--rust)' : 'var(--moss)'};"><b>${(sumNet < 0 ? '−' : '') + rupee(sumNet)}</b></td><td></td></tr>`;
+        }
+
+        async function renderFixTotalTable() {
+            const tbody = document.getElementById('fixTotalTableBody');
+            const tfoot = document.getElementById('fixTotalTableFoot');
+            const q = (document.getElementById('fixSearchInput').value || '').toLowerCase().trim();
+            tbody.innerHTML = '';
+            let sumGross = 0, sumUpad = 0, sumNet = 0;
+            let count = 0;
+            // Build sub-category map
+            const catMap = {};
+
+            try {
+                const mListRaw = await storageGet('khata:masters');
+                if (mListRaw) {
+                    const mList = JSON.parse(mListRaw);
+                    if (Array.isArray(mList)) {
+                        mList.forEach(m => {
+                            if (m && m.trim()) catMap[m.trim()] = { count: 0, grossSum: 0 };
+                        });
+                    }
+                }
+            } catch (e) { }
+
+            try {
+                const masterEntriesRaw = await storageGet('khata:master_entries');
+                if (masterEntriesRaw) {
+                    const masterEntries = JSON.parse(masterEntriesRaw);
+                    if (Array.isArray(masterEntries)) {
+                        masterEntries.forEach(me => {
+                            const sub = (me.master || me.subCategory || '').trim();
+                            if (sub && !catMap[sub]) catMap[sub] = { count: 0, grossSum: 0 };
+                        });
+                    }
+                }
+            } catch (e) { }
+
+            fixSlipsData.forEach(slip => {
+                const hasName = slip.name && slip.name.trim() !== '' && !slip.name.startsWith('Fix Worker #');
+                const { gross, totalUpad, net } = calcFixSlip(slip);
+                // Use the actual sub-category from the slip
+                const normCat = (slip.category || 'HELPAR :-').trim();
+                if (!catMap[normCat]) catMap[normCat] = { count: 0, grossSum: 0 };
+                // Count only slips that have a real worker name
+                if (hasName) {
+                    catMap[normCat].count += 1;
+                    catMap[normCat].grossSum += gross;
+                }
+
+                if (!hasName) return;
+
+                // Main table row (with optional search filter)
+                if (q && !slip.name.toLowerCase().includes(q) && !(slip.category || '').toLowerCase().includes(q)) return;
+                count++;
+                sumGross += gross; sumUpad += totalUpad; sumNet += net;
+                const isPaid = net >= 0;
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${slip.slipNo}</td>
+                    <td><span style="font-weight:700;color:var(--ink-soft);">${slip.category}</span></td>
+                    <td><b>${slip.name}</b></td>
+                    <td class="num">${rupee(gross)}</td>
+                    <td class="num" style="color:var(--rust);">−${rupee(totalUpad)}</td>
+                    <td class="num" style="font-weight:800;color:${net < 0 ? 'var(--rust)' : 'var(--moss)'};">${(net < 0 ? '−' : '') + rupee(net)}</td>
+                    <td style="text-align:center;"><span class="badge-status ${isPaid ? 'paid' : 'due'}">${isPaid ? 'हिसाब चुकते' : 'हिसाब बाकी'}</span></td>`;
+                tbody.appendChild(tr);
+            });
+            tfoot.innerHTML = `<tr><td colspan="3"><b>TOTAL FIXED STAFF PAYROLL SUMMARY (TOTAL STAFF: ${count})</b></td><td class="num"><b>${rupee(sumGross)}</b></td><td class="num" style="color:var(--rust);"><b>−${rupee(sumUpad)}</b></td><td class="num" style="font-size:15px;color:${sumNet < 0 ? 'var(--rust)' : 'var(--moss)'};"><b>${(sumNet < 0 ? '−' : '') + rupee(sumNet)}</b></td><td></td></tr>`;
+            renderFixCategorySummary(catMap);
+        }
+
+        function renderFixCategorySummary(catMap) {
+            const summaryBody = document.getElementById('fixCategorySummaryBody');
+            const summaryFoot = document.getElementById('fixCategorySummaryFoot');
+            if (!summaryBody || !summaryFoot) return;
+            summaryBody.innerHTML = '';
+            summaryFoot.innerHTML = '';
+            let totalCount = 0, totalAmount = 0, rowIndex = 0;
+            // Row background alternates: pinkish for odd categories, blueish for even
+            const rowBgs = ['#FCE4D6', '#DDEBF7', '#E2EFDA', '#FFF2CC', '#DAEEF3'];
+            Object.keys(catMap).forEach(cat => {
+                const data = catMap[cat];
+                totalCount += data.count;
+                totalAmount += data.grossSum;
+                const bg = rowBgs[rowIndex % rowBgs.length];
+                const tr = document.createElement('tr');
+                tr.style.background = bg;
+                tr.innerHTML = `
+                    <td style="padding:7px 10px;font-weight:700;border-right:1.5px solid #000;border-bottom:1px solid #000;color:#000;">${cat}</td>
+                    <td style="padding:7px 6px;text-align:center;font-weight:800;border-right:1.5px solid #000;border-bottom:1px solid #000;color:#000;font-family:'JetBrains Mono',monospace;">${data.count}</td>
+                    <td style="padding:7px 10px;text-align:right;font-weight:800;border-bottom:1px solid #000;color:#000;font-family:'JetBrains Mono',monospace;">${rupee(data.grossSum)}</td>`;
+                summaryBody.appendChild(tr);
+                rowIndex++;
+            });
+            summaryFoot.innerHTML = `<tr style="background:#C6EFCE;border-top:2px solid #000;">
+                <td style="padding:9px 10px;border-right:1.5px solid #000;font-weight:800;font-size:13px;color:#000;">TOTAL</td>
+                <td style="padding:9px 6px;text-align:center;font-weight:900;font-size:15px;border-right:1.5px solid #000;color:#000;font-family:'JetBrains Mono',monospace;">${totalCount}</td>
+                <td style="padding:9px 10px;text-align:right;font-weight:900;font-size:15px;color:#000;font-family:'JetBrains Mono',monospace;">${rupee(totalAmount)}</td>
+            </tr>`;
+        }
+
+        // ── DATE FILTERS ──
+        function applyOpDateFilter() {
+            const from = document.getElementById('opFilterFrom').value;
+            const to = document.getElementById('opFilterTo').value;
+            opDateFilter = { from: from ? new Date(from) : null, to: to ? new Date(to) : null };
+            renderOpSlips();
+        }
+        function clearOpDateFilter() {
+            document.getElementById('opFilterFrom').value = '';
+            document.getElementById('opFilterTo').value = '';
+            opDateFilter = { from: null, to: null };
+            renderOpSlips();
+        }
+        function applyFixDateFilter() {
+            const from = document.getElementById('fixFilterFrom').value;
+            const to = document.getElementById('fixFilterTo').value;
+            fixDateFilter = { from: from ? new Date(from) : null, to: to ? new Date(to) : null };
+            renderFixSlips();
+        }
+        function clearFixDateFilter() {
+            document.getElementById('fixFilterFrom').value = '';
+            document.getElementById('fixFilterTo').value = '';
+            fixDateFilter = { from: null, to: null };
+            renderFixSlips();
+        }
+
+        // ── PRINT ALL SLIPS ──
+        function printAllOpSlips() {
+            const grid = document.getElementById('opSlipsGrid');
+            grid.innerHTML = '';
+            opSlipsData.forEach(slip => {
+                const { gross, totalUpad } = calcOpSlip(slip);
+                const { from: opFD, to: opTD } = opDateFilter;
+                const filteredUpad = (opFD || opTD) ? (slip.upad || []).filter(u => _inDateRange(u.date, opFD, opTD)) : (slip.upad || []);
+                const displayUpad = filteredUpad.reduce((s, u) => s + Math.abs(u.amount || 0), 0);
+                const displayNet = gross - displayUpad;
+                const isPaid = displayNet >= 0;
+                const card = document.createElement('div');
+                card.className = 'slip-card';
+                let dutiesHtml = (slip.duties || []).map(d => `<tr><td style="padding:2px 4px;font-size:11px;"><b>${d.task || 'Duty'}</b></td><td class="num" style="padding:2px 4px;font-size:11px;">${d.qty} × ${d.rate}</td><td class="num" style="padding:2px 4px;font-weight:800;font-size:11.5px;">${rupee((d.qty || 0) * (d.rate || 0))}</td></tr>`).join('');
+                let upadHtml = filteredUpad.map(u => `<div style="display:flex;justify-content:space-between;padding:1.5px 0;font-size:10.5px;color:#c00;border-bottom:1px solid #f8d0d0;"><span>${formatUpadDate(u.date)}</span><span>${u.ref || u.note || 'Kharchi'}</span><span style="font-weight:800;">₹ -${Math.abs(u.amount)}</span></div>`).join('');
+                card.innerHTML = `<div style="border:1.5px solid #000;background:#fff;border-radius:4px;height:100%;display:flex;flex-direction:column;justify-content:space-between;"><div style="padding:4px 8px;border-bottom:1.5px solid #000;"><div style="text-align:center;font-size:14px;font-weight:900;text-decoration:underline;">${slip.company || globalCompanyName}</div><div style="display:flex;justify-content:space-between;font-size:12px;font-weight:800;margin-top:2px;"><span>${slip.slipNo} Oprater: <b>${slip.name || '___________'}</b></span><span style="color:#c00;">${formatFilterMonthLabel(opDateFilter, slip.month)}</span></div></div><div style="display:grid;grid-template-columns:1fr 210px;flex:1;"><div style="padding:6px;border-right:1.5px solid #000;display:flex;flex-direction:column;justify-content:space-between;"><table style="width:100%;border-collapse:collapse;"><tbody>${dutiesHtml}</tbody></table><div style="margin-top:4px;"><div style="border-top:1.5px solid #000;padding-top:2px;display:flex;justify-content:space-between;font-weight:800;font-size:12px;"><span>Total પગાર</span><span>${rupee(gross)}</span></div><div style="display:flex;justify-content:space-between;font-weight:800;font-size:12px;color:#c00;"><span>ખર્ચો</span><span>₹ -${displayUpad.toLocaleString('en-IN')}</span></div><div style="border-top:2px double #000;margin:2px 0;"></div><div style="display:flex;justify-content:space-between;font-weight:900;font-size:13px;"><span>${isPaid ? 'हिसाब चुकते' : 'हिसाब बाकी'}</span><span>${displayNet < 0 ? '₹ -' + Math.abs(displayNet).toLocaleString('en-IN') : rupee(displayNet)}</span></div></div></div><div style="padding:6px;background:#f2f4f8;display:flex;flex-direction:column;justify-content:space-between;"><div><div style="font-weight:900;font-size:11.5px;color:#c00;margin-bottom:2px;"><u>ખર્ચો</u> (₹)</div>${upadHtml}</div><div style="border-top:1.5px solid #000;padding-top:2px;text-align:right;font-weight:900;font-size:12px;color:#c00;">₹ -${displayUpad.toLocaleString('en-IN')}</div></div></div></div>`;
+                grid.appendChild(card);
+            });
+            window.print();
+            setTimeout(() => renderOpSlips(), 500);
+        }
+
+        function printAllFixSlips() {
+            const grid = document.getElementById('fixSlipsGrid');
+            grid.innerHTML = '';
+            fixSlipsData.forEach(slip => {
+                const { gross, totalUpad, dailyRate, days, salary } = calcFixSlip(slip);
+                const { from: fixFD, to: fixTD } = fixDateFilter;
+                const filteredUpad = (fixFD || fixTD) ? (slip.upad || []).filter(u => _inDateRange(u.date, fixFD, fixTD)) : (slip.upad || []);
+                const displayUpad = filteredUpad.reduce((s, u) => s + Math.abs(u.amount || 0), 0);
+                const displayNet = gross - displayUpad;
+                const isPaid = displayNet >= 0;
+                const card = document.createElement('div');
+                card.className = 'slip-card';
+                let upadHtml = filteredUpad.map(u => `<div style="display:flex;justify-content:space-between;padding:1.5px 0;font-size:10.5px;color:#c00;border-bottom:1px solid #f8d0d0;"><span>${formatUpadDate(u.date)}</span><span>${u.ref || u.note || 'Kharchi'}</span><span style="font-weight:800;">₹ -${Math.abs(u.amount)}</span></div>`).join('');
+                let dutiesHtml = (slip.duties || []).map(d => `<tr><td style="padding:4px 2px;"><div style="font-weight:800;">${d.task || 'Duty'}</div></td><td style="text-align:right;padding:4px 2px;font-weight:800;">${d.qty}</td><td style="text-align:right;padding:4px 2px;font-weight:700;">${rupee(d.rate)}</td><td style="text-align:right;padding:4px 2px;font-weight:900;">${rupee((d.qty || 0) * (d.rate || 0))}</td></tr>`).join('');
+                card.innerHTML = `<div style="border:1.5px solid #000;background:#fff;border-radius:4px;height:100%;display:flex;flex-direction:column;justify-content:space-between;"><div style="padding:4px 8px;border-bottom:1.5px solid #000;"><div style="text-align:center;font-size:14px;font-weight:900;text-decoration:underline;">${slip.company || globalCompanyName}</div><div style="display:flex;justify-content:space-between;font-size:12px;font-weight:800;margin-top:2px;"><span>${slip.category || ''} <b>${slip.name || '___________'}</b></span><span style="color:#c00;">${formatFilterMonthLabel(fixDateFilter, slip.month)}</span></div></div><div style="display:grid;grid-template-columns:1fr 210px;flex:1;"><div style="padding:6px;border-right:1.5px solid #000;display:flex;flex-direction:column;justify-content:space-between;"><table style="width:100%;border-collapse:collapse;font-size:11px;"><thead><tr style="border-bottom:1.5px solid #000;background:#f0f0f0;"><th style="text-align:left;padding:3px;">DESCRIPTION</th><th style="text-align:right;padding:3px;">DAYS</th><th style="text-align:right;padding:3px;">RATE/DAY</th><th style="text-align:right;padding:3px;">AMOUNT</th></tr></thead><tbody><tr><td style="padding:4px 2px;"><div style="font-weight:800;">Fix Salary</div><div style="font-size:10px;color:#444;">Base: ₹<b>${salary}</b></div></td><td style="text-align:right;padding:4px 2px;font-weight:800;">${days}</td><td style="text-align:right;padding:4px 2px;font-weight:700;">${rupee(dailyRate)}</td><td style="text-align:right;padding:4px 2px;font-weight:900;">${rupee(Math.round(dailyRate * days))}</td></tr>${dutiesHtml}</tbody></table><div style="margin-top:4px;"><div style="border-top:1.5px solid #000;padding-top:2px;display:flex;justify-content:space-between;font-weight:800;font-size:12px;"><span>Total પગાર</span><span>${rupee(gross)}</span></div><div style="display:flex;justify-content:space-between;font-weight:800;font-size:12px;color:#c00;"><span>ખર્ચો</span><span>₹ -${displayUpad.toLocaleString('en-IN')}</span></div><div style="border-top:2px double #000;margin:2px 0;"></div><div style="display:flex;justify-content:space-between;font-weight:900;font-size:13px;"><span>${isPaid ? 'हिसाब चुकते' : 'हिसाब बाकी'}</span><span>${displayNet < 0 ? '₹ -' + Math.abs(displayNet).toLocaleString('en-IN') : rupee(displayNet)}</span></div></div></div><div style="padding:6px;background:#f2f4f8;display:flex;flex-direction:column;justify-content:space-between;"><div><div style="font-weight:900;font-size:11.5px;color:#c00;margin-bottom:2px;"><u>ખર્ચો</u> (₹)</div>${upadHtml}</div><div style="border-top:1.5px solid #000;padding-top:2px;text-align:right;font-weight:900;font-size:12px;color:#c00;">₹ -${displayUpad.toLocaleString('en-IN')}</div></div></div></div>`;
+                grid.appendChild(card);
+            });
+            window.print();
+            setTimeout(() => renderFixSlips(), 500);
+        }
+
+        // ── INIT ──
+        (async function init() {
+            loadLocalStorageState();
+            await syncAllKhataData();
+            switchTab('rates');
+        })();
+    </script>
+    <script src="data-backup.js"></script>
+</body>
+
+</html>
