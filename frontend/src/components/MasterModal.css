@@ -1,0 +1,54 @@
+.master-modal { max-height: 90vh; overflow-y: auto; }
+.mm-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 14px;
+}
+.mm-header h3 { font-size: 16px; font-weight: 800; margin: 0; }
+.back-btn {
+  background: var(--paper); border: 1.5px solid var(--line);
+  padding: 6px 12px; border-radius: 8px; font-size: 13px;
+  font-weight: 700; color: var(--ink); cursor: pointer;
+  transition: all 0.15s;
+}
+.back-btn:hover { background: var(--ink); color: #fff; border-color: var(--ink); }
+
+/* Company section */
+.company-section { margin-bottom: 12px; }
+.company-section label { display: block; font-size: 12px; font-weight: 700; color: var(--ink-soft); margin-bottom: 6px; }
+.company-row { display: flex; gap: 8px; align-items: center; }
+.company-row .form-input { flex: 1; }
+.company-row .confirm-btn { white-space: nowrap; transition: background 0.2s; }
+.company-row .confirm-btn.saved { background: var(--moss); }
+
+.mm-divider { border: none; border-top: 1px dashed var(--line); margin: 12px 0; }
+
+/* Names header */
+.mm-names-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.mm-section-label { font-size: 11px; font-weight: 700; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.5px; }
+
+/* Name list */
+.name-list { display: flex; flex-direction: column; gap: 2px; max-height: 320px; overflow-y: auto; }
+.name-list-wrapper { display: flex; flex-direction: column; }
+.name-list-item { user-select: none; }
+.name-list-item.active { background: var(--gold-bg); border-color: var(--gold); }
+
+/* Quick add buttons */
+.quick-add-row {
+  display: none; gap: 4px; padding: 3px 7px 4px;
+}
+.name-list-wrapper:hover .quick-add-row { display: flex; }
+.quick-add-btn {
+  font-size: 11px; font-weight: 700; padding: 2px 10px; border-radius: 6px;
+  border: none; cursor: pointer; transition: all 0.12s;
+}
+.quick-add-btn.income { background: var(--moss-bg); color: var(--moss); }
+.quick-add-btn.income:hover { background: var(--moss); color: #fff; }
+.quick-add-btn.expense { background: var(--rust-bg); color: var(--rust); }
+.quick-add-btn.expense:hover { background: var(--rust); color: #fff; }
+
+.empty-hint { font-size: 13px; color: var(--ink-faint); font-style: italic; text-align: center; padding: 16px 0; }
+
+/* Form view */
+.mm-form-view { display: flex; flex-direction: column; gap: 12px; }
+.mm-field-group { display: flex; flex-direction: column; gap: 5px; }
+.mm-field-group label { font-size: 11px; font-weight: 700; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.4px; }

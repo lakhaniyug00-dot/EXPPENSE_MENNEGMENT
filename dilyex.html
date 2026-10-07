@@ -1533,6 +1533,104 @@
                 display: none !important;
             }
         }
+
+        /* ── NAME LIST ITEM (with rename support) ── */
+        .name-list-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 7px;
+            border-radius: 7px;
+            cursor: pointer;
+            transition: background 0.12s;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--ink);
+            border: 1px solid transparent;
+        }
+        .name-list-item:hover {
+            background: var(--gold-bg);
+            border-color: var(--line);
+        }
+        .name-list-item .name-label {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .name-list-item .rename-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 13px;
+            padding: 1px 3px;
+            border-radius: 4px;
+            color: var(--ink-soft);
+            opacity: 0;
+            transition: opacity 0.15s;
+            line-height: 1;
+        }
+        .name-list-item:hover .rename-btn {
+            opacity: 1;
+        }
+        .name-list-item .del-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 12px;
+            padding: 1px 4px;
+            border-radius: 4px;
+            color: var(--rust);
+            opacity: 0;
+            transition: opacity 0.15s;
+            line-height: 1;
+            font-weight: 700;
+        }
+        .name-list-item:hover .del-btn {
+            opacity: 0.7;
+        }
+        .name-list-item .del-btn:hover {
+            opacity: 1 !important;
+        }
+        /* inline rename row */
+        .name-rename-row {
+            display: none;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 7px 4px;
+            background: var(--navy-bg, #E3EDF7);
+            border-radius: 7px;
+            border: 1.5px solid var(--gold, #A9832F);
+            margin-top: 2px;
+            animation: slideDown 0.15s ease;
+        }
+        .name-rename-row.open {
+            display: flex;
+        }
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-4px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .name-rename-row input {
+            flex: 1;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 5px 8px;
+            border-radius: 6px;
+            border: 1px solid var(--line);
+            background: #fff;
+            color: var(--ink);
+            outline: none;
+        }
+        .name-rename-row input:focus {
+            border-color: var(--gold);
+        }
+        .name-rename-row .rename-hint {
+            font-size: 10px;
+            color: var(--ink-soft);
+            white-space: nowrap;
+        }
     </style>
 </head>
 
@@ -2318,6 +2416,68 @@
             setStatus(`Deleted "${targetName}" completely.`, false);
         }
 
+        /* ── RENAME WORKER ACROSS ALL STORAGE ── */
+        async function renameWorkerName(oldName, newName) {
+            if (!oldName || !newName || oldName === newName) return;
+            const oldLower = oldName.toLowerCase();
+
+            // 1. workers list
+            workers = workers.map(w => (w && w.toLowerCase() === oldLower) ? newName : w);
+            await saveWorkers();
+
+            // 2. masterEntries
+            masterEntries.forEach(m => { if (m.name && m.name.toLowerCase() === oldLower) m.name = newName; });
+            await saveMasterEntries();
+
+            // 3. khata:accounts
+            try {
+                const accsRaw = await storageGet('khata:accounts');
+                if (accsRaw) {
+                    let accs = JSON.parse(accsRaw) || [];
+                    accs.forEach(a => { if (a && a.name && a.name.toLowerCase() === oldLower) a.name = newName; });
+                    await storageSet('khata:accounts', JSON.stringify(accs));
+                }
+            } catch (e) { }
+
+            // 4. All khata:day:* entries
+            try {
+                const keys = await getAllKeys();
+                const dayKeys = (keys || []).filter(k => k && k.startsWith('khata:day:'));
+                for (const key of dayKeys) {
+                    const v = await storageGet(key);
+                    if (!v) continue;
+                    let dayObj = JSON.parse(v);
+                    let changed = false;
+                    (dayObj.income || []).forEach(e => { if (e.name && e.name.toLowerCase() === oldLower) { e.name = newName; changed = true; } });
+                    (dayObj.expense || []).forEach(e => { if (e.name && e.name.toLowerCase() === oldLower) { e.name = newName; changed = true; } });
+                    if (changed) await storageSet(key, JSON.stringify(dayObj));
+                }
+            } catch (e) { }
+
+            // 5. khata:acc:auto: key (rename)
+            try {
+                const autoVal = await storageGet('khata:acc:auto:' + oldLower);
+                if (autoVal) {
+                    await storageSet('khata:acc:auto:' + newName.toLowerCase(), autoVal);
+                    await storageRemove('khata:acc:auto:' + oldLower);
+                }
+            } catch (e) { }
+
+            // Refresh UI
+            await loadDay();
+            await loadPrevNet();
+            renderIncome();
+            renderExpense();
+            renderTotals();
+            await rebuildWorkerDatalist();
+            if ($('expName') && $('expName').value.toLowerCase() === oldLower) {
+                $('expName').value = newName;
+                checkAndAutoPopulateMaster();
+            }
+            try { syncChannel.postMessage({ type: 'day-updated' }); } catch (e) { }
+            setStatus(`Renamed "${oldName}" → "${newName}" on all pages.`, false);
+        }
+
         async function renderNameListContainer() {
             const container = $('nameListContainer');
             if (!container) return;
@@ -2342,24 +2502,106 @@
             container.style.display = 'block';
 
             sortedNames.forEach(name => {
+                const wrapper = document.createElement('div');
+                wrapper.style.marginBottom = '2px';
+
+                // Main row
                 const item = document.createElement('div');
                 item.className = 'name-list-item';
                 item.innerHTML = `
-                    <span>${escHtml(name)}</span>
-                    <span class="del-btn" title="Delete from both pages">✕</span>
+                    <span class="name-label" title="Click to select · Double-click to rename">${escHtml(name)}</span>
+                    <button class="rename-btn" title="Rename this name (double-click)">✏️</button>
+                    <button class="del-btn" title="Delete from all pages">✕</button>
                 `;
+
+                // Inline rename row (hidden until activated)
+                const renameRow = document.createElement('div');
+                renameRow.className = 'name-rename-row';
+                renameRow.innerHTML = `
+                    <input type="text" class="rename-input" value="${escHtml(name)}" placeholder="New name…">
+                    <span class="rename-hint">Enter / Save Change</span>
+                `;
+
+                let currentOldName = name;
+
+                function openRename(e) {
+                    if (e) e.stopPropagation();
+                    renameRow.classList.add('open');
+                    const inp = renameRow.querySelector('.rename-input');
+                    inp.value = currentOldName;
+                    setTimeout(() => { inp.focus(); inp.select(); }, 50);
+                    // Show Save Change btn in modal footer
+                    if ($('saveChangeBtn')) $('saveChangeBtn').style.display = 'block';
+                    if ($('entrySave')) $('entrySave').style.display = 'none';
+                    // Store reference so Save Change can act on it
+                    window._pendingRenameInput = inp;
+                    window._pendingRenameOldName = currentOldName;
+                }
+
+                async function doRename() {
+                    const inp = renameRow.querySelector('.rename-input');
+                    const newName = (inp ? inp.value : '').trim();
+                    if (!newName || newName === currentOldName) {
+                        renameRow.classList.remove('open');
+                        if ($('saveChangeBtn')) $('saveChangeBtn').style.display = 'none';
+                        if ($('entrySave')) $('entrySave').style.display = '';
+                        window._pendingRenameInput = null;
+                        return;
+                    }
+                    const oldN = currentOldName;
+                    currentOldName = newName;
+                    item.querySelector('.name-label').textContent = newName;
+                    renameRow.classList.remove('open');
+                    if ($('saveChangeBtn')) $('saveChangeBtn').style.display = 'none';
+                    if ($('entrySave')) $('entrySave').style.display = '';
+                    window._pendingRenameInput = null;
+                    await renameWorkerName(oldN, newName);
+                }
+
+                // Single click → select name
                 item.addEventListener('click', (e) => {
-                    if (e.target.classList.contains('del-btn')) return;
-                    $('expName').value = name;
+                    if (e.target.classList.contains('del-btn') || e.target.classList.contains('rename-btn')) return;
+                    if (renameRow.classList.contains('open')) return;
+                    $('expName').value = currentOldName;
                     checkAndAutoPopulateMaster();
                     togglePanel('nameAddPanel', 'namePlusBtn');
                 });
+
+                // Double-click → open rename
+                item.addEventListener('dblclick', (e) => {
+                    if (e.target.classList.contains('del-btn')) return;
+                    openRename(e);
+                });
+
+                // Pencil button click → open rename
+                const renameBtn = item.querySelector('.rename-btn');
+                renameBtn.addEventListener('click', (e) => { e.stopPropagation(); openRename(e); });
+
+                // Enter in rename input → do rename
+                const renameInput = renameRow.querySelector('.rename-input');
+                renameInput.addEventListener('keydown', async (e) => {
+                    if (e.key === 'Enter') { e.preventDefault(); await doRename(); }
+                    if (e.key === 'Escape') {
+                        renameRow.classList.remove('open');
+                        if ($('saveChangeBtn')) $('saveChangeBtn').style.display = 'none';
+                        if ($('entrySave')) $('entrySave').style.display = '';
+                        window._pendingRenameInput = null;
+                    }
+                });
+
+                // Store doRename on renameRow for Save Change btn
+                renameRow._doRename = doRename;
+
+                // Delete button
                 const delBtn = item.querySelector('.del-btn');
                 delBtn.addEventListener('click', async (e) => {
                     e.stopPropagation();
-                    await deleteWorkerOrAccountName(name);
+                    await deleteWorkerOrAccountName(currentOldName);
                 });
-                container.appendChild(item);
+
+                wrapper.appendChild(item);
+                wrapper.appendChild(renameRow);
+                container.appendChild(wrapper);
             });
         }
 
@@ -3111,7 +3353,20 @@
         }
 
         $('entrySave').addEventListener('click', saveMasterHandler);
-        if ($('saveChangeBtn')) $('saveChangeBtn').addEventListener('click', saveMasterHandler);
+        if ($('saveChangeBtn')) $('saveChangeBtn').addEventListener('click', async () => {
+            // If a rename is pending (inline rename mode), do the rename instead of saveMasterHandler
+            const pendingInput = window._pendingRenameInput;
+            if (pendingInput) {
+                // Find the closest rename row and call its doRename
+                const renameRow = pendingInput.closest('.name-rename-row');
+                if (renameRow && renameRow._doRename) {
+                    await renameRow._doRename();
+                    return;
+                }
+            }
+            // Otherwise default Save Change behavior
+            await saveMasterHandler();
+        });
         if ($('saveCompanyNameBtn')) {
             $('saveCompanyNameBtn').addEventListener('click', async () => {
                 const btn = $('saveCompanyNameBtn');
