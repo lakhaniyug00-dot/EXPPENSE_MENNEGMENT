@@ -190,7 +190,6 @@
 
         .chip-info { line-height: 1.25; flex: 1; min-width: 0; }
         .chip-name { font-size: 13px; font-weight: 700; color: var(--ink); }
-        .chip-pass { font-size: 11px; font-weight: 500; color: var(--ink-faint); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
         .chip-del {
             position: absolute; top: 4px; right: 4px;
@@ -384,14 +383,18 @@
                     '<div class="chip-avatar" style="background:' + color + ';">' + escHtml(initial) + '</div>' +
                     '<div class="chip-info">' +
                         '<div class="chip-name">' + escHtml(capitalize(acc.username)) + '</div>' +
-                        '<div class="chip-pass">' + escHtml(acc.password) + '</div>' +
                     '</div>' +
                     '<button class="chip-del" type="button" data-del="' + escHtml(acc.username) + '">&#x2715;</button>';
 
                 chip.addEventListener('click', function(e) {
                     if (e.target.closest && e.target.closest('.chip-del')) return;
                     if (manageMode) return;
-                    doLogin(acc.username, acc.password);
+                    // Fill username and focus password field
+                    document.getElementById('username').value = acc.username;
+                    var pwdField = document.getElementById('password');
+                    pwdField.value = '';
+                    pwdField.focus();
+                    hideError();
                 });
 
                 const delBtn = chip.querySelector('.chip-del');
