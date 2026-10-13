@@ -159,8 +159,8 @@
         .btn-submit:active { transform: translateY(0); }
 
         .quick-users-section {
-            margin-top: 22px; padding-top: 18px;
-            border-top: 1px dashed var(--line);
+            margin-top: 4px; padding-top: 0;
+            border-top: none;
         }
 
         .section-label {
@@ -279,32 +279,10 @@
                 <span>✅</span><span id="successMsg">Account created!</span>
             </div>
 
-            <form id="loginForm" autocomplete="on">
-                <div class="form-group">
-                    <label class="form-label" for="username">Username (વપરાશકર્તા નામ)</label>
-                    <div class="input-wrap">
-                        <span class="input-icon">👤</span>
-                        <input type="text" id="username" placeholder="Enter username" required autofocus autocomplete="username">
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label" for="password">Password (પાસવર્ડ)</label>
-                    <div class="input-wrap">
-                        <span class="input-icon">🔒</span>
-                        <input type="password" id="password" class="pr-40" placeholder="Enter password" required autocomplete="current-password">
-                        <button type="button" class="toggle-pwd" id="togglePwd" title="Show/Hide Password">👁️</button>
-                    </div>
-                </div>
-
-                <button type="submit" class="btn-submit" id="submitBtn">
-                    <span>Sign In</span><span>→</span>
-                </button>
-            </form>
 
             <div class="quick-users-section">
                 <div class="manage-bar">
-                    <div class="section-label" style="margin-bottom:0;">&#x26A1; 1-Click Fast Login / &#x0A9D;&#x0AA1;&#x0AAA;&#x0AC0; &#x0AB2;&#x0AC9;&#x0A97;&#x0ABF;&#x0AA8;</div>
+                    <div class="section-label" style="margin-bottom:0;">&#x26A1; Select Account / &#x0A9D;&#x0AA1;&#x0AAA;&#x0AC0; &#x0AB2;&#x0AC9;&#x0A97;&#x0ABF;&#x0AA8;</div>
                     <div style="display:flex;gap:6px;">
                         <button class="btn-add-account" id="btnAddAccount">&#xFF0B; Add</button>
                         <button class="btn-manage" id="btnManage">&#x270F;&#xFE0F; Manage</button>
@@ -470,13 +448,6 @@
             if (e.key === 'Enter') { e.preventDefault(); saveNewAccount(); }
         });
 
-        // Password toggle
-        document.getElementById('togglePwd').addEventListener('click', function() {
-            var input = document.getElementById('password');
-            var isPwd = input.type === 'password';
-            input.type = isPwd ? 'text' : 'password';
-            document.getElementById('togglePwd').textContent = isPwd ? '🙈' : '👁️';
-        });
 
         // Alerts
         function showError(msg) {
@@ -523,10 +494,6 @@
             window.location.href = 'dilyex.html';
         }
 
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            doLogin(document.getElementById('username').value, document.getElementById('password').value);
-        });
 
         // Auto-redirect if already logged in
         var current = (localStorage.getItem('auth_user') || '').trim().toLowerCase();
