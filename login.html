@@ -341,12 +341,8 @@
                 chip.addEventListener('click', function(e) {
                     if (e.target.closest && e.target.closest('.chip-del')) return;
                     if (manageMode) return;
-                    // Fill username and focus password field
-                    document.getElementById('username').value = acc.username;
-                    var pwdField = document.getElementById('password');
-                    pwdField.value = '';
-                    pwdField.focus();
-                    hideError();
+                    // 1-click direct login using stored password
+                    doLogin(acc.username, acc.password);
                 });
 
                 const delBtn = chip.querySelector('.chip-del');
