@@ -10,6 +10,7 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&family=Outfit:wght@400;600;700;800&display=swap"
         rel="stylesheet">
+    <script src="sync.js"></script>
     <style>
         :root {
             --bg: #F5F3EE;
@@ -1160,6 +1161,7 @@
             <span style="background:var(--card-bg, #fff);border:1px solid var(--line);border-radius:8px;padding:5px 9px;font-size:12px;font-weight:700;color:var(--ink);display:inline-flex;align-items:center;gap:4px;">
                 👤 <span id="authUserName">...</span>
             </span>
+            <button type="button" class="cloud-sync-badge" onclick="CloudSync.openModal()" style="background:#F8FAFC;border:1.5px solid #CBD5E1;border-radius:8px;padding:5px 10px;font-size:12px;font-weight:700;color:#64748B;cursor:pointer;display:inline-flex;align-items:center;gap:4px;" title="Multi-Device Cloud Sync">☁️ Cloud Sync</button>
             <button type="button" onclick="logout()" style="background:#FEE2E2;color:#DC2626;border:1px solid #FCA5A5;border-radius:8px;padding:5px 9px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;" title="Log Out">
                 🚪 Logout
             </button>
@@ -1493,19 +1495,12 @@
         const storageGet = async k => {
             const uk = getUserStorageKey(k);
             try {
-                if (window.storage) {
-                    const r = await window.storage.get(uk, false);
-                    if (r && r.value !== null && r.value !== undefined) return r.value;
+                if (window.CloudSync && window.CloudSync.isConnected()) {
+                    const cloudVal = await window.CloudSync.get(uk);
+                    if (cloudVal !== null && cloudVal !== undefined) return cloudVal;
                 }
                 const val = userLocalGet(k);
                 if (val !== null) return val;
-                if (getAuthUser() === 'yug' && window.storage) {
-                    const rLegacy = await window.storage.get(k, false);
-                    if (rLegacy && rLegacy.value !== null && rLegacy.value !== undefined) {
-                        await storageSet(k, rLegacy.value);
-                        return rLegacy.value;
-                    }
-                }
                 return null;
             } catch (e) {
                 return userLocalGet(k);
@@ -1514,12 +1509,13 @@
 
         const storageSet = async (k, v) => {
             const uk = getUserStorageKey(k);
+            userLocalSet(k, v);
             try {
-                if (window.storage) await window.storage.set(uk, v, false);
-                userLocalSet(k, v);
+                if (window.CloudSync && window.CloudSync.isConnected()) {
+                    await window.CloudSync.set(uk, v);
+                }
                 return true;
             } catch (e) {
-                userLocalSet(k, v);
                 return false;
             }
         };

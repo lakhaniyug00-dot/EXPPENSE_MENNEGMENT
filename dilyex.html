@@ -10,6 +10,7 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@500;600&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap"
         rel="stylesheet">
+    <script src="sync.js"></script>
     <style>
         :root {
             --paper: #F5F1E6;
@@ -1793,6 +1794,7 @@
                     <span style="background:var(--card-bg, #fff);border:1.5px solid var(--line);border-radius:8px;padding:5px 10px;font-size:12px;font-weight:700;color:var(--ink);display:inline-flex;align-items:center;gap:4px;">
                         &#x1F464; <span id="authUserName">...</span>
                     </span>
+                    <button type="button" class="cloud-sync-badge" onclick="CloudSync.openModal()" style="background:#F8FAFC;border:1.5px solid #CBD5E1;border-radius:8px;padding:5px 10px;font-size:12px;font-weight:700;color:#64748B;cursor:pointer;display:inline-flex;align-items:center;gap:4px;" title="Multi-Device Cloud Sync">☁️ Cloud Sync</button>
                     <button type="button" onclick="openAccountsModal()" style="background:#EFF6FF;color:#2563EB;border:1px solid #BFDBFE;border-radius:8px;padding:5px 10px;font-size:12px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:4px;" title="Manage Accounts">&#x2795; AC</button>
                     <button type="button" onclick="logout()" style="background:#FEE2E2;color:#DC2626;border:1px solid #FCA5A5;border-radius:8px;padding:5px 10px;font-size:12px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:4px;" title="Log Out">&#x1F6AA; Logout</button>
                 </div>
@@ -2200,7 +2202,12 @@
             } catch(e) {}
             return [];
         }
-        function acSaveAccounts(list) { localStorage.setItem('app_accounts', JSON.stringify(list)); }
+        function acSaveAccounts(list) {
+            localStorage.setItem('app_accounts', JSON.stringify(list));
+            if (window.CloudSync && window.CloudSync.isConnected()) {
+                window.CloudSync.saveAccountsToCloud(list);
+            }
+        }
         function acRenderList() {
             var list = acLoadAccounts();
             var el = document.getElementById('acList');
@@ -2251,19 +2258,12 @@
         const storageGet = async k => {
             const uk = getUserStorageKey(k);
             try {
-                if (window.storage) {
-                    const r = await window.storage.get(uk, false);
-                    if (r && r.value !== null && r.value !== undefined) return r.value;
+                if (window.CloudSync && window.CloudSync.isConnected()) {
+                    const cloudVal = await window.CloudSync.get(uk);
+                    if (cloudVal !== null && cloudVal !== undefined) return cloudVal;
                 }
                 const val = userLocalGet(k);
                 if (val !== null) return val;
-                if (getAuthUser() === 'yug' && window.storage) {
-                    const rLegacy = await window.storage.get(k, false);
-                    if (rLegacy && rLegacy.value !== null && rLegacy.value !== undefined) {
-                        await storageSet(k, rLegacy.value);
-                        return rLegacy.value;
-                    }
-                }
                 return null;
             } catch (e) {
                 return userLocalGet(k);
@@ -2272,24 +2272,25 @@
 
         const storageSet = async (k, v) => {
             const uk = getUserStorageKey(k);
+            userLocalSet(k, v);
             try {
-                if (window.storage) await window.storage.set(uk, v, false);
-                userLocalSet(k, v);
+                if (window.CloudSync && window.CloudSync.isConnected()) {
+                    await window.CloudSync.set(uk, v);
+                }
                 return true;
             } catch (e) {
-                userLocalSet(k, v);
                 return false;
             }
         };
 
         const storageRemove = async k => {
             const uk = getUserStorageKey(k);
+            userLocalRemove(k);
             try {
-                if (window.storage && window.storage.remove) await window.storage.remove(uk, false);
-                userLocalRemove(k);
-            } catch (e) {
-                userLocalRemove(k);
-            }
+                if (window.CloudSync && window.CloudSync.isConnected()) {
+                    await window.CloudSync.remove(uk);
+                }
+            } catch (e) {}
         };
 
         const syncChannel = (() => { try { return new BroadcastChannel('khata_sync'); } catch (e) { return { postMessage: () => { }, addEventListener: () => { } }; } })();
