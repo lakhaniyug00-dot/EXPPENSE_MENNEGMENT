@@ -1158,16 +1158,9 @@
             // fixWorkers = ONLY explicitly set as 'fix' in Master
             const fixSet = new Set(fixMasterSet);
 
-            // opWorkers = explicitly 'daily' in Master PLUS any Khata/Rojmel name NOT in fixSet
-            // (because workers in Khata are daily pagar by default unless explicitly set as fix)
+            // opWorkers = ONLY explicitly set as 'daily' in Master
+            // (workers without a pagarType will NOT appear in any slip until they are assigned a type in Master)
             const opSet = new Set(opMasterSet);
-            khataAllNames.forEach(nm => {
-                const nmLower = nm.trim().toLowerCase();
-                const isFixWorker = Array.from(fixSet).some(f => f.trim().toLowerCase() === nmLower);
-                if (!isFixWorker) {
-                    opSet.add(nm);
-                }
-            });
 
             const fixList = Array.from(fixSet).sort();
             const opList = Array.from(opSet).sort();
@@ -1525,13 +1518,11 @@
         function setOpPage(p) { opCurrentPage = p; renderOpSlips(); }
 
         function getWorkerSelectOptionsHtml(currentName, isFix = false, currentSlipIndex = -1) {
-            // For Fix Pagar slip: show Fix Master workers + all Khata accounts (so dropdown is never empty)
-            // For Operator slip: show only opKhataWorkers (daily workers, excluding fix workers)
+            // For Fix Pagar slip: show ONLY workers with pagarType='fix' in Master
+            // For Operator slip: show ONLY workers with pagarType='daily' in Master
             let list;
             if (isFix) {
-                // Combine fixKhataWorkers + allKhataWorkers — so fix slip always has options
-                const combined = new Set([...(fixKhataWorkers || []), ...(allKhataWorkers || [])]);
-                list = Array.from(combined).sort();
+                list = fixKhataWorkers || [];
             } else {
                 list = opKhataWorkers || [];
             }
