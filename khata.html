@@ -1788,22 +1788,35 @@
             }
 
             let catFilteredNames = null;
-            if (repCatFilter) {
-                catFilteredNames = new Set(
-                    masterEntries
-                        .filter(m => m.name && (m.category || '').toLowerCase() === repCatFilter.toLowerCase())
-                        .map(m => m.name.toLowerCase())
-                );
+            let lowerCatFilters = new Set();
+            if (repCatFilters.size > 0) {
+                lowerCatFilters = new Set(Array.from(repCatFilters).map(c => c.trim().toLowerCase()));
+                catFilteredNames = new Set();
+                masterEntries.forEach(m => {
+                    if (m.name && m.category && lowerCatFilters.has(m.category.trim().toLowerCase())) {
+                        catFilteredNames.add(m.name.trim().toLowerCase());
+                    }
+                });
+                if (lowerCatFilters.has('factory karigar')) {
+                    workers.forEach(w => { if (w) catFilteredNames.add(w.trim().toLowerCase()); });
+                }
             }
 
             const keys = await storageList();
             const dayKeys = keys.filter(k => k && k.startsWith('khata:day:'));
             const byName = new Map();
 
-            function getRecord(rawName) {
+            function getRecord(rawName, entryCat) {
                 const nm = (rawName || '—').trim();
                 const key = nm.toLowerCase();
-                if (catFilteredNames !== null && !catFilteredNames.has(key)) return null;
+                if (catFilteredNames !== null) {
+                    const matchByName = catFilteredNames.has(key);
+                    const matchByCat = entryCat && lowerCatFilters.has(String(entryCat).trim().toLowerCase());
+                    if (!matchByName && !matchByCat) return null;
+                    if (matchByCat && !catFilteredNames.has(key)) {
+                        catFilteredNames.add(key);
+                    }
+                }
                 if (!byName.has(key)) {
                     byName.set(key, { name: nm, inc: 0, exp: 0, dates: new Set() });
                 }
@@ -1819,7 +1832,7 @@
                         const entryDate = e.date || dateStr;
                         if (fromVal && entryDate < fromVal) return;
                         if (toVal && entryDate > toVal) return;
-                        const rec = getRecord(e.name); if (!rec) return;
+                        const rec = getRecord(e.name, e.category); if (!rec) return;
                         rec.inc += Number(e.amount || e.aavak || 0);
                         if (entryDate) rec.dates.add(entryDate);
                     });
@@ -1827,7 +1840,7 @@
                         const entryDate = e.date || dateStr;
                         if (fromVal && entryDate < fromVal) return;
                         if (toVal && entryDate > toVal) return;
-                        const rec = getRecord(e.name); if (!rec) return;
+                        const rec = getRecord(e.name, e.category); if (!rec) return;
                         rec.exp += Number(e.amount || e.javak || 0);
                         if (entryDate) rec.dates.add(entryDate);
                     });
@@ -1870,7 +1883,7 @@
                         if (toVal && entryDate > toVal) return;
                         const aavak = Number(e.aavak || e.amount || 0);
                         const javak = Number(e.javak || 0);
-                        const rec = getRecord(targetName);
+                        const rec = getRecord(targetName, e.category);
                         if (rec) {
                             rec.inc += aavak;
                             rec.exp += javak;
@@ -1885,7 +1898,7 @@
                     const accsRaw = await storageGet('khata:accounts');
                     if (accsRaw) {
                         const accs = JSON.parse(accsRaw);
-                        accs.forEach(a => { if (a && a.name) { getRecord(a.name); } });
+                        accs.forEach(a => { if (a && a.name) { getRecord(a.name, a.category); } });
                     }
                 } catch (e) { }
             }
@@ -1915,14 +1928,16 @@
             netEl.textContent = (netTotal < 0 ? '−' : '') + rupee(netTotal);
             netEl.className = 'rs-val ' + (netTotal >= 0 ? 'pos' : 'neg');
 
-            const catLabel = repCatFilter ? ` · Category: ${repCatFilter}` : '';
+            const selectedCatsArr = Array.from(repCatFilters);
+            const catLabel = selectedCatsArr.length > 0 ? ` · Categories: ${selectedCatsArr.join(', ')}` : '';
             const filterLabel = (fromVal || toVal) ? `Filtered (${fromVal || 'Start'} to ${toVal || 'Today'})${catLabel} · ` : (catLabel ? catLabel.trim() + ' · ' : '');
             $('reportSub').textContent = `${filterLabel}Summary across ${rows.length} account${rows.length === 1 ? '' : 's'} · Generated ${new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}`;
 
             const tbody = $('reportTableBody');
             tbody.innerHTML = '';
             if (!rows.length) {
-                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--ink-faint);padding:16px;font-style:italic">${repCatFilter ? `No entries for category "${repCatFilter}".` : (fromVal || toVal) ? 'No entries in this date range.' : 'No entries yet.'}</td></tr>`;
+                const noCatMsg = selectedCatsArr.length > 0 ? `No entries found for categories "${selectedCatsArr.join(', ')}".` : '';
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--ink-faint);padding:16px;font-style:italic">${noCatMsg || ((fromVal || toVal) ? 'No entries in this date range.' : 'No entries yet.')}</td></tr>`;
                 return;
             }
             rows.forEach(r => {
@@ -1937,9 +1952,9 @@
             });
         }
 
-        let repCatFilter = '';
+        let repCatFilters = new Set();
         async function openReportModal() {
-            repCatFilter = '';
+            repCatFilters.clear();
             $('reportOverlay').classList.add('open');
             buildRepCatPills();
             await buildReportModal();
@@ -1950,33 +1965,38 @@
             const container = $('repCatPills');
             if (!container) return;
             container.innerHTML = '';
+            const isAll = (repCatFilters.size === 0);
+
             const allPill = document.createElement('button');
             allPill.type = 'button';
             allPill.textContent = 'All';
-            allPill.style.cssText = 'padding:5px 14px;border-radius:20px;border:1.5px solid var(--line);background:var(--ink);color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif;transition:all 0.15s;';
-            allPill.addEventListener('click', () => { repCatFilter = ''; buildRepCatPills(); buildReportModal(); });
+            allPill.dataset.cat = '';
+            allPill.style.cssText = `padding:5px 14px;border-radius:20px;border:1.5px solid ${isAll ? 'var(--ink)' : 'var(--line)'};background:${isAll ? 'var(--ink)' : 'transparent'};color:${isAll ? '#fff' : 'var(--ink-soft)'};font-size:12px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif;transition:all 0.15s;`;
+            allPill.addEventListener('click', () => {
+                repCatFilters.clear();
+                buildRepCatPills();
+                buildReportModal();
+            });
             container.appendChild(allPill);
+
             categories.forEach(cat => {
                 const pill = document.createElement('button');
                 pill.type = 'button';
-                pill.textContent = cat;
-                const isActive = repCatFilter === cat;
-                pill.style.cssText = `padding:5px 14px;border-radius:20px;border:1.5px solid ${isActive ? 'var(--gold)' : 'var(--line)'};background:${isActive ? 'var(--gold-bg)' : 'transparent'};color:${isActive ? 'var(--gold)' : 'var(--ink-soft)'};font-size:12px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif;transition:all 0.15s;`;
+                const isSelected = repCatFilters.has(cat);
+                pill.textContent = (isSelected ? '✓ ' : '') + cat;
+                pill.dataset.cat = cat;
+                pill.style.cssText = `padding:5px 14px;border-radius:20px;border:1.5px solid ${isSelected ? 'var(--gold)' : 'var(--line)'};background:${isSelected ? 'var(--gold-bg)' : 'transparent'};color:${isSelected ? 'var(--gold)' : 'var(--ink-soft)'};font-size:12px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif;transition:all 0.15s;`;
                 pill.addEventListener('click', () => {
-                    repCatFilter = isActive ? '' : cat;
+                    if (repCatFilters.has(cat)) {
+                        repCatFilters.delete(cat);
+                    } else {
+                        repCatFilters.add(cat);
+                    }
                     buildRepCatPills();
                     buildReportModal();
                 });
                 container.appendChild(pill);
             });
-            if (!repCatFilter) {
-                allPill.style.background = 'var(--ink)';
-                allPill.style.color = '#fff';
-            } else {
-                allPill.style.background = 'transparent';
-                allPill.style.color = 'var(--ink-soft)';
-                allPill.style.borderColor = 'var(--line)';
-            }
         }
 
         if ($('repFilterFrom')) $('repFilterFrom').addEventListener('change', buildReportModal);
@@ -1984,7 +2004,7 @@
         if ($('repFilterClear')) $('repFilterClear').addEventListener('click', () => {
             if ($('repFilterFrom')) $('repFilterFrom').value = '';
             if ($('repFilterTo')) $('repFilterTo').value = '';
-            repCatFilter = '';
+            repCatFilters.clear();
             buildRepCatPills();
             buildReportModal();
         });

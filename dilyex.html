@@ -1529,7 +1529,9 @@
             }
 
             .rs-close,
-            .report-print-btn {
+            .report-print-btn,
+            #repCatPills,
+            .rep-date-filter {
                 display: none !important;
             }
         }
@@ -1567,11 +1569,16 @@
             border-radius: 4px;
             color: var(--ink-soft);
             opacity: 0;
-            transition: opacity 0.15s;
+            transition: opacity 0.15s, transform 0.15s;
             line-height: 1;
         }
-        .name-list-item:hover .rename-btn {
+        .name-list-item:hover .rename-btn,
+        .name-list-item:focus-within .rename-btn {
             opacity: 1;
+        }
+        .name-list-item .rename-btn:hover {
+            opacity: 1 !important;
+            transform: scale(1.15);
         }
         .name-list-item .del-btn {
             background: none;
@@ -1582,15 +1589,25 @@
             border-radius: 4px;
             color: var(--rust);
             opacity: 0;
-            transition: opacity 0.15s;
+            transition: opacity 0.15s, transform 0.15s;
             line-height: 1;
             font-weight: 700;
         }
-        .name-list-item:hover .del-btn {
+        .name-list-item:hover .del-btn,
+        .name-list-item:focus-within .del-btn {
             opacity: 0.7;
         }
         .name-list-item .del-btn:hover {
             opacity: 1 !important;
+            background: #fdf2f2;
+        }
+        @media (hover: none) {
+            .name-list-item .rename-btn {
+                opacity: 0.85;
+            }
+            .name-list-item .del-btn {
+                opacity: 0.85;
+            }
         }
         /* inline rename row */
         .name-rename-row {
@@ -2263,6 +2280,194 @@
 
         function openModal() { $('overlay').classList.add('open'); resetModal(); loadCompanyNameInModal(); checkAndAutoPopulateMaster(); setTimeout(() => $('expName').focus(), 80); }
         function closeModal() { $('overlay').classList.remove('open'); }
+        /* ── RENAME CATEGORY ACROSS ALL STORAGE ── */
+        async function renameCategory(oldCat, newCat) {
+            if (!oldCat || !newCat || oldCat.trim() === newCat.trim()) return;
+            const oldTrimmed = oldCat.trim();
+            const newTrimmed = newCat.trim();
+            const oldLower = oldTrimmed.toLowerCase();
+            const newLower = newTrimmed.toLowerCase();
+
+            if (categories.some(c => c && c.toLowerCase() === newLower && c.toLowerCase() !== oldLower)) {
+                alert(`Category "${newTrimmed}" already exists.`);
+                return;
+            }
+
+            // 1. categories list
+            categories = categories.map(c => (c && c.toLowerCase() === oldLower) ? newTrimmed : c);
+            if (categories.includes('Factory Karigar')) {
+                categories = ['Factory Karigar', ...categories.filter(c => c !== 'Factory Karigar')];
+            }
+            await saveCategories();
+
+            // 2. masterEntries
+            let meChanged = false;
+            masterEntries.forEach(m => {
+                if (m.category && m.category.toLowerCase() === oldLower) {
+                    m.category = newTrimmed;
+                    meChanged = true;
+                }
+            });
+            if (meChanged) await saveMasterEntries();
+
+            // 3. All khata:day:* entries
+            try {
+                const keys = await getAllKeys();
+                const dayKeys = (keys || []).filter(k => k && k.startsWith('khata:day:'));
+                for (const key of dayKeys) {
+                    const v = await storageGet(key);
+                    if (!v) continue;
+                    let dayObj = JSON.parse(v);
+                    let changed = false;
+                    (dayObj.income || []).forEach(e => {
+                        if (e.category && e.category.toLowerCase() === oldLower) {
+                            e.category = newTrimmed;
+                            changed = true;
+                        }
+                    });
+                    (dayObj.expense || []).forEach(e => {
+                        if (e.category && e.category.toLowerCase() === oldLower) {
+                            e.category = newTrimmed;
+                            changed = true;
+                        }
+                    });
+                    if (changed) await storageSet(key, JSON.stringify(dayObj));
+                }
+            } catch (e) { console.error('Error updating day records for category rename:', e); }
+
+            // 4. Update current dayData in memory
+            (dayData.income || []).forEach(e => {
+                if (e.category && e.category.toLowerCase() === oldLower) e.category = newTrimmed;
+            });
+            (dayData.expense || []).forEach(e => {
+                if (e.category && e.category.toLowerCase() === oldLower) e.category = newTrimmed;
+            });
+
+            // 5. Update khata:hidden_sugg if applicable
+            try {
+                const v = await storageGet('khata:hidden_sugg');
+                if (v) {
+                    let hidden = JSON.parse(v);
+                    if (Array.isArray(hidden)) {
+                        let hChanged = false;
+                        hidden = hidden.map(k => {
+                            const parts = k.split('|');
+                            if (parts.length === 3 && parts[1] === oldLower) {
+                                parts[1] = newLower;
+                                hChanged = true;
+                            }
+                            return parts.join('|');
+                        });
+                        if (hChanged) await storageSet('khata:hidden_sugg', JSON.stringify(hidden));
+                    }
+                }
+            } catch (e) { }
+
+            // 6. Refresh UI
+            rebuildCatSelect();
+            if ($('expCat') && $('expCat').value.toLowerCase() === oldLower) {
+                $('expCat').value = newTrimmed;
+                updateCategoryFields();
+            }
+            renderIncome();
+            renderExpense();
+            renderTotals();
+            try { syncChannel.postMessage({ type: 'day-updated' }); } catch (e) { }
+            setStatus(`Renamed category "${oldTrimmed}" → "${newTrimmed}" on all pages.`, false);
+        }
+
+        /* ── RENAME SUB CATEGORY ACROSS ALL STORAGE ── */
+        async function renameSubCategory(oldSub, newSub) {
+            if (!oldSub || !newSub || oldSub.trim() === newSub.trim()) return;
+            const oldTrimmed = oldSub.trim();
+            const newTrimmed = newSub.trim();
+            const oldLower = oldTrimmed.toLowerCase();
+            const newLower = newTrimmed.toLowerCase();
+
+            if (masters.some(m => m && m.toLowerCase() === newLower && m.toLowerCase() !== oldLower)) {
+                alert(`Sub category "${newTrimmed}" already exists.`);
+                return;
+            }
+
+            // 1. masters list
+            masters = masters.map(m => (m && m.toLowerCase() === oldLower) ? newTrimmed : m);
+            await saveMasters();
+
+            // 2. masterEntries
+            let meChanged = false;
+            masterEntries.forEach(m => {
+                if (m.master && m.master.toLowerCase() === oldLower) {
+                    m.master = newTrimmed;
+                    meChanged = true;
+                }
+            });
+            if (meChanged) await saveMasterEntries();
+
+            // 3. All khata:day:* entries
+            try {
+                const keys = await getAllKeys();
+                const dayKeys = (keys || []).filter(k => k && k.startsWith('khata:day:'));
+                for (const key of dayKeys) {
+                    const v = await storageGet(key);
+                    if (!v) continue;
+                    let dayObj = JSON.parse(v);
+                    let changed = false;
+                    (dayObj.income || []).forEach(e => {
+                        if (e.master && e.master.toLowerCase() === oldLower) {
+                            e.master = newTrimmed;
+                            changed = true;
+                        }
+                    });
+                    (dayObj.expense || []).forEach(e => {
+                        if (e.master && e.master.toLowerCase() === oldLower) {
+                            e.master = newTrimmed;
+                            changed = true;
+                        }
+                    });
+                    if (changed) await storageSet(key, JSON.stringify(dayObj));
+                }
+            } catch (e) { console.error('Error updating day records for master rename:', e); }
+
+            // 4. Update current dayData in memory
+            (dayData.income || []).forEach(e => {
+                if (e.master && e.master.toLowerCase() === oldLower) e.master = newTrimmed;
+            });
+            (dayData.expense || []).forEach(e => {
+                if (e.master && e.master.toLowerCase() === oldLower) e.master = newTrimmed;
+            });
+
+            // 5. Update khata:hidden_sugg if applicable
+            try {
+                const v = await storageGet('khata:hidden_sugg');
+                if (v) {
+                    let hidden = JSON.parse(v);
+                    if (Array.isArray(hidden)) {
+                        let hChanged = false;
+                        hidden = hidden.map(k => {
+                            const parts = k.split('|');
+                            if (parts.length === 3 && parts[2] === oldLower) {
+                                parts[2] = newLower;
+                                hChanged = true;
+                            }
+                            return parts.join('|');
+                        });
+                        if (hChanged) await storageSet('khata:hidden_sugg', JSON.stringify(hidden));
+                    }
+                }
+            } catch (e) { }
+
+            // 6. Refresh UI
+            rebuildMasterSelect();
+            if ($('expMaster') && $('expMaster').value.toLowerCase() === oldLower) {
+                $('expMaster').value = newTrimmed;
+            }
+            renderIncome();
+            renderExpense();
+            renderTotals();
+            try { syncChannel.postMessage({ type: 'day-updated' }); } catch (e) { }
+            setStatus(`Renamed sub category "${oldTrimmed}" → "${newTrimmed}" on all pages.`, false);
+        }
+
         async function renderCatListContainer() {
             const container = $('catListContainer');
             if (!container) return;
@@ -2273,33 +2478,112 @@
             }
             container.style.display = 'block';
             categories.forEach(cat => {
+                const wrapper = document.createElement('div');
+                wrapper.style.marginBottom = '2px';
+
+                // Main row
                 const item = document.createElement('div');
                 item.className = 'name-list-item';
                 item.innerHTML = `
-                    <span>${escHtml(cat)}</span>
-                    <span class="del-btn" title="Delete category">✕</span>
+                    <span class="name-label" title="Click to select · Double-click to rename">${escHtml(cat)}</span>
+                    <button class="rename-btn" title="Rename category (double-click)">✏️</button>
+                    <button class="del-btn" title="Delete category">✕</button>
                 `;
+
+                // Inline rename row (hidden until activated)
+                const renameRow = document.createElement('div');
+                renameRow.className = 'name-rename-row';
+                renameRow.innerHTML = `
+                    <input type="text" class="rename-input" value="${escHtml(cat)}" placeholder="New category name…">
+                    <span class="rename-hint">Enter / Save Change</span>
+                `;
+
+                let currentOldCat = cat;
+
+                function openRename(e) {
+                    if (e) e.stopPropagation();
+                    renameRow.classList.add('open');
+                    const inp = renameRow.querySelector('.rename-input');
+                    inp.value = currentOldCat;
+                    setTimeout(() => { inp.focus(); inp.select(); }, 50);
+                    if ($('saveChangeBtn')) $('saveChangeBtn').style.display = 'block';
+                    if ($('entrySave')) $('entrySave').style.display = 'none';
+                    window._pendingRenameInput = inp;
+                    window._pendingRenameOldName = currentOldCat;
+                }
+
+                async function doRename() {
+                    const inp = renameRow.querySelector('.rename-input');
+                    const newName = (inp ? inp.value : '').trim();
+                    if (!newName || newName === currentOldCat) {
+                        renameRow.classList.remove('open');
+                        if ($('saveChangeBtn')) $('saveChangeBtn').style.display = 'none';
+                        if ($('entrySave')) $('entrySave').style.display = '';
+                        window._pendingRenameInput = null;
+                        return;
+                    }
+                    const oldC = currentOldCat;
+                    currentOldCat = newName;
+                    item.querySelector('.name-label').textContent = newName;
+                    renameRow.classList.remove('open');
+                    if ($('saveChangeBtn')) $('saveChangeBtn').style.display = 'none';
+                    if ($('entrySave')) $('entrySave').style.display = '';
+                    window._pendingRenameInput = null;
+                    await renameCategory(oldC, newName);
+                }
+
+                // Single click → select category
                 item.addEventListener('click', (e) => {
-                    if (e.target.classList.contains('del-btn')) return;
-                    $('expCat').value = cat;
+                    if (e.target.classList.contains('del-btn') || e.target.classList.contains('rename-btn')) return;
+                    if (renameRow.classList.contains('open')) return;
+                    $('expCat').value = currentOldCat;
                     updateCategoryFields();
                     togglePanel('catAddPanel', 'catPlusBtn');
                 });
+
+                // Double-click → open rename
+                item.addEventListener('dblclick', (e) => {
+                    if (e.target.classList.contains('del-btn')) return;
+                    openRename(e);
+                });
+
+                // Pencil button click → open rename
+                const renameBtn = item.querySelector('.rename-btn');
+                renameBtn.addEventListener('click', (e) => { e.stopPropagation(); openRename(e); });
+
+                // Enter in rename input → do rename
+                const renameInput = renameRow.querySelector('.rename-input');
+                renameInput.addEventListener('keydown', async (e) => {
+                    if (e.key === 'Enter') { e.preventDefault(); await doRename(); }
+                    if (e.key === 'Escape') {
+                        renameRow.classList.remove('open');
+                        if ($('saveChangeBtn')) $('saveChangeBtn').style.display = 'none';
+                        if ($('entrySave')) $('entrySave').style.display = '';
+                        window._pendingRenameInput = null;
+                    }
+                });
+
+                renameRow._doRename = doRename;
+
+                // Delete button
                 const delBtn = item.querySelector('.del-btn');
                 delBtn.addEventListener('click', async (e) => {
                     e.stopPropagation();
-                    if (!confirm(`Delete category "${cat}"?`)) return;
-                    categories = categories.filter(c => c !== cat);
+                    if (!confirm(`Delete category "${currentOldCat}"?`)) return;
+                    categories = categories.filter(c => c !== currentOldCat);
                     await saveCategories();
                     rebuildCatSelect();
-                    if ($('expCat').value === cat) {
+                    if ($('expCat').value === currentOldCat) {
                         $('expCat').value = '';
                         updateCategoryFields();
                     }
                     try { syncChannel.postMessage({ type: 'day-updated' }); } catch (err) { }
-                    setStatus(`Deleted category "${cat}".`, false);
+                    setStatus(`Deleted category "${currentOldCat}".`, false);
                 });
-                container.appendChild(item);
+
+                wrapper.appendChild(item);
+                wrapper.appendChild(renameRow);
+                container.appendChild(wrapper);
             });
         }
 
@@ -2313,31 +2597,110 @@
             }
             container.style.display = 'block';
             masters.forEach(m => {
+                const wrapper = document.createElement('div');
+                wrapper.style.marginBottom = '2px';
+
+                // Main row
                 const item = document.createElement('div');
                 item.className = 'name-list-item';
                 item.innerHTML = `
-                    <span>${escHtml(m)}</span>
-                    <span class="del-btn" title="Delete sub category">✕</span>
+                    <span class="name-label" title="Click to select · Double-click to rename">${escHtml(m)}</span>
+                    <button class="rename-btn" title="Rename sub category (double-click)">✏️</button>
+                    <button class="del-btn" title="Delete sub category">✕</button>
                 `;
+
+                // Inline rename row (hidden until activated)
+                const renameRow = document.createElement('div');
+                renameRow.className = 'name-rename-row';
+                renameRow.innerHTML = `
+                    <input type="text" class="rename-input" value="${escHtml(m)}" placeholder="New sub category name…">
+                    <span class="rename-hint">Enter / Save Change</span>
+                `;
+
+                let currentOldMaster = m;
+
+                function openRename(e) {
+                    if (e) e.stopPropagation();
+                    renameRow.classList.add('open');
+                    const inp = renameRow.querySelector('.rename-input');
+                    inp.value = currentOldMaster;
+                    setTimeout(() => { inp.focus(); inp.select(); }, 50);
+                    if ($('saveChangeBtn')) $('saveChangeBtn').style.display = 'block';
+                    if ($('entrySave')) $('entrySave').style.display = 'none';
+                    window._pendingRenameInput = inp;
+                    window._pendingRenameOldName = currentOldMaster;
+                }
+
+                async function doRename() {
+                    const inp = renameRow.querySelector('.rename-input');
+                    const newName = (inp ? inp.value : '').trim();
+                    if (!newName || newName === currentOldMaster) {
+                        renameRow.classList.remove('open');
+                        if ($('saveChangeBtn')) $('saveChangeBtn').style.display = 'none';
+                        if ($('entrySave')) $('entrySave').style.display = '';
+                        window._pendingRenameInput = null;
+                        return;
+                    }
+                    const oldM = currentOldMaster;
+                    currentOldMaster = newName;
+                    item.querySelector('.name-label').textContent = newName;
+                    renameRow.classList.remove('open');
+                    if ($('saveChangeBtn')) $('saveChangeBtn').style.display = 'none';
+                    if ($('entrySave')) $('entrySave').style.display = '';
+                    window._pendingRenameInput = null;
+                    await renameSubCategory(oldM, newName);
+                }
+
+                // Single click → select sub category
                 item.addEventListener('click', (e) => {
-                    if (e.target.classList.contains('del-btn')) return;
-                    $('expMaster').value = m;
+                    if (e.target.classList.contains('del-btn') || e.target.classList.contains('rename-btn')) return;
+                    if (renameRow.classList.contains('open')) return;
+                    $('expMaster').value = currentOldMaster;
                     togglePanel('masterAddPanel', 'masterPlusBtn');
                 });
+
+                // Double-click → open rename
+                item.addEventListener('dblclick', (e) => {
+                    if (e.target.classList.contains('del-btn')) return;
+                    openRename(e);
+                });
+
+                // Pencil button click → open rename
+                const renameBtn = item.querySelector('.rename-btn');
+                renameBtn.addEventListener('click', (e) => { e.stopPropagation(); openRename(e); });
+
+                // Enter in rename input → do rename
+                const renameInput = renameRow.querySelector('.rename-input');
+                renameInput.addEventListener('keydown', async (e) => {
+                    if (e.key === 'Enter') { e.preventDefault(); await doRename(); }
+                    if (e.key === 'Escape') {
+                        renameRow.classList.remove('open');
+                        if ($('saveChangeBtn')) $('saveChangeBtn').style.display = 'none';
+                        if ($('entrySave')) $('entrySave').style.display = '';
+                        window._pendingRenameInput = null;
+                    }
+                });
+
+                renameRow._doRename = doRename;
+
+                // Delete button
                 const delBtn = item.querySelector('.del-btn');
                 delBtn.addEventListener('click', async (e) => {
                     e.stopPropagation();
-                    if (!confirm(`Delete sub category "${m}"?`)) return;
-                    masters = masters.filter(x => x !== m);
+                    if (!confirm(`Delete sub category "${currentOldMaster}"?`)) return;
+                    masters = masters.filter(x => x !== currentOldMaster);
                     await saveMasters();
                     rebuildMasterSelect();
-                    if ($('expMaster').value === m) {
+                    if ($('expMaster').value === currentOldMaster) {
                         $('expMaster').value = '';
                     }
                     try { syncChannel.postMessage({ type: 'day-updated' }); } catch (err) { }
-                    setStatus(`Deleted sub category "${m}".`, false);
+                    setStatus(`Deleted sub category "${currentOldMaster}".`, false);
                 });
-                container.appendChild(item);
+
+                wrapper.appendChild(item);
+                wrapper.appendChild(renameRow);
+                container.appendChild(wrapper);
             });
         }
 
@@ -2632,6 +2995,12 @@
         function closeAllPanels() {
             ['catAddPanel', 'nameAddPanel', 'masterAddPanel'].forEach(id => { if ($(id)) $(id).classList.remove('open'); });
             ['catPlusBtn', 'namePlusBtn', 'masterPlusBtn'].forEach(id => { if ($(id)) { $(id).classList.remove('active'); $(id).textContent = '+'; } });
+            document.querySelectorAll('.name-rename-row.open').forEach(r => r.classList.remove('open'));
+            if (window._pendingRenameInput) {
+                window._pendingRenameInput = null;
+                if ($('saveChangeBtn')) $('saveChangeBtn').style.display = 'none';
+                if ($('entrySave')) $('entrySave').style.display = '';
+            }
         }
         function togglePanel(panelId, btnId) {
             const panel = $(panelId), btn = $(btnId), isOpen = panel.classList.contains('open');
@@ -2649,6 +3018,7 @@
             if ($('expenseFields')) $('expenseFields').style.display = 'none';
             if ($('entrySave')) $('entrySave').textContent = 'Add Master';
             if ($('saveChangeBtn')) $('saveChangeBtn').style.display = 'none';
+            window._pendingRenameInput = null;
         }
 
         function checkAndAutoPopulateMaster() {
@@ -2956,9 +3326,9 @@
             }
         });
 
-        let repCatFilter = ''; // currently selected category filter
+        let repCatFilters = new Set(); // currently selected category filters (empty = All)
         function openReportModal() {
-            repCatFilter = '';
+            repCatFilters.clear();
             $('reportOverlay').classList.add('open');
             buildRepCatPills();
             buildReport();
@@ -2969,53 +3339,62 @@
             const container = $('repCatPills');
             if (!container) return;
             container.innerHTML = '';
+            const isAll = (repCatFilters.size === 0);
+
             // 'All' pill
             const allPill = document.createElement('button');
             allPill.type = 'button';
             allPill.textContent = 'All';
             allPill.dataset.cat = '';
-            allPill.style.cssText = 'padding:5px 14px;border-radius:20px;border:1.5px solid var(--line);background:var(--ink);color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif;transition:all 0.15s;';
-            allPill.addEventListener('click', () => { repCatFilter = ''; buildRepCatPills(); buildReport(); });
+            allPill.style.cssText = `padding:5px 14px;border-radius:20px;border:1.5px solid ${isAll ? 'var(--ink)' : 'var(--line)'};background:${isAll ? 'var(--ink)' : 'transparent'};color:${isAll ? '#fff' : 'var(--ink-soft)'};font-size:12px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif;transition:all 0.15s;`;
+            allPill.addEventListener('click', () => {
+                repCatFilters.clear();
+                buildRepCatPills();
+                buildReport();
+            });
             container.appendChild(allPill);
-            // One pill per category
+
+            // One pill per category (allows multiple selection)
             categories.forEach(cat => {
                 const pill = document.createElement('button');
                 pill.type = 'button';
-                pill.textContent = cat;
+                const isSelected = repCatFilters.has(cat);
+                pill.textContent = (isSelected ? '✓ ' : '') + cat;
                 pill.dataset.cat = cat;
-                const isActive = repCatFilter === cat;
-                pill.style.cssText = `padding:5px 14px;border-radius:20px;border:1.5px solid ${isActive ? 'var(--gold)' : 'var(--line)'};background:${isActive ? 'var(--gold-bg)' : 'transparent'};color:${isActive ? 'var(--gold)' : 'var(--ink-soft)'};font-size:12px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif;transition:all 0.15s;`;
+                pill.style.cssText = `padding:5px 14px;border-radius:20px;border:1.5px solid ${isSelected ? 'var(--gold)' : 'var(--line)'};background:${isSelected ? 'var(--gold-bg)' : 'transparent'};color:${isSelected ? 'var(--gold)' : 'var(--ink-soft)'};font-size:12px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif;transition:all 0.15s;`;
                 pill.addEventListener('click', () => {
-                    repCatFilter = isActive ? '' : cat;
+                    if (repCatFilters.has(cat)) {
+                        repCatFilters.delete(cat);
+                    } else {
+                        repCatFilters.add(cat);
+                    }
                     buildRepCatPills();
                     buildReport();
                 });
                 container.appendChild(pill);
             });
-            // Update 'All' pill active state
-            if (!repCatFilter) {
-                allPill.style.background = 'var(--ink)';
-                allPill.style.color = '#fff';
-            } else {
-                allPill.style.background = 'transparent';
-                allPill.style.color = 'var(--ink-soft)';
-                allPill.style.borderColor = 'var(--line)';
-            }
         }
+
         async function buildReport() {
             if (!$('reportTableBody')) return;
-            $('reportTableBody').innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--ink-faint);padding:16px;font-style:italic">Loading…</td></tr>';
+            $('reportTableBody').innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--ink-faint);padding:16px;font-style:italic">Loading…</td></tr>';
             const fromVal = $('repFilterFrom') ? $('repFilterFrom').value : '';
             const toVal = $('repFilterTo') ? $('repFilterTo').value : '';
 
             // Build set of names allowed by category filter
             let catFilteredNames = null;
-            if (repCatFilter) {
-                catFilteredNames = new Set(
-                    masterEntries
-                        .filter(m => m.name && (m.category || '').toLowerCase() === repCatFilter.toLowerCase())
-                        .map(m => m.name.toLowerCase())
-                );
+            let lowerCatFilters = new Set();
+            if (repCatFilters.size > 0) {
+                lowerCatFilters = new Set(Array.from(repCatFilters).map(c => c.trim().toLowerCase()));
+                catFilteredNames = new Set();
+                masterEntries.forEach(m => {
+                    if (m.name && m.category && lowerCatFilters.has(m.category.trim().toLowerCase())) {
+                        catFilteredNames.add(m.name.trim().toLowerCase());
+                    }
+                });
+                if (lowerCatFilters.has('factory karigar')) {
+                    workers.forEach(w => { if (w) catFilteredNames.add(w.trim().toLowerCase()); });
+                }
             }
 
             function fmtD(dKey) {
@@ -3040,10 +3419,17 @@
             const dayKeys = keys.filter(k => k && k.startsWith('khata:day:'));
             const byName = new Map();
 
-            function getRecord(rawName) {
+            function getRecord(rawName, entryCat) {
                 const nm = (rawName || '—').trim();
                 const key = nm.toLowerCase();
-                if (catFilteredNames !== null && !catFilteredNames.has(key)) return null;
+                if (catFilteredNames !== null) {
+                    const matchByName = catFilteredNames.has(key);
+                    const matchByCat = entryCat && lowerCatFilters.has(String(entryCat).trim().toLowerCase());
+                    if (!matchByName && !matchByCat) return null;
+                    if (matchByCat && !catFilteredNames.has(key)) {
+                        catFilteredNames.add(key);
+                    }
+                }
                 if (!byName.has(key)) {
                     byName.set(key, { name: nm, inc: 0, exp: 0, dates: new Set() });
                 }
@@ -3059,7 +3445,7 @@
                         const entryDate = e.date || dateStr;
                         if (fromVal && entryDate < fromVal) return;
                         if (toVal && entryDate > toVal) return;
-                        const rec = getRecord(e.name); if (!rec) return;
+                        const rec = getRecord(e.name, e.category); if (!rec) return;
                         rec.inc += Number(e.amount || e.aavak || 0);
                         if (entryDate) rec.dates.add(entryDate);
                     });
@@ -3067,7 +3453,7 @@
                         const entryDate = e.date || dateStr;
                         if (fromVal && entryDate < fromVal) return;
                         if (toVal && entryDate > toVal) return;
-                        const rec = getRecord(e.name); if (!rec) return;
+                        const rec = getRecord(e.name, e.category); if (!rec) return;
                         rec.exp += Number(e.amount || e.javak || 0);
                         if (entryDate) rec.dates.add(entryDate);
                     });
@@ -3110,7 +3496,7 @@
                         if (toVal && entryDate > toVal) return;
                         const aavak = Number(e.aavak || e.amount || 0);
                         const javak = Number(e.javak || 0);
-                        const rec = getRecord(targetName);
+                        const rec = getRecord(targetName, e.category);
                         if (rec) {
                             rec.inc += aavak;
                             rec.exp += javak;
@@ -3125,7 +3511,7 @@
                     const accsRaw = await storageGet('khata:accounts');
                     if (accsRaw) {
                         const accs = JSON.parse(accsRaw);
-                        accs.forEach(a => { if (a && a.name) { const r = getRecord(a.name); } });
+                        accs.forEach(a => { if (a && a.name) { const r = getRecord(a.name, a.category); } });
                     }
                 } catch (e) { }
             }
@@ -3155,14 +3541,16 @@
             netEl.textContent = (netTotal < 0 ? '−' : '') + rupee(netTotal);
             netEl.className = 'rs-val ' + (netTotal >= 0 ? 'pos' : 'neg');
 
-            const catLabel = repCatFilter ? ` · Category: ${repCatFilter}` : '';
+            const selectedCatsArr = Array.from(repCatFilters);
+            const catLabel = selectedCatsArr.length > 0 ? ` · Categories: ${selectedCatsArr.join(', ')}` : '';
             const filterLabel = (fromVal || toVal) ? `Filtered (${fromVal || 'Start'} to ${toVal || 'Today'})${catLabel} · ` : (catLabel ? catLabel.trim() + ' · ' : '');
             $('reportSub').textContent = `${filterLabel}Summary across ${rows.length} account${rows.length === 1 ? '' : 's'} · Generated ${new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}`;
 
             const tbody = $('reportTableBody');
             tbody.innerHTML = '';
             if (!rows.length) {
-                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--ink-faint);padding:16px;font-style:italic">${repCatFilter ? `No entries for category "${repCatFilter}".` : (fromVal || toVal) ? 'No entries in this date range.' : 'No entries yet.'}</td></tr>`;
+                const noCatMsg = selectedCatsArr.length > 0 ? `No entries found for categories "${selectedCatsArr.join(', ')}".` : '';
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--ink-faint);padding:16px;font-style:italic">${noCatMsg || ((fromVal || toVal) ? 'No entries in this date range.' : 'No entries yet.')}</td></tr>`;
                 return;
             }
             rows.forEach(r => {
@@ -3181,7 +3569,7 @@
         if ($('repFilterClear')) $('repFilterClear').addEventListener('click', () => {
             if ($('repFilterFrom')) $('repFilterFrom').value = '';
             if ($('repFilterTo')) $('repFilterTo').value = '';
-            repCatFilter = '';
+            repCatFilters.clear();
             buildRepCatPills();
             buildReport();
         });

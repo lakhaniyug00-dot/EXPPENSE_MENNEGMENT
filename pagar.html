@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -524,6 +524,60 @@
             border: none;
         }
 
+        .btn-filter-ok {
+            background: var(--ink);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 6px 16px;
+            font-size: 12.5px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: all 0.15s ease;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-filter-ok:hover {
+            opacity: 0.88;
+            transform: translateY(-1px);
+        }
+
+        .btn-filter-clear {
+            background: none;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 5px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--ink-soft);
+            cursor: pointer;
+            transition: all 0.15s ease;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-filter-clear:hover {
+            background: var(--bg);
+            color: var(--ink);
+        }
+
+        .filter-badge-active {
+            background: var(--moss-bg);
+            color: var(--moss);
+            border: 1px solid var(--moss);
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 8px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-family: 'Inter', sans-serif;
+        }
+
         @media print {
             @page {
                 size: A4 portrait;
@@ -678,18 +732,18 @@
                         style="font-size:11px;font-weight:700;letter-spacing:0.5px;color:var(--ink-soft);text-transform:uppercase;white-space:nowrap;">
                         📅 FILTER</div>
                     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-                        <input id="opFilterFrom" onchange="applyOpDateFilter()"
+                        <input id="opFilterFrom" onkeydown="if(event.key==='Enter') applyOpDateFilter()"
                             style="padding:6px 10px;background:var(--bg);border:1px solid var(--line);border-radius:8px;font-size:12.5px;color:var(--ink);outline:none;font-family:'Inter',sans-serif;"
                             title="From Date" type="date" />
                         <span style="font-size:13px;color:var(--ink-soft);font-weight:700;">→</span>
-                        <input id="opFilterTo" onchange="applyOpDateFilter()"
+                        <input id="opFilterTo" onkeydown="if(event.key==='Enter') applyOpDateFilter()"
                             style="padding:6px 10px;background:var(--bg);border:1px solid var(--line);border-radius:8px;font-size:12.5px;color:var(--ink);outline:none;font-family:'Inter',sans-serif;"
                             title="To Date" type="date" />
+                        <button class="btn-filter-ok" id="opFilterOkBtn" onclick="applyOpDateFilter()" type="button">✓ OK</button>
+                        <button class="btn-filter-clear" id="opFilterClearBtn" onclick="clearOpDateFilter()" type="button">✕ Clear</button>
+                        <span class="filter-badge-active" id="opFilterBadge" style="display:none;">Filtered</span>
                     </div>
                 </div>
-                <button onclick="clearOpDateFilter()"
-                    style="background:none;border:1px solid var(--line);border-radius:8px;padding:5px 12px;font-size:12px;font-weight:600;color:var(--ink-soft);cursor:pointer;"
-                    type="button">✕ Clear</button>
             </div>
             <div class="pagination-bar">
                 <button class="page-nav-btn" id="opPrevPageBtn" onclick="navOpPage(-1)">‹ Prev 6 Slips</button>
@@ -708,6 +762,26 @@
                     <div class="search-box"><span>🔍</span><input id="opSearchInput" oninput="renderOpTotalTable()"
                             placeholder="Search operator..." type="text" /></div>
                     <button class="btn-action btn-print" onclick="window.print()">🖨️ Print Statement</button>
+                </div>
+            </div>
+            <div class="filter-bar no-print"
+                style="background:var(--paper-card);border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+                <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;flex:1;">
+                    <div
+                        style="font-size:11px;font-weight:700;letter-spacing:0.5px;color:var(--ink-soft);text-transform:uppercase;white-space:nowrap;">
+                        📅 FILTER</div>
+                    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                        <input id="opTotalFilterFrom" onkeydown="if(event.key==='Enter') applyOpDateFilter(true)"
+                            style="padding:6px 10px;background:var(--bg);border:1px solid var(--line);border-radius:8px;font-size:12.5px;color:var(--ink);outline:none;font-family:'Inter',sans-serif;"
+                            title="From Date" type="date" />
+                        <span style="font-size:13px;color:var(--ink-soft);font-weight:700;">→</span>
+                        <input id="opTotalFilterTo" onkeydown="if(event.key==='Enter') applyOpDateFilter(true)"
+                            style="padding:6px 10px;background:var(--bg);border:1px solid var(--line);border-radius:8px;font-size:12.5px;color:var(--ink);outline:none;font-family:'Inter',sans-serif;"
+                            title="To Date" type="date" />
+                        <button class="btn-filter-ok" id="opTotalFilterOkBtn" onclick="applyOpDateFilter(true)" type="button">✓ OK</button>
+                        <button class="btn-filter-clear" id="opTotalFilterClearBtn" onclick="clearOpDateFilter()" type="button">✕ Clear</button>
+                        <span class="filter-badge-active" id="opTotalFilterBadge" style="display:none;">Filtered</span>
+                    </div>
                 </div>
             </div>
             <div class="table-card">
@@ -737,6 +811,26 @@
                     <div class="search-box"><span>🔍</span><input id="fixSearchInput" oninput="renderFixTotalTable()"
                             placeholder="Search staff name..." type="text" /></div>
                     <button class="btn-action btn-print" onclick="window.print()">🖨️ Print Statement</button>
+                </div>
+            </div>
+            <div class="filter-bar no-print"
+                style="background:var(--paper-card);border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+                <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;flex:1;">
+                    <div
+                        style="font-size:11px;font-weight:700;letter-spacing:0.5px;color:var(--ink-soft);text-transform:uppercase;white-space:nowrap;">
+                        📅 FILTER</div>
+                    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                        <input id="fixTotalFilterFrom" onkeydown="if(event.key==='Enter') applyFixDateFilter(true)"
+                            style="padding:6px 10px;background:var(--bg);border:1px solid var(--line);border-radius:8px;font-size:12.5px;color:var(--ink);outline:none;font-family:'Inter',sans-serif;"
+                            title="From Date" type="date" />
+                        <span style="font-size:13px;color:var(--ink-soft);font-weight:700;">→</span>
+                        <input id="fixTotalFilterTo" onkeydown="if(event.key==='Enter') applyFixDateFilter(true)"
+                            style="padding:6px 10px;background:var(--bg);border:1px solid var(--line);border-radius:8px;font-size:12.5px;color:var(--ink);outline:none;font-family:'Inter',sans-serif;"
+                            title="To Date" type="date" />
+                        <button class="btn-filter-ok" id="fixTotalFilterOkBtn" onclick="applyFixDateFilter(true)" type="button">✓ OK</button>
+                        <button class="btn-filter-clear" id="fixTotalFilterClearBtn" onclick="clearFixDateFilter()" type="button">✕ Clear</button>
+                        <span class="filter-badge-active" id="fixTotalFilterBadge" style="display:none;">Filtered</span>
+                    </div>
                 </div>
             </div>
             <div style="display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap;">
@@ -797,18 +891,18 @@
                         style="font-size:11px;font-weight:700;letter-spacing:0.5px;color:var(--ink-soft);text-transform:uppercase;white-space:nowrap;">
                         📅 FILTER</div>
                     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-                        <input id="fixFilterFrom" onchange="applyFixDateFilter()"
+                        <input id="fixFilterFrom" onkeydown="if(event.key==='Enter') applyFixDateFilter()"
                             style="padding:6px 10px;background:var(--bg);border:1px solid var(--line);border-radius:8px;font-size:12.5px;color:var(--ink);outline:none;font-family:'Inter',sans-serif;"
                             title="From Date" type="date" />
                         <span style="font-size:13px;color:var(--ink-soft);font-weight:700;">→</span>
-                        <input id="fixFilterTo" onchange="applyFixDateFilter()"
+                        <input id="fixFilterTo" onkeydown="if(event.key==='Enter') applyFixDateFilter()"
                             style="padding:6px 10px;background:var(--bg);border:1px solid var(--line);border-radius:8px;font-size:12.5px;color:var(--ink);outline:none;font-family:'Inter',sans-serif;"
                             title="To Date" type="date" />
+                        <button class="btn-filter-ok" id="fixFilterOkBtn" onclick="applyFixDateFilter()" type="button">✓ OK</button>
+                        <button class="btn-filter-clear" id="fixFilterClearBtn" onclick="clearFixDateFilter()" type="button">✕ Clear</button>
+                        <span class="filter-badge-active" id="fixFilterBadge" style="display:none;">Filtered</span>
                     </div>
                 </div>
-                <button onclick="clearFixDateFilter()"
-                    style="background:none;border:1px solid var(--line);border-radius:8px;padding:5px 12px;font-size:12px;font-weight:600;color:var(--ink-soft);cursor:pointer;"
-                    type="button">✕ Clear</button>
             </div>
             <div class="pagination-bar">
                 <button class="page-nav-btn" id="fixPrevPageBtn" onclick="navFixPage(-1)">‹ Prev 6 Slips</button>
@@ -1057,7 +1151,6 @@
                 if (seenKeys.has(key)) return;
                 seenKeys.add(key);
                 let dt = date || '';
-                if (dt.includes('-')) { const p = dt.split('-'); if (p.length === 3) dt = `${p[2]}-${p[1]}`; }
                 upadEntries.push({ ref: (ref && ref.trim()) ? ref.trim() : 'Kharchi', note: (ref && ref.trim()) ? ref.trim() : 'Kharchi', date: dt, amount: numAmt });
             };
             try {
@@ -1230,61 +1323,115 @@
             if (str.includes('/')) return str;
             if (str.includes('-')) {
                 const p = str.split('-');
-                if (p.length === 3) return `${p[2]}/${p[1]}/${p[0].slice(-2)}`;
+                if (p.length === 3) {
+                    if (p[0].length === 4) return `${p[2]}/${p[1]}/${p[0].slice(-2)}`;
+                    return `${p[0]}/${p[1]}/${p[2].slice(-2)}`;
+                }
                 if (p.length === 2) return `${p[0]}/${p[1]}/26`;
             }
             return str;
         }
 
-        function calcOpSlip(slip) {
-            const hasWorker = slip.name && slip.name.trim() !== '' && !slip.name.startsWith('Operator #');
-            let gross = 0;
-            if (hasWorker) {
-                (slip.duties || []).forEach(d => { gross += (Number(d.qty) || 0) * (Number(d.rate) || 0); });
-            }
-            let totalUpad = hasWorker ? (slip.upad || []).reduce((s, u) => s + Math.abs(Number(u.amount) || 0), 0) : 0;
-            return { gross, totalUpad, net: gross - totalUpad };
-        }
-
-        function calcFixSlip(slip) {
-            const hasWorker = slip.name && slip.name.trim() !== '' && !slip.name.startsWith('Fix Worker #');
-            const salary = hasWorker ? (Number(slip.salary) || 0) : 0;
-            const days = (slip.days === undefined || slip.days === '' || slip.days === null) ? 30 : Number(slip.days);
-            const dailyRate = Math.round(salary / 30);
-            const basePay = Math.round(dailyRate * days);
-            const dutiesTotal = (slip.duties || []).reduce((s, d) => s + ((d.qty || 0) * (d.rate || 0)), 0);
-            const gross = basePay + dutiesTotal;
-            let totalUpad = (slip.upad || []).reduce((s, u) => s + Math.abs(Number(u.amount) || 0), 0);
-            return { gross, totalUpad, net: gross - totalUpad, dailyRate, days, salary };
-        }
-
-        // ── VIEW 2: OP SLIPS ──
+        // ── DATE FILTERS & HELPERS ──
         let opDateFilter = { from: null, to: null };
         let fixDateFilter = { from: null, to: null };
 
-        function _inDateRange(dateStr, fromD, toD) {
+        function normalizeToDateString(dStr, fallbackYear) {
+            if (!dStr) return null;
+            let s = String(dStr).trim();
+            if (!s) return null;
+            const curYr = fallbackYear || new Date().getFullYear();
+
+            // Check YYYY-MM-DD
+            if (/^\d{4}-\d{1,2}-\d{1,2}$/.test(s)) {
+                const p = s.split('-');
+                return `${p[0]}-${String(Number(p[1])).padStart(2, '0')}-${String(Number(p[2])).padStart(2, '0')}`;
+            }
+            // Check DD-MM-YYYY or DD-MM-YY or DD-MM
+            if (s.includes('-')) {
+                const p = s.split('-');
+                if (p.length === 3) {
+                    if (p[0].length === 4) {
+                        return `${p[0]}-${String(Number(p[1])).padStart(2, '0')}-${String(Number(p[2])).padStart(2, '0')}`;
+                    } else {
+                        const y = p[2].length === 2 ? (2000 + Number(p[2])) : Number(p[2]);
+                        return `${y}-${String(Number(p[1])).padStart(2, '0')}-${String(Number(p[0])).padStart(2, '0')}`;
+                    }
+                } else if (p.length === 2) {
+                    return `${curYr}-${String(Number(p[1])).padStart(2, '0')}-${String(Number(p[0])).padStart(2, '0')}`;
+                }
+            }
+            // Check DD/MM/YYYY or DD/MM/YY or DD/MM
+            if (s.includes('/')) {
+                const p = s.split('/');
+                if (p.length === 3) {
+                    if (p[0].length === 4) {
+                        return `${p[0]}-${String(Number(p[1])).padStart(2, '0')}-${String(Number(p[2])).padStart(2, '0')}`;
+                    } else {
+                        const y = p[2].length === 2 ? (2000 + Number(p[2])) : Number(p[2]);
+                        return `${y}-${String(Number(p[1])).padStart(2, '0')}-${String(Number(p[0])).padStart(2, '0')}`;
+                    }
+                } else if (p.length === 2) {
+                    return `${curYr}-${String(Number(p[1])).padStart(2, '0')}-${String(Number(p[0])).padStart(2, '0')}`;
+                }
+            }
+            const dt = new Date(s);
+            if (!isNaN(dt.getTime())) {
+                return `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}-${String(dt.getDate()).padStart(2, '0')}`;
+            }
+            return null;
+        }
+
+        function _inDateRange(dateStr, fromVal, toVal) {
             if (!dateStr) return false;
-            const d = new Date(dateStr);
-            return (!fromD || d >= fromD) && (!toD || d <= toD);
+            let fallbackYear = null;
+            if (fromVal) {
+                const fMatch = String(fromVal).match(/\d{4}/);
+                if (fMatch) fallbackYear = Number(fMatch[0]);
+            }
+            if (!fallbackYear && toVal) {
+                const tMatch = String(toVal).match(/\d{4}/);
+                if (tMatch) fallbackYear = Number(tMatch[0]);
+            }
+            const target = normalizeToDateString(dateStr, fallbackYear);
+            if (!target) return false;
+
+            const fromNorm = fromVal ? normalizeToDateString(fromVal, fallbackYear) : null;
+            const toNorm = toVal ? normalizeToDateString(toVal, fallbackYear) : null;
+
+            if (fromNorm && target < fromNorm) return false;
+            if (toNorm && target > toNorm) return false;
+            return true;
         }
 
         function formatFilterMonthLabel(filterState, defaultMonth) {
             const { from, to } = filterState || {};
             if (!from && !to) return defaultMonth || globalMonthLabel;
             const mn = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-            if (from && to) {
-                // Count days per month in the range → show dominant month
+            const parseToDate = (v) => {
+                if (!v) return null;
+                if (v instanceof Date) return v;
+                const s = normalizeToDateString(v);
+                if (s) {
+                    const p = s.split('-');
+                    return new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2]));
+                }
+                const d = new Date(v);
+                return isNaN(d.getTime()) ? null : d;
+            };
+            const fromD = parseToDate(from);
+            const toD = parseToDate(to);
+            if (fromD && toD) {
                 const monthCount = {};
-                const cur = new Date(from);
+                const cur = new Date(fromD);
                 cur.setHours(0, 0, 0, 0);
-                const end = new Date(to);
+                const end = new Date(toD);
                 end.setHours(0, 0, 0, 0);
                 while (cur <= end) {
                     const key = `${cur.getFullYear()}-${cur.getMonth()}`;
                     monthCount[key] = (monthCount[key] || 0) + 1;
                     cur.setDate(cur.getDate() + 1);
                 }
-                // Find the month key with max days
                 let maxKey = null, maxDays = 0;
                 for (const [key, days] of Object.entries(monthCount)) {
                     if (days > maxDays) { maxDays = days; maxKey = key; }
@@ -1293,13 +1440,46 @@
                     const [yr, mo] = maxKey.split('-');
                     return `${mn[parseInt(mo)]} ${yr} पगार`;
                 }
-                // Fallback: same month check
-                const fm = mn[from.getMonth()], tm = mn[to.getMonth()];
-                return (fm === tm && from.getFullYear() === to.getFullYear())
-                    ? `${fm} ${from.getFullYear()} पगार`
-                    : `${fm}-${tm} ${from.getFullYear()} पगार`;
-            } else if (from) return `${mn[from.getMonth()]} ${from.getFullYear()} पगार`;
+                const fm = mn[fromD.getMonth()], tm = mn[toD.getMonth()];
+                return (fm === tm && fromD.getFullYear() === toD.getFullYear())
+                    ? `${fm} ${fromD.getFullYear()} पगार`
+                    : `${fm}-${tm} ${fromD.getFullYear()} पगार`;
+            } else if (fromD) {
+                return `${mn[fromD.getMonth()]} ${fromD.getFullYear()} पगार`;
+            } else if (toD) {
+                return `${mn[toD.getMonth()]} ${toD.getFullYear()} पगार`;
+            }
             return defaultMonth || globalMonthLabel;
+        }
+
+        function calcOpSlip(slip, filter = opDateFilter) {
+            const hasWorker = slip.name && slip.name.trim() !== '' && !slip.name.startsWith('Operator #');
+            let gross = 0;
+            if (hasWorker) {
+                (slip.duties || []).forEach(d => { gross += (Number(d.qty) || 0) * (Number(d.rate) || 0); });
+            }
+            const isFiltered = Boolean(filter && (filter.from || filter.to));
+            const upadList = hasWorker
+                ? (isFiltered ? (slip.upad || []).filter(u => _inDateRange(u.date, filter.from, filter.to)) : (slip.upad || []))
+                : [];
+            let totalUpad = upadList.reduce((s, u) => s + Math.abs(Number(u.amount) || 0), 0);
+            return { gross, totalUpad, net: gross - totalUpad, filteredUpad: upadList };
+        }
+
+        function calcFixSlip(slip, filter = fixDateFilter) {
+            const hasWorker = slip.name && slip.name.trim() !== '' && !slip.name.startsWith('Fix Worker #');
+            const salary = hasWorker ? (Number(slip.salary) || 0) : 0;
+            const days = (slip.days === undefined || slip.days === '' || slip.days === null) ? 30 : Number(slip.days);
+            const dailyRate = Math.round(salary / 30);
+            const basePay = Math.round(dailyRate * days);
+            const dutiesTotal = (slip.duties || []).reduce((s, d) => s + ((d.qty || 0) * (d.rate || 0)), 0);
+            const gross = basePay + dutiesTotal;
+            const isFiltered = Boolean(filter && (filter.from || filter.to));
+            const upadList = hasWorker
+                ? (isFiltered ? (slip.upad || []).filter(u => _inDateRange(u.date, filter.from, filter.to)) : (slip.upad || []))
+                : [];
+            let totalUpad = upadList.reduce((s, u) => s + Math.abs(Number(u.amount) || 0), 0);
+            return { gross, totalUpad, net: gross - totalUpad, dailyRate, days, salary, filteredUpad: upadList };
         }
 
         function navOpPage(dir) {
@@ -1376,11 +1556,9 @@
 
             pageSlips.forEach(slip => {
                 const sIdx = slip.slipNo - 1;
-                const { gross, totalUpad } = calcOpSlip(slip);
-                const { from: opFD, to: opTD } = opDateFilter;
-                const filteredUpad = (opFD || opTD) ? (slip.upad || []).filter(u => _inDateRange(u.date, opFD, opTD)) : (slip.upad || []);
-                const displayUpad = filteredUpad.reduce((s, u) => s + Math.abs(u.amount || 0), 0);
-                const displayNet = gross - displayUpad;
+                const { gross, totalUpad, net, filteredUpad } = calcOpSlip(slip, opDateFilter);
+                const displayUpad = totalUpad;
+                const displayNet = net;
                 const isPaid = displayNet >= 0;
 
                 const card = document.createElement('div');
@@ -1477,11 +1655,9 @@
 
             pageSlips.forEach(slip => {
                 const sIdx = slip.slipNo - 1;
-                const { gross, totalUpad, dailyRate, days, salary } = calcFixSlip(slip);
-                const { from: fixFD, to: fixTD } = fixDateFilter;
-                const filteredUpad = (fixFD || fixTD) ? (slip.upad || []).filter(u => _inDateRange(u.date, fixFD, fixTD)) : (slip.upad || []);
-                const displayUpad = filteredUpad.reduce((s, u) => s + Math.abs(u.amount || 0), 0);
-                const displayNet = gross - displayUpad;
+                const { gross, totalUpad, net, dailyRate, days, salary, filteredUpad } = calcFixSlip(slip, fixDateFilter);
+                const displayUpad = totalUpad;
+                const displayNet = net;
                 const isPaid = displayNet >= 0;
 
                 const card = document.createElement('div');
@@ -1797,29 +1973,128 @@
         }
 
         // ── DATE FILTERS ──
-        function applyOpDateFilter() {
-            const from = document.getElementById('opFilterFrom').value;
-            const to = document.getElementById('opFilterTo').value;
-            opDateFilter = { from: from ? new Date(from) : null, to: to ? new Date(to) : null };
+        function applyOpDateFilter(fromTotal = false) {
+            let fromInput = fromTotal ? document.getElementById('opTotalFilterFrom') : document.getElementById('opFilterFrom');
+            let toInput = fromTotal ? document.getElementById('opTotalFilterTo') : document.getElementById('opFilterTo');
+            let from = fromInput ? fromInput.value : '';
+            let to = toInput ? toInput.value : '';
+
+            if (!from && !to && !fromTotal) {
+                const totalFrom = document.getElementById('opTotalFilterFrom');
+                const totalTo = document.getElementById('opTotalFilterTo');
+                if (totalFrom && totalFrom.value) from = totalFrom.value;
+                if (totalTo && totalTo.value) to = totalTo.value;
+            } else if (!from && !to && fromTotal) {
+                const slipFrom = document.getElementById('opFilterFrom');
+                const slipTo = document.getElementById('opFilterTo');
+                if (slipFrom && slipFrom.value) from = slipFrom.value;
+                if (slipTo && slipTo.value) to = slipTo.value;
+            }
+
+            if (from && to && from > to) {
+                const t = from; from = to; to = t;
+            }
+
+            ['opFilterFrom', 'opTotalFilterFrom'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = from;
+            });
+            ['opFilterTo', 'opTotalFilterTo'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = to;
+            });
+
+            opDateFilter = { from: from || null, to: to || null };
+
+            const isFiltered = Boolean(from || to);
+            ['opFilterBadge', 'opTotalFilterBadge'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = isFiltered ? 'inline-block' : 'none';
+            });
+
             renderOpSlips();
+            renderOpTotalTable();
         }
+
         function clearOpDateFilter() {
-            document.getElementById('opFilterFrom').value = '';
-            document.getElementById('opFilterTo').value = '';
+            ['opFilterFrom', 'opTotalFilterFrom'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = '';
+            });
+            ['opFilterTo', 'opTotalFilterTo'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = '';
+            });
+            ['opFilterBadge', 'opTotalFilterBadge'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = 'none';
+            });
+
             opDateFilter = { from: null, to: null };
             renderOpSlips();
+            renderOpTotalTable();
         }
-        function applyFixDateFilter() {
-            const from = document.getElementById('fixFilterFrom').value;
-            const to = document.getElementById('fixFilterTo').value;
-            fixDateFilter = { from: from ? new Date(from) : null, to: to ? new Date(to) : null };
+
+        function applyFixDateFilter(fromTotal = false) {
+            let fromInput = fromTotal ? document.getElementById('fixTotalFilterFrom') : document.getElementById('fixFilterFrom');
+            let toInput = fromTotal ? document.getElementById('fixTotalFilterTo') : document.getElementById('fixFilterTo');
+            let from = fromInput ? fromInput.value : '';
+            let to = toInput ? toInput.value : '';
+
+            if (!from && !to && !fromTotal) {
+                const totalFrom = document.getElementById('fixTotalFilterFrom');
+                const totalTo = document.getElementById('fixTotalFilterTo');
+                if (totalFrom && totalFrom.value) from = totalFrom.value;
+                if (totalTo && totalTo.value) to = totalTo.value;
+            } else if (!from && !to && fromTotal) {
+                const slipFrom = document.getElementById('fixFilterFrom');
+                const slipTo = document.getElementById('fixFilterTo');
+                if (slipFrom && slipFrom.value) from = slipFrom.value;
+                if (slipTo && slipTo.value) to = slipTo.value;
+            }
+
+            if (from && to && from > to) {
+                const t = from; from = to; to = t;
+            }
+
+            ['fixFilterFrom', 'fixTotalFilterFrom'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = from;
+            });
+            ['fixFilterTo', 'fixTotalFilterTo'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = to;
+            });
+
+            fixDateFilter = { from: from || null, to: to || null };
+
+            const isFiltered = Boolean(from || to);
+            ['fixFilterBadge', 'fixTotalFilterBadge'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = isFiltered ? 'inline-block' : 'none';
+            });
+
             renderFixSlips();
+            renderFixTotalTable();
         }
+
         function clearFixDateFilter() {
-            document.getElementById('fixFilterFrom').value = '';
-            document.getElementById('fixFilterTo').value = '';
+            ['fixFilterFrom', 'fixTotalFilterFrom'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = '';
+            });
+            ['fixFilterTo', 'fixTotalFilterTo'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = '';
+            });
+            ['fixFilterBadge', 'fixTotalFilterBadge'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = 'none';
+            });
+
             fixDateFilter = { from: null, to: null };
             renderFixSlips();
+            renderFixTotalTable();
         }
 
         // ── PRINT ALL SLIPS ──
@@ -1827,11 +2102,9 @@
             const grid = document.getElementById('opSlipsGrid');
             grid.innerHTML = '';
             opSlipsData.forEach(slip => {
-                const { gross, totalUpad } = calcOpSlip(slip);
-                const { from: opFD, to: opTD } = opDateFilter;
-                const filteredUpad = (opFD || opTD) ? (slip.upad || []).filter(u => _inDateRange(u.date, opFD, opTD)) : (slip.upad || []);
-                const displayUpad = filteredUpad.reduce((s, u) => s + Math.abs(u.amount || 0), 0);
-                const displayNet = gross - displayUpad;
+                const { gross, totalUpad, net, filteredUpad } = calcOpSlip(slip, opDateFilter);
+                const displayUpad = totalUpad;
+                const displayNet = net;
                 const isPaid = displayNet >= 0;
                 const card = document.createElement('div');
                 card.className = 'slip-card';
@@ -1848,11 +2121,9 @@
             const grid = document.getElementById('fixSlipsGrid');
             grid.innerHTML = '';
             fixSlipsData.forEach(slip => {
-                const { gross, totalUpad, dailyRate, days, salary } = calcFixSlip(slip);
-                const { from: fixFD, to: fixTD } = fixDateFilter;
-                const filteredUpad = (fixFD || fixTD) ? (slip.upad || []).filter(u => _inDateRange(u.date, fixFD, fixTD)) : (slip.upad || []);
-                const displayUpad = filteredUpad.reduce((s, u) => s + Math.abs(u.amount || 0), 0);
-                const displayNet = gross - displayUpad;
+                const { gross, totalUpad, net, dailyRate, days, salary, filteredUpad } = calcFixSlip(slip, fixDateFilter);
+                const displayUpad = totalUpad;
+                const displayNet = net;
                 const isPaid = displayNet >= 0;
                 const card = document.createElement('div');
                 card.className = 'slip-card';
