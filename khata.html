@@ -2326,7 +2326,7 @@
         syncChannel.addEventListener('message', async (ev) => {
             if (!ev.data) return;
             if (ev.data.type === 'day-updated') {
-                await loadMasterEntries(); omniroute
+                await loadMasterEntries();
                 await loadWorkers();
                 await loadAccounts();
                 if (currentAccount) {

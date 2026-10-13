@@ -3043,8 +3043,9 @@
                 if (found.master && $('expMaster')) {
                     $('expMaster').value = found.master;
                 }
-                if (found.fixedLabel && $('expFixed')) {
-                    $('expFixed').value = found.fixedLabel;
+                const fl = found.fixedLabel || (found.pagarType === 'fix' ? 'Fix Pagar' : found.pagarType === 'daily' ? 'Daily Pagar' : '');
+                if (fl && $('expFixed')) {
+                    $('expFixed').value = fl;
                     if ($('pagarAmountWrap')) $('pagarAmountWrap').style.display = 'block';
                     if ($('expPagarAmount') && found.pagarAmount) $('expPagarAmount').value = found.pagarAmount;
                 }
@@ -3666,15 +3667,19 @@
                 err.textContent = 'Enter a name.'; err.style.display = 'block'; return;
             }
 
+            const pagarType = (category.toLowerCase() === 'factory karigar')
+                ? (fixedLabel === 'Fix Pagar' ? 'fix' : fixedLabel === 'Daily Pagar' ? 'daily' : '')
+                : '';
             const existingIdx = masterEntries.findIndex(m => m.name && m.name.toLowerCase() === name.toLowerCase());
             if (existingIdx !== -1) {
                 masterEntries[existingIdx].category = category;
                 masterEntries[existingIdx].master = master;
                 masterEntries[existingIdx].fixedLabel = fixedLabel;
+                masterEntries[existingIdx].pagarType = pagarType;
                 masterEntries[existingIdx].pagarAmount = pagarAmount;
                 masterEntries[existingIdx].note = note;
             } else {
-                const entry = { id: uid(), category, master, name, amount: 0, fixedLabel, pagarAmount, note, _type: 'income', _dateKey: toKey(currentDate) };
+                const entry = { id: uid(), category, master, name, amount: 0, fixedLabel, pagarType, pagarAmount, note, _type: 'income', _dateKey: toKey(currentDate) };
                 masterEntries.push(entry);
             }
             await saveMasterEntries();
