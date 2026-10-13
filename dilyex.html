@@ -10,7 +10,6 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@500;600&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap"
         rel="stylesheet">
-    <script src="sync.js"></script>
     <style>
         :root {
             --paper: #F5F1E6;
@@ -1769,7 +1768,9 @@
                 <div class="brand">
                     <div style="display:flex;align-items:center;gap:8px;">
                         <h1>ROJMEL</h1>
-                        <span id="headerYearBadge" style="cursor:pointer;background:var(--carry-bg);color:var(--carry);border:1.5px solid var(--carry);border-radius:6px;padding:2px 8px;font-size:11px;font-weight:800;" title="Accounting Year — Click to change in Master">📅 ...</span>
+                        <span id="headerYearBadge"
+                            style="cursor:pointer;background:var(--carry-bg);color:var(--carry);border:1.5px solid var(--carry);border-radius:6px;padding:2px 8px;font-size:11px;font-weight:800;"
+                            title="Accounting Year — Click to change in Master">📅 ...</span>
                     </div>
                     <span>Income and expense book</span>
                 </div>
@@ -1791,12 +1792,16 @@
                     </svg>
                 </button>
                 <div style="display:flex;align-items:center;gap:6px;margin-left:8px;">
-                    <span style="background:var(--card-bg, #fff);border:1.5px solid var(--line);border-radius:8px;padding:5px 10px;font-size:12px;font-weight:700;color:var(--ink);display:inline-flex;align-items:center;gap:4px;">
+                    <span
+                        style="background:var(--card-bg, #fff);border:1.5px solid var(--line);border-radius:8px;padding:5px 10px;font-size:12px;font-weight:700;color:var(--ink);display:inline-flex;align-items:center;gap:4px;">
                         &#x1F464; <span id="authUserName">...</span>
                     </span>
-                    <button type="button" class="cloud-sync-badge" onclick="CloudSync.openModal()" style="background:#F8FAFC;border:1.5px solid #CBD5E1;border-radius:8px;padding:5px 10px;font-size:12px;font-weight:700;color:#64748B;cursor:pointer;display:inline-flex;align-items:center;gap:4px;" title="Multi-Device Cloud Sync">☁️ Cloud Sync</button>
-                    <button type="button" onclick="openAccountsModal()" style="background:#EFF6FF;color:#2563EB;border:1px solid #BFDBFE;border-radius:8px;padding:5px 10px;font-size:12px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:4px;" title="Manage Accounts">&#x2795; AC</button>
-                    <button type="button" onclick="logout()" style="background:#FEE2E2;color:#DC2626;border:1px solid #FCA5A5;border-radius:8px;padding:5px 10px;font-size:12px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:4px;" title="Log Out">&#x1F6AA; Logout</button>
+                    <button type="button" onclick="openAccountsModal()"
+                        style="background:#EFF6FF;color:#2563EB;border:1px solid #BFDBFE;border-radius:8px;padding:5px 10px;font-size:12px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:4px;"
+                        title="Manage Accounts">&#x2795; AC</button>
+                    <button type="button" onclick="logout()"
+                        style="background:#FEE2E2;color:#DC2626;border:1px solid #FCA5A5;border-radius:8px;padding:5px 10px;font-size:12px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:4px;"
+                        title="Log Out">&#x1F6AA; Logout</button>
                 </div>
 
             </div>
@@ -1880,7 +1885,8 @@
                         </button>
                     </div>
                     <div style="font-size:11px;color:var(--ink-soft);margin-top:4px;">
-                        વર્ષ બદલવાથી આખા સાઇટનો ડેટા એ વર્ષ મુજબ દેખાશે. Complete Year કરવાથી ચાલુ વર્ષ સેવ રહેશે અને નવું વર્ષ ખાલી રોજમેળ સાથે શરૂ થશે.
+                        વર્ષ બદલવાથી આખા સાઇટનો ડેટા એ વર્ષ મુજબ દેખાશે. Complete Year કરવાથી ચાલુ વર્ષ સેવ રહેશે અને
+                        નવું વર્ષ ખાલી રોજમેળ સાથે શરૂ થશે.
                     </div>
                 </div>
 
@@ -2109,10 +2115,10 @@
                 const raw = localStorage.getItem('app_accounts');
                 if (raw) {
                     const accs = JSON.parse(raw);
-                    if (Array.isArray(accs) && accs.find(function(a){ return ((a && a.username) || '').toLowerCase() === u; })) return u;
+                    if (Array.isArray(accs) && accs.find(function (a) { return ((a && a.username) || '').toLowerCase() === u; })) return u;
                     return null;
                 }
-            } catch(e) {}
+            } catch (e) { }
             return u;
         }
 
@@ -2182,11 +2188,11 @@
                     + '<div id="acList" style="display:flex;flex-direction:column;gap:6px;"></div>'
                     + '<div id="acMsg" style="font-size:12px;font-weight:700;margin-top:10px;min-height:18px;"></div>';
                 overlay.appendChild(inner);
-                overlay.addEventListener('click', function(e) { if (e.target === overlay) closeAccountsModal(); });
+                overlay.addEventListener('click', function (e) { if (e.target === overlay) closeAccountsModal(); });
                 document.body.appendChild(overlay);
             } else { overlay.style.display = 'flex'; }
             acRenderList();
-            setTimeout(function() { var el = document.getElementById('acNewUser'); if (el) el.focus(); }, 80);
+            setTimeout(function () { var el = document.getElementById('acNewUser'); if (el) el.focus(); }, 80);
         }
         function closeAccountsModal() { var o = document.getElementById('acModalOverlay'); if (o) o.style.display = 'none'; }
         function acLoadAccounts() {
@@ -2194,57 +2200,52 @@
                 var r = localStorage.getItem('app_accounts');
                 if (r) {
                     var parsed = JSON.parse(r);
-                    return parsed.filter(function(a) {
+                    return parsed.filter(function (a) {
                         var u = ((a && a.username) || '').trim().toLowerCase();
                         return u && u !== 'yug' && u !== 'vipul';
                     });
                 }
-            } catch(e) {}
+            } catch (e) { }
             return [];
         }
-        function acSaveAccounts(list) {
-            localStorage.setItem('app_accounts', JSON.stringify(list));
-            if (window.CloudSync && window.CloudSync.isConnected()) {
-                window.CloudSync.saveAccountsToCloud(list);
-            }
-        }
+        function acSaveAccounts(list) { localStorage.setItem('app_accounts', JSON.stringify(list)); }
         function acRenderList() {
             var list = acLoadAccounts();
             var el = document.getElementById('acList');
             if (!el) return; el.innerHTML = '';
-            var COLORS = ['#0F172A','#D97706','#2563EB','#7C3AED','#059669','#DB2777','#DC2626','#0891B2'];
-            list.forEach(function(acc, idx) {
+            var COLORS = ['#0F172A', '#D97706', '#2563EB', '#7C3AED', '#059669', '#DB2777', '#DC2626', '#0891B2'];
+            list.forEach(function (acc, idx) {
                 var row = document.createElement('div');
                 row.style.cssText = 'display:flex;align-items:center;gap:10px;padding:9px 12px;border:1.5px solid #E2E8F0;border-radius:10px;background:#F8FAFC;';
                 var color = COLORS[idx % COLORS.length];
-                var uesc = (acc.username || '').replace(/\\/g,'\\\\').replace(/'/g,"\\'");
-                row.innerHTML = '<div style="width:30px;height:30px;border-radius:8px;background:'+color+';color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex-shrink:0;">'+(acc.username.charAt(0).toUpperCase())+'</div>'
-                    + '<div style="flex:1;font-size:13px;font-weight:700;color:#0f172a;">'+acc.username+'</div>'
-                    + '<button onclick="acDelete(\''+uesc+'\')" style="background:#FEE2E2;color:#DC2626;border:1px solid #FCA5A5;border-radius:7px;padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;">Delete</button>';
+                var uesc = (acc.username || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+                row.innerHTML = '<div style="width:30px;height:30px;border-radius:8px;background:' + color + ';color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex-shrink:0;">' + (acc.username.charAt(0).toUpperCase()) + '</div>'
+                    + '<div style="flex:1;font-size:13px;font-weight:700;color:#0f172a;">' + acc.username + '</div>'
+                    + '<button onclick="acDelete(\'' + uesc + '\')" style="background:#FEE2E2;color:#DC2626;border:1px solid #FCA5A5;border-radius:7px;padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;">Delete</button>';
                 el.appendChild(row);
             });
             if (!list.length) el.innerHTML = '<div style="color:#94A3B8;font-size:12.5px;text-align:center;padding:10px 0;">No accounts. Add one above.</div>';
         }
         function acDelete(uname) {
-            if (!confirm('Delete account "'+uname+'"?')) return;
-            acSaveAccounts(acLoadAccounts().filter(function(a){return a.username!==uname;}));
+            if (!confirm('Delete account "' + uname + '"?')) return;
+            acSaveAccounts(acLoadAccounts().filter(function (a) { return a.username !== uname; }));
             acRenderList();
-            var msg=document.getElementById('acMsg'); if(msg){msg.style.color='#10B981';msg.textContent='Deleted "'+uname+'".';setTimeout(function(){msg.textContent='';},2500);}
+            var msg = document.getElementById('acMsg'); if (msg) { msg.style.color = '#10B981'; msg.textContent = 'Deleted "' + uname + '".'; setTimeout(function () { msg.textContent = ''; }, 2500); }
         }
         function acSaveNew() {
-            var rawUname = (document.getElementById('acNewUser').value||'').trim();
+            var rawUname = (document.getElementById('acNewUser').value || '').trim();
             var msg = document.getElementById('acMsg');
-            function setMsg(t,ok){if(msg){msg.style.color=ok?'#10B981':'#EF4444';msg.textContent=t;setTimeout(function(){msg.textContent='';},3000);}}
-            if(!rawUname){setMsg('Enter an account name.',false);return;}
+            function setMsg(t, ok) { if (msg) { msg.style.color = ok ? '#10B981' : '#EF4444'; msg.textContent = t; setTimeout(function () { msg.textContent = ''; }, 3000); } }
+            if (!rawUname) { setMsg('Enter an account name.', false); return; }
             var uname = rawUname.toLowerCase();
-            if(uname === 'yug' || uname === 'vipul'){setMsg('That name is reserved.',false);return;}
+            if (uname === 'yug' || uname === 'vipul') { setMsg('That name is reserved.', false); return; }
             var list = acLoadAccounts();
-            if(list.find(function(a){return ((a && a.username)||'').toLowerCase()===uname;})){setMsg('Already exists.',false);return;}
-            list.push({username:rawUname});
+            if (list.find(function (a) { return ((a && a.username) || '').toLowerCase() === uname; })) { setMsg('Already exists.', false); return; }
+            list.push({ username: rawUname });
             acSaveAccounts(list);
-            document.getElementById('acNewUser').value='';
+            document.getElementById('acNewUser').value = '';
             acRenderList();
-            setMsg(rawUname.charAt(0).toUpperCase()+rawUname.slice(1)+' added!',true);
+            setMsg(rawUname.charAt(0).toUpperCase() + rawUname.slice(1) + ' added!', true);
         }
 
         function renderAuthHeader() {
@@ -2258,12 +2259,19 @@
         const storageGet = async k => {
             const uk = getUserStorageKey(k);
             try {
-                if (window.CloudSync && window.CloudSync.isConnected()) {
-                    const cloudVal = await window.CloudSync.get(uk);
-                    if (cloudVal !== null && cloudVal !== undefined) return cloudVal;
+                if (window.storage) {
+                    const r = await window.storage.get(uk, false);
+                    if (r && r.value !== null && r.value !== undefined) return r.value;
                 }
                 const val = userLocalGet(k);
                 if (val !== null) return val;
+                if (getAuthUser() === 'yug' && window.storage) {
+                    const rLegacy = await window.storage.get(k, false);
+                    if (rLegacy && rLegacy.value !== null && rLegacy.value !== undefined) {
+                        await storageSet(k, rLegacy.value);
+                        return rLegacy.value;
+                    }
+                }
                 return null;
             } catch (e) {
                 return userLocalGet(k);
@@ -2272,25 +2280,24 @@
 
         const storageSet = async (k, v) => {
             const uk = getUserStorageKey(k);
-            userLocalSet(k, v);
             try {
-                if (window.CloudSync && window.CloudSync.isConnected()) {
-                    await window.CloudSync.set(uk, v);
-                }
+                if (window.storage) await window.storage.set(uk, v, false);
+                userLocalSet(k, v);
                 return true;
             } catch (e) {
+                userLocalSet(k, v);
                 return false;
             }
         };
 
         const storageRemove = async k => {
             const uk = getUserStorageKey(k);
-            userLocalRemove(k);
             try {
-                if (window.CloudSync && window.CloudSync.isConnected()) {
-                    await window.CloudSync.remove(uk);
-                }
-            } catch (e) {}
+                if (window.storage && window.storage.remove) await window.storage.remove(uk, false);
+                userLocalRemove(k);
+            } catch (e) {
+                userLocalRemove(k);
+            }
         };
 
         const syncChannel = (() => { try { return new BroadcastChannel('khata_sync'); } catch (e) { return { postMessage: () => { }, addEventListener: () => { } }; } })();
@@ -2736,9 +2743,9 @@
             try {
                 let pagarData = {};
                 const rawPagar = await storageGet(`khata_pagar_data_${activeY}`) ||
-                                 await storageGet('khata_pagar_data') ||
-                                 localStorage.getItem(`khata_pagar_data_${activeY}`) ||
-                                 localStorage.getItem('khata_pagar_data');
+                    await storageGet('khata_pagar_data') ||
+                    localStorage.getItem(`khata_pagar_data_${activeY}`) ||
+                    localStorage.getItem('khata_pagar_data');
                 if (rawPagar) {
                     try { pagarData = JSON.parse(rawPagar); } catch (e) { }
                 }
