@@ -578,10 +578,14 @@
             font-family: 'Inter', sans-serif;
         }
 
+        .only-print {
+            display: none !important;
+        }
+
         @media print {
             @page {
                 size: A4 portrait;
-                margin: 2.5mm 3.5mm;
+                margin: 3.5mm 4mm;
             }
 
             html,
@@ -591,7 +595,7 @@
                 width: 100% !important;
                 margin: 0 !important;
                 padding: 0 !important;
-                font-size: 10.5px !important;
+                font-size: 10px !important;
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
             }
@@ -609,6 +613,10 @@
                 display: none !important;
             }
 
+            .only-print {
+                display: inline-flex !important;
+            }
+
             .container {
                 max-width: 100% !important;
                 width: 100% !important;
@@ -619,11 +627,12 @@
             .slips-grid {
                 display: grid !important;
                 grid-template-columns: repeat(2, 1fr) !important;
-                grid-auto-rows: 91mm !important;
-                gap: 2mm 3mm !important;
+                grid-auto-rows: 92mm !important;
+                gap: 2.5mm 3.5mm !important;
                 width: 100% !important;
                 margin: 0 !important;
                 padding: 0 !important;
+                box-sizing: border-box !important;
             }
 
             .slip-card {
@@ -635,8 +644,8 @@
                 page-break-inside: avoid !important;
                 break-inside: avoid !important;
                 box-sizing: border-box !important;
-                height: 91mm !important;
-                max-height: 91mm !important;
+                height: 92mm !important;
+                max-height: 92mm !important;
                 overflow: hidden !important;
             }
 
@@ -645,14 +654,32 @@
                 break-after: page !important;
             }
 
+            .slip-card:last-child {
+                page-break-after: avoid !important;
+                break-after: avoid !important;
+            }
+
             .slip-card>div {
-                border: 1.5px solid #000 !important;
+                border: 2px solid #000 !important;
                 border-radius: 4px !important;
                 height: 100% !important;
                 display: flex !important;
                 flex-direction: column !important;
                 justify-content: space-between !important;
                 box-sizing: border-box !important;
+                background: #fff !important;
+            }
+
+            .slip-body-grid {
+                grid-template-columns: 58% 42% !important;
+                min-height: 0 !important;
+                flex: 1 !important;
+            }
+
+            .slip-kharcho-col {
+                background: #f2f4f8 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
             }
 
             .slip-card td,
@@ -666,8 +693,6 @@
             .slip-card select.cell-edit {
                 font-size: 10px !important;
                 padding: 0 !important;
-                border: none !important;
-                background: transparent !important;
             }
         }
     </style>
@@ -723,7 +748,10 @@
         <section id="viewOpSlips" style="display:none;">
             <div class="section-hdr">
                 <h2 class="section-title">📄 OPRATER PAGAR SLIP (1–36)</h2>
-                <button class="btn-action btn-print" onclick="printAllOpSlips()">🖨️ Print Slips (6 per page)</button>
+                <div style="display:flex;gap:8px;" class="no-print">
+                    <button class="btn-action btn-print" onclick="printCurrentOpSlips()">🖨️ Print Current 6 Slips</button>
+                    <button class="btn-action" style="background:#4A5568;color:#fff;" onclick="printAllOpSlips()">🖨️ Print All (36 Slips)</button>
+                </div>
             </div>
             <div class="filter-bar no-print"
                 style="background:var(--paper-card);border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
@@ -882,7 +910,10 @@
         <section id="viewFixSlips" style="display:none;">
             <div class="section-hdr">
                 <h2 class="section-title">📄 FIX PAGAR SLIP (1–36)</h2>
-                <button class="btn-action btn-print" onclick="printAllFixSlips()">🖨️ Print Slips (6 per page)</button>
+                <div style="display:flex;gap:8px;" class="no-print">
+                    <button class="btn-action btn-print" onclick="printCurrentFixSlips()">🖨️ Print Current 6 Slips</button>
+                    <button class="btn-action" style="background:#4A5568;color:#fff;" onclick="printAllFixSlips()">🖨️ Print All (36 Slips)</button>
+                </div>
             </div>
             <div class="filter-bar no-print"
                 style="background:var(--paper-card);border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
@@ -1534,6 +1565,96 @@
             return html;
         }
 
+        function createOpSlipCard(slip, sIdx) {
+            const { gross, totalUpad, net, filteredUpad } = calcOpSlip(slip, opDateFilter);
+            const displayUpad = totalUpad;
+            const displayNet = net;
+            const isPaid = displayNet >= 0;
+
+            const card = document.createElement('div');
+            card.className = 'slip-card';
+
+            const hasWorker = slip.name && slip.name.trim() !== '' && !slip.name.startsWith('Operator #');
+            let dutiesHtml = hasWorker ? (slip.duties || []).map((d, dIdx) => `
+                <tr>
+                    <td style="padding:2px 4px;width:56%;">
+                        <select class="cell-edit no-print" onchange="onOpTaskSelectChange(${sIdx}, ${dIdx}, this.value)" style="font-weight:700;font-size:12px;width:100%;">${getTaskOptionsHtml(d.task)}</select>
+                        <span class="only-print" style="display:none;align-items:center;justify-content:space-between;width:100%;padding:1px 6px;border:1px solid #d0c9b8;border-radius:5px;background:#FDF5E6;font-size:10.5px;font-weight:700;color:#000;">
+                            <span>${d.task || '-- Select Task --'}</span><span style="font-size:7px;color:#777;margin-left:4px;">▼</span>
+                        </span>
+                    </td>
+                    <td class="num" style="padding:2px 4px;text-align:right;white-space:nowrap;font-size:12px;">
+                        <span class="no-print">
+                            <input class="cell-edit" type="number" style="width:40px;text-align:right;font-size:12px;font-family:'JetBrains Mono',monospace;" value="${d.qty}" onchange="updateOpDutyQty(${sIdx}, ${dIdx}, this.value)"> &times;
+                            <input class="cell-edit" type="number" style="width:58px;text-align:right;font-size:12px;font-family:'JetBrains Mono',monospace;" value="${d.rate}" onchange="updateOpDutyRate(${sIdx}, ${dIdx}, this.value)">
+                        </span>
+                        <span class="only-print" style="display:none;align-items:center;gap:2px;font-size:11px;">
+                            <span style="display:inline-block;padding:1px 4px;border:1px solid #d0c9b8;border-radius:4px;background:#FDF5E6;font-family:'JetBrains Mono',monospace;font-weight:700;">${d.qty || 1}</span> &times; <span style="display:inline-block;padding:1px 4px;border:1px solid #d0c9b8;border-radius:4px;background:#FDF5E6;font-family:'JetBrains Mono',monospace;font-weight:700;">${d.rate || 0}</span>
+                        </span>
+                    </td>
+                    <td class="num" style="padding:2px 4px;text-align:right;font-weight:800;font-size:13px;font-family:'JetBrains Mono',monospace;">${rupee((d.qty || 0) * (d.rate || 0))}</td>
+                </tr>`).join('') : '';
+
+            let upadHtml = hasWorker ? filteredUpad.map((u, uIdx) => {
+                const realIdx = (slip.upad || []).indexOf(u);
+                return `<div style="display:flex;align-items:center;justify-content:space-between;gap:4px;padding:2px 0;border-bottom:1px solid #f8d0d0;color:#c00;">
+                    <span class="no-print" style="display:flex;align-items:center;justify-content:space-between;width:100%;gap:4px;">
+                        <input class="cell-edit" type="text" style="width:52px;font-size:10.5px;font-weight:700;color:#c00;border:none;background:transparent;padding:0;outline:none;" value="${formatUpadDate(u.date)}" onchange="updateOpUpadDate(${sIdx}, ${realIdx}, this.value)">
+                        <input class="cell-edit" type="text" style="flex:1;font-size:11.5px;font-weight:700;color:#c00;border:none;background:transparent;padding:1px 3px;" value="${u.ref || u.note || ''}" placeholder="Kharchi note" onchange="updateOpUpadRef(${sIdx}, ${realIdx}, this.value)">
+                        <div style="font-weight:800;font-size:11.5px;font-family:'JetBrains Mono',monospace;color:#c00;">₹ -<input class="cell-edit" type="number" style="width:42px;text-align:right;color:#c00;font-weight:800;font-size:11.5px;font-family:'JetBrains Mono',monospace;padding:0;border:none;background:transparent;" value="${Math.abs(u.amount)}" onchange="updateOpUpadAmt(${sIdx}, ${realIdx}, this.value)"></div>
+                    </span>
+                    <span class="only-print" style="display:none;align-items:center;justify-content:space-between;width:100%;font-size:10.5px;font-weight:700;color:#c00;">
+                        <span style="width:48px;">${formatUpadDate(u.date)}</span>
+                        <span style="flex:1;padding:0 3px;">${u.ref || u.note || ''}</span>
+                        <span style="font-family:'JetBrains Mono',monospace;font-weight:800;font-size:11.5px;">₹ - ${Math.abs(u.amount)}</span>
+                    </span>
+                </div>`;
+            }).join('') : '';
+
+            card.innerHTML = `
+                <div style="border:2px solid #000;background:#fff;border-radius:4px;height:100%;display:flex;flex-direction:column;justify-content:space-between;">
+                    <div style="padding:6px 10px;border-bottom:1.5px solid #000;background:#fff;">
+                        <div style="text-align:center;font-size:16px;font-weight:900;letter-spacing:1px;margin-bottom:3px;color:#000;"><span style="text-decoration:underline;">${slip.company || globalCompanyName}</span></div>
+                        <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;">
+                            <div style="font-size:13px;font-weight:800;color:#000;display:flex;align-items:center;gap:6px;flex:1;">
+                                <span>${slip.slipNo} Oprater</span>
+                                <select class="cell-edit no-print" style="font-size:13px;font-weight:800;max-width:180px;" onchange="onOpWorkerNameChange(${sIdx}, this.value)">${getWorkerSelectOptionsHtml(slip.name, false, sIdx)}</select>
+                                <span class="only-print" style="display:none;align-items:center;justify-content:space-between;padding:2px 7px;border:1px solid #d0c9b8;border-radius:6px;background:#FDF5E6;font-size:12px;font-weight:800;color:#000;min-width:110px;">
+                                    <span>${slip.name || '-- Select Worker --'}</span><span style="font-size:8px;color:#777;margin-left:6px;">▼</span>
+                                </span>
+                            </div>
+                            <div style="font-size:13px;font-weight:900;color:#c00;">${formatFilterMonthLabel(opDateFilter, slip.month)}</div>
+                        </div>
+                    </div>
+                    <div class="slip-body-grid" style="display:grid;grid-template-columns:1fr 250px;min-height:185px;flex:1;">
+                        <div style="padding:6px 8px;border-right:1.5px solid #000;display:flex;flex-direction:column;justify-content:space-between;">
+                            <div>
+                                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px;">
+                                    <span style="font-size:10.5px;font-weight:800;color:var(--ink-soft);text-transform:uppercase;">DUTY TASKS:</span>
+                                    <button class="add-row-btn no-print" onclick="addOpDutyRow(${sIdx})">+ Add Duty</button>
+                                    <span class="only-print" style="display:none;border:1px dashed #3D7A5A;border-radius:6px;padding:1px 6px;font-size:9.5px;font-weight:700;color:#3D7A5A;background:#EDF4F0;">+ Add Duty</span>
+                                </div>
+                                <table style="width:100%;border-collapse:collapse;"><tbody>${dutiesHtml}</tbody></table>
+                            </div>
+                            <div style="margin-top:6px;">
+                                <div style="border-top:1.5px solid #000;padding-top:3px;display:flex;justify-content:space-between;font-weight:800;font-size:13px;"><span>Total પગાર</span><span style="font-family:'JetBrains Mono',monospace;">${rupee(gross)}</span></div>
+                                <div style="display:flex;justify-content:space-between;font-weight:800;font-size:13px;color:#c00;margin-top:2px;"><span>ખર્ચો <small style="font-size:10px;">(₹)</small></span><span style="font-family:'JetBrains Mono',monospace;">₹ -${displayUpad.toLocaleString('en-IN')}</span></div>
+                                <div style="border-top:1.5px solid #000;margin:3px 0;"></div>
+                                <div style="display:flex;justify-content:space-between;align-items:center;font-weight:900;font-size:15px;"><span>${isPaid ? 'હિસાબ ચુકતે' : 'હિસાબ બાકી'}</span><span style="font-family:'JetBrains Mono',monospace;">${displayNet < 0 ? '₹ -' + Math.abs(displayNet).toLocaleString('en-IN') : rupee(displayNet)}</span></div>
+                            </div>
+                        </div>
+                        <div class="slip-kharcho-col" style="padding:6px 8px;background:#f2f4f8;display:flex;flex-direction:column;justify-content:space-between;">
+                            <div>
+                                <div style="margin-bottom:3px;"><span style="font-weight:900;font-size:12.5px;color:#c00;text-decoration:underline;"><u>ખર્ચો</u> <small style="font-size:10px;">(₹)</small></span></div>
+                                <div style="width:100%;">${upadHtml}</div>
+                            </div>
+                            <div style="border-top:1.5px solid #000;padding-top:3px;margin-top:3px;text-align:right;font-weight:900;font-size:13px;color:#c00;font-family:'JetBrains Mono',monospace;">₹ -${displayUpad.toLocaleString('en-IN')}</div>
+                        </div>
+                    </div>
+                </div>`;
+            return card;
+        }
+
         function renderOpSlips() {
             const grid = document.getElementById('opSlipsGrid');
             grid.innerHTML = '';
@@ -1556,72 +1677,7 @@
 
             pageSlips.forEach(slip => {
                 const sIdx = slip.slipNo - 1;
-                const { gross, totalUpad, net, filteredUpad } = calcOpSlip(slip, opDateFilter);
-                const displayUpad = totalUpad;
-                const displayNet = net;
-                const isPaid = displayNet >= 0;
-
-                const card = document.createElement('div');
-                card.className = 'slip-card';
-
-                const hasWorker = slip.name && slip.name.trim() !== '' && !slip.name.startsWith('Operator #');
-                let dutiesHtml = hasWorker ? (slip.duties || []).map((d, dIdx) => `
-                    <tr>
-                        <td style="padding:3px 5px;width:60%;"><select class="cell-edit" onchange="onOpTaskSelectChange(${sIdx}, ${dIdx}, this.value)" style="font-weight:700;font-size:13px;width:100%;">${getTaskOptionsHtml(d.task)}</select></td>
-                        <td class="num" style="padding:3px 5px;text-align:right;white-space:nowrap;font-size:13px;">
-                            <input class="cell-edit" type="number" style="width:48px;text-align:right;font-size:13px;font-family:'JetBrains Mono',monospace;" value="${d.qty}" onchange="updateOpDutyQty(${sIdx}, ${dIdx}, this.value)"> &times;
-                            <input class="cell-edit" type="number" style="width:68px;text-align:right;font-size:13px;font-family:'JetBrains Mono',monospace;" value="${d.rate}" onchange="updateOpDutyRate(${sIdx}, ${dIdx}, this.value)">
-                        </td>
-                        <td class="num" style="padding:3px 5px;text-align:right;font-weight:800;font-size:14px;font-family:'JetBrains Mono',monospace;">${rupee((d.qty || 0) * (d.rate || 0))}</td>
-                    </tr>`).join('') : '';
-
-                let upadHtml = hasWorker ? filteredUpad.map((u, uIdx) => {
-                    const realIdx = (slip.upad || []).indexOf(u);
-                    return `<div style="display:flex;align-items:center;justify-content:space-between;gap:4px;padding:3px 0;border-bottom:1px solid #f8d0d0;color:#c00;">
-                        <input class="cell-edit" type="text" style="width:58px;font-size:11px;font-weight:700;color:#c00;border:none;background:transparent;padding:0;outline:none;" value="${formatUpadDate(u.date)}" onchange="updateOpUpadDate(${sIdx}, ${realIdx}, this.value)">
-                        <input class="cell-edit" type="text" style="flex:1;font-size:12px;font-weight:700;color:#c00;border:none;background:transparent;padding:1px 4px;margin-left:4px;" value="${u.ref || u.note || ''}" placeholder="Kharchi note" onchange="updateOpUpadRef(${sIdx}, ${realIdx}, this.value)">
-                        <div style="font-weight:800;font-size:12px;font-family:'JetBrains Mono',monospace;color:#c00;">₹ -<input class="cell-edit" type="number" style="width:48px;text-align:right;color:#c00;font-weight:800;font-size:12px;font-family:'JetBrains Mono',monospace;padding:0;border:none;background:transparent;" value="${Math.abs(u.amount)}" onchange="updateOpUpadAmt(${sIdx}, ${realIdx}, this.value)"></div>
-                    </div>`;
-                }).join('') : '';
-
-                card.innerHTML = `
-                    <div style="border:2px solid #000;background:#fff;border-radius:4px;height:100%;display:flex;flex-direction:column;justify-content:space-between;">
-                        <div style="padding:8px 12px;border-bottom:1.5px solid #000;background:#fff;">
-                            <div style="text-align:center;font-size:17px;font-weight:900;letter-spacing:1px;margin-bottom:4px;color:#000;"><span style="text-decoration:underline;">${slip.company || globalCompanyName}</span></div>
-                            <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
-                                <div style="font-size:14px;font-weight:800;color:#000;display:flex;align-items:center;gap:6px;flex:1;">
-                                    <span>${slip.slipNo} Oprater</span>
-                                    <select class="cell-edit" style="font-size:14px;font-weight:800;max-width:200px;" onchange="onOpWorkerNameChange(${sIdx}, this.value)">${getWorkerSelectOptionsHtml(slip.name, false, sIdx)}</select>
-                                </div>
-                                <div style="font-size:14px;font-weight:900;color:#c00;">${formatFilterMonthLabel(opDateFilter, slip.month)}</div>
-                            </div>
-                        </div>
-                        <div style="display:grid;grid-template-columns:1fr 260px;min-height:190px;flex:1;">
-                            <div style="padding:8px 10px;border-right:1.5px solid #000;display:flex;flex-direction:column;justify-content:space-between;">
-                                <div>
-                                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;" class="no-print">
-                                        <span style="font-size:11px;font-weight:800;color:var(--ink-soft);text-transform:uppercase;">Duty Tasks:</span>
-                                        <button class="add-row-btn" onclick="addOpDutyRow(${sIdx})">+ Add Duty</button>
-                                    </div>
-                                    <table style="width:100%;border-collapse:collapse;"><tbody>${dutiesHtml}</tbody></table>
-                                </div>
-                                <div style="margin-top:8px;">
-                                    <div style="border-top:1.5px solid #000;padding-top:4px;display:flex;justify-content:space-between;font-weight:800;font-size:14px;"><span>Total પગાર</span><span style="font-family:'JetBrains Mono',monospace;">${rupee(gross)}</span></div>
-                                    <div style="display:flex;justify-content:space-between;font-weight:800;font-size:14px;color:#c00;margin-top:2px;"><span>ખર્ચો <small style="font-size:11px;">(₹)</small></span><span style="font-family:'JetBrains Mono',monospace;">₹ -${displayUpad.toLocaleString('en-IN')}</span></div>
-                                    <div style="border-top:3px double #000;margin:4px 0;"></div>
-                                    <div style="display:flex;justify-content:space-between;align-items:center;font-weight:900;font-size:16px;"><span>${isPaid ? 'हिसाब चुकते' : 'हिसाब बाकी'}</span><span style="font-family:'JetBrains Mono',monospace;">${displayNet < 0 ? '₹ -' + Math.abs(displayNet).toLocaleString('en-IN') : rupee(displayNet)}</span></div>
-                                </div>
-                            </div>
-                            <div style="padding:8px 10px;background:#f2f4f8;display:flex;flex-direction:column;justify-content:space-between;">
-                                <div>
-                                    <div style="margin-bottom:4px;"><span style="font-weight:900;font-size:13.5px;color:#c00;text-decoration:underline;"><u>ખર્ચો</u> <small style="font-size:11px;">(₹)</small></span></div>
-                                    <div style="width:100%;">${upadHtml}</div>
-                                </div>
-                                <div style="border-top:1.5px solid #000;padding-top:4px;margin-top:4px;text-align:right;font-weight:900;font-size:14px;color:#c00;font-family:'JetBrains Mono',monospace;">₹ -${displayUpad.toLocaleString('en-IN')}</div>
-                            </div>
-                        </div>
-                    </div>`;
-                grid.appendChild(card);
+                grid.appendChild(createOpSlipCard(slip, sIdx));
             });
         }
 
@@ -1632,6 +1688,122 @@
             renderFixSlips();
         }
         function setFixPage(p) { fixCurrentPage = p; renderFixSlips(); }
+
+        function createFixSlipCard(slip, sIdx) {
+            const { gross, totalUpad, net, dailyRate, days, salary, filteredUpad } = calcFixSlip(slip, fixDateFilter);
+            const displayUpad = totalUpad;
+            const displayNet = net;
+            const isPaid = displayNet >= 0;
+
+            const card = document.createElement('div');
+            card.className = 'slip-card';
+
+            const hasWorker = slip.name && slip.name.trim() !== '' && !slip.name.startsWith('Fix Worker #');
+            let upadHtml = hasWorker ? filteredUpad.map((u, uIdx) => {
+                const realIdx = (slip.upad || []).indexOf(u);
+                return `<div style="display:flex;align-items:center;justify-content:space-between;gap:4px;padding:2px 0;border-bottom:1px solid #f8d0d0;color:#c00;">
+                    <span class="no-print" style="display:flex;align-items:center;justify-content:space-between;width:100%;gap:4px;">
+                        <input class="cell-edit" type="text" style="width:52px;font-size:10.5px;font-weight:700;color:#c00;border:none;background:transparent;padding:0;outline:none;" value="${formatUpadDate(u.date)}" onchange="updateFixUpadDate(${sIdx}, ${realIdx}, this.value)">
+                        <input class="cell-edit" type="text" style="flex:1;font-size:11.5px;font-weight:700;color:#c00;border:none;background:transparent;padding:1px 3px;" value="${u.ref || u.note || ''}" placeholder="Kharchi note" onchange="updateFixUpadRef(${sIdx}, ${realIdx}, this.value)">
+                        <div style="font-weight:800;font-size:11.5px;font-family:'JetBrains Mono',monospace;color:#c00;">₹ -<input class="cell-edit" type="number" style="width:42px;text-align:right;color:#c00;font-weight:800;font-size:11.5px;font-family:'JetBrains Mono',monospace;padding:0;border:none;background:transparent;" value="${Math.abs(u.amount)}" onchange="updateFixUpadAmt(${sIdx}, ${realIdx}, this.value)"></div>
+                    </span>
+                    <span class="only-print" style="display:none;align-items:center;justify-content:space-between;width:100%;font-size:10.5px;font-weight:700;color:#c00;">
+                        <span style="width:48px;">${formatUpadDate(u.date)}</span>
+                        <span style="flex:1;padding:0 3px;">${u.ref || u.note || ''}</span>
+                        <span style="font-family:'JetBrains Mono',monospace;font-weight:800;font-size:11.5px;">₹ - ${Math.abs(u.amount)}</span>
+                    </span>
+                </div>`;
+            }).join('') : '';
+
+            let fixDutiesHtml = hasWorker ? (slip.duties || []).map(function (d, dIdx) {
+                return '<tr style="border-bottom:1px solid #eee;">' +
+                    '<td style="padding:2px 4px;">' +
+                        '<select class="cell-edit no-print" style="width:100%;font-size:11.5px;font-weight:700;" onchange="onFixTaskSelectChange(' + sIdx + ',' + dIdx + ',this.value)">' + getTaskOptionsHtml(d.task) + '</select>' +
+                        '<span class="only-print" style="display:none;align-items:center;justify-content:space-between;width:100%;padding:1px 5px;border:1px solid #d0c9b8;border-radius:4px;background:#FDF5E6;font-size:10.5px;font-weight:700;color:#000;"><span>' + (d.task || '-- Select Task --') + '</span><span style="font-size:7px;color:#777;margin-left:4px;">▼</span></span>' +
+                    '</td>' +
+                    '<td style="text-align:right;padding:2px 4px;">' +
+                        '<input class="cell-edit no-print" type="number" style="width:38px;text-align:right;font-size:11.5px;font-weight:800;" value="' + (d.qty || 1) + '" onchange="updateFixDutyQty(' + sIdx + ',' + dIdx + ',this.value)">' +
+                        '<span class="only-print" style="display:none;padding:1px 4px;border:1px solid #d0c9b8;border-radius:4px;background:#FDF5E6;font-family:\'JetBrains Mono\',monospace;font-weight:700;font-size:10.5px;">' + (d.qty || 1) + '</span>' +
+                    '</td>' +
+                    '<td style="text-align:right;padding:2px 4px;">' +
+                        '<input class="cell-edit no-print" type="number" style="width:48px;text-align:right;font-size:11.5px;font-weight:700;" value="' + (d.rate || 0) + '" onchange="updateFixDutyRate(' + sIdx + ',' + dIdx + ',this.value)">' +
+                        '<span class="only-print" style="display:none;padding:1px 4px;border:1px solid #d0c9b8;border-radius:4px;background:#FDF5E6;font-family:\'JetBrains Mono\',monospace;font-weight:700;font-size:10.5px;">' + (d.rate || 0) + '</span>' +
+                    '</td>' +
+                    '<td style="text-align:right;padding:2px 4px;font-size:12.5px;font-weight:900;font-family:\'JetBrains Mono\',monospace;">' + rupee((d.qty || 0) * (d.rate || 0)) + '</td>' +
+                '</tr>';
+            }).join('') : '';
+
+            card.innerHTML = `
+                <div style="border:2px solid #000;background:#fff;border-radius:4px;height:100%;display:flex;flex-direction:column;justify-content:space-between;">
+                    <div style="padding:6px 10px;border-bottom:1.5px solid #000;background:#fff;">
+                        <div style="text-align:center;font-size:16px;font-weight:900;letter-spacing:1px;margin-bottom:3px;color:#000;"><span style="text-decoration:underline;">${slip.company || globalCompanyName}</span></div>
+                        <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;">
+                            <div style="font-size:13px;font-weight:800;color:#000;display:flex;align-items:center;gap:6px;">
+                                <input class="cell-edit no-print" type="text" value="${slip.category || 'HELPAR :-'}" style="max-width:110px;font-weight:800;border:1px solid #000;" onchange="updateFixCategory(${sIdx}, this.value)">
+                                <span class="only-print" style="display:none;font-weight:900;font-size:12px;color:#000;">${slip.category || 'HELPAR :-'}</span>
+                                <select class="cell-edit no-print" style="font-size:13px;font-weight:800;max-width:140px;" onchange="onFixWorkerNameChange(${sIdx}, this.value)">${getWorkerSelectOptionsHtml(slip.name, true, sIdx)}</select>
+                                <span class="only-print" style="display:none;align-items:center;justify-content:space-between;padding:2px 7px;border:1px solid #d0c9b8;border-radius:6px;background:#FDF5E6;font-size:12px;font-weight:800;color:#000;min-width:90px;">
+                                    <span>${slip.name || '-- Select Worker --'}</span><span style="font-size:8px;color:#777;margin-left:6px;">▼</span>
+                                </span>
+                            </div>
+                            <div style="display:flex;align-items:center;gap:8px;">
+                                <div style="display:inline-flex;align-items:center;gap:4px;font-size:11.5px;font-weight:700;color:#555;">
+                                    <span>Base:</span>
+                                    <span style="background:#F6F4EB;border:1.5px solid #D0C9B8;border-radius:6px;padding:1px 6px;font-size:12px;font-weight:900;font-family:'JetBrains Mono',monospace;color:#000;">₹${salary}</span>
+                                </div>
+                                <div style="font-size:13px;font-weight:900;color:#c00;">${formatFilterMonthLabel(fixDateFilter, slip.month)}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="slip-body-grid" style="display:grid;grid-template-columns:1fr 250px;min-height:185px;flex:1;">
+                        <div style="padding:6px 8px;border-right:1.5px solid #000;display:flex;flex-direction:column;justify-content:space-between;">
+                            <div>
+                                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px;">
+                                    <span style="font-size:10.5px;font-weight:800;color:var(--ink-soft);text-transform:uppercase;">DUTY TASKS:</span>
+                                    <button class="add-row-btn no-print" onclick="addFixDutyRow(${sIdx})">+ Add Duty</button>
+                                    <span class="only-print" style="display:none;border:1px dashed #3D7A5A;border-radius:6px;padding:1px 6px;font-size:9.5px;font-weight:700;color:#3D7A5A;background:#EDF4F0;">+ Add Duty</span>
+                                </div>
+                                <table style="width:100%;border-collapse:collapse;">
+                                    <thead>
+                                        <tr style="border-bottom:1.5px solid #000;background:#f5f5f5;">
+                                            <th style="text-align:left;padding:3px 5px;font-size:10px;font-weight:900;color:#444;text-transform:uppercase;">DESCRIPTION</th>
+                                            <th style="text-align:right;padding:3px 5px;font-size:10px;font-weight:900;color:#444;text-transform:uppercase;">DAYS</th>
+                                            <th style="text-align:right;padding:3px 5px;font-size:10px;font-weight:900;color:#444;text-transform:uppercase;">RATE/DAY</th>
+                                            <th style="text-align:right;padding:3px 5px;font-size:10px;font-weight:900;color:#444;text-transform:uppercase;">AMOUNT</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr style="border-bottom:1px solid #ddd;background:#f9f9f2;">
+                                            <td style="padding:4px 5px;font-size:11px;font-weight:700;color:#555;vertical-align:middle;">Fix Salary</td>
+                                            <td style="text-align:right;padding:4px 5px;vertical-align:middle;">
+                                                <input class="cell-edit no-print" type="number" style="width:38px;text-align:right;font-size:12px;font-family:'JetBrains Mono',monospace;font-weight:800;" value="${days}" onchange="updateFixDays(${sIdx}, this.value)">
+                                                <span class="only-print" style="display:none;padding:1px 4px;border:1px solid #d0c9b8;border-radius:4px;background:#FDF5E6;font-family:'JetBrains Mono',monospace;font-weight:800;font-size:11px;">${days}</span>
+                                            </td>
+                                            <td style="text-align:right;padding:4px 5px;font-size:12px;font-family:'JetBrains Mono',monospace;font-weight:700;white-space:nowrap;vertical-align:middle;">${rupee(dailyRate)}</td>
+                                            <td style="text-align:right;padding:4px 5px;font-size:13px;font-family:'JetBrains Mono',monospace;font-weight:900;white-space:nowrap;color:#000;vertical-align:middle;">${rupee(gross)}</td>
+                                        </tr>
+                                        ${fixDutiesHtml}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div style="margin-top:6px;">
+                                <div style="border-top:1.5px solid #000;padding-top:3px;display:flex;justify-content:space-between;font-weight:800;font-size:13px;"><span>Total પગાર</span><span style="font-family:'JetBrains Mono',monospace;">${rupee(gross)}</span></div>
+                                <div style="display:flex;justify-content:space-between;font-weight:800;font-size:13px;color:#c00;margin-top:2px;"><span>ખર્ચો <small style="font-size:10px;">(₹)</small></span><span style="font-family:'JetBrains Mono',monospace;">₹ -${displayUpad.toLocaleString('en-IN')}</span></div>
+                                <div style="border-top:1.5px solid #000;margin:3px 0;"></div>
+                                <div style="display:flex;justify-content:space-between;align-items:center;font-weight:900;font-size:15px;"><span>${isPaid ? 'હિસાબ ચુકતે' : 'હિસાબ બાકી'}</span><span style="font-family:'JetBrains Mono',monospace;">${displayNet < 0 ? '₹ -' + Math.abs(displayNet).toLocaleString('en-IN') : rupee(displayNet)}</span></div>
+                            </div>
+                        </div>
+                        <div class="slip-kharcho-col" style="padding:6px 8px;background:#f2f4f8;display:flex;flex-direction:column;justify-content:space-between;">
+                            <div>
+                                <div style="margin-bottom:3px;"><span style="font-weight:900;font-size:12.5px;color:#c00;text-decoration:underline;"><u>ખર્ચો</u> <small style="font-size:10px;">(₹)</small></span></div>
+                                <div style="width:100%;">${upadHtml}</div>
+                            </div>
+                            <div style="border-top:1.5px solid #000;padding-top:3px;margin-top:3px;text-align:right;font-weight:900;font-size:13px;color:#c00;font-family:'JetBrains Mono',monospace;">₹ -${displayUpad.toLocaleString('en-IN')}</div>
+                        </div>
+                    </div>
+                </div>`;
+            return card;
+        }
 
         function renderFixSlips() {
             const grid = document.getElementById('fixSlipsGrid');
@@ -1655,89 +1827,7 @@
 
             pageSlips.forEach(slip => {
                 const sIdx = slip.slipNo - 1;
-                const { gross, totalUpad, net, dailyRate, days, salary, filteredUpad } = calcFixSlip(slip, fixDateFilter);
-                const displayUpad = totalUpad;
-                const displayNet = net;
-                const isPaid = displayNet >= 0;
-
-                const card = document.createElement('div');
-                card.className = 'slip-card';
-
-                const hasWorker = slip.name && slip.name.trim() !== '' && !slip.name.startsWith('Fix Worker #');
-                let upadHtml = hasWorker ? filteredUpad.map((u, uIdx) => {
-                    const realIdx = (slip.upad || []).indexOf(u);
-                    return `<div style="display:flex;align-items:center;justify-content:space-between;gap:4px;padding:3px 0;border-bottom:1px solid #f8d0d0;color:#c00;">
-                        <input class="cell-edit" type="text" style="width:58px;font-size:11px;font-weight:700;color:#c00;border:none;background:transparent;padding:0;outline:none;" value="${formatUpadDate(u.date)}" onchange="updateFixUpadDate(${sIdx}, ${realIdx}, this.value)">
-                        <input class="cell-edit" type="text" style="flex:1;font-size:12px;font-weight:700;color:#c00;border:none;background:transparent;padding:1px 4px;margin-left:4px;" value="${u.ref || u.note || ''}" placeholder="Kharchi note" onchange="updateFixUpadRef(${sIdx}, ${realIdx}, this.value)">
-                        <div style="font-weight:800;font-size:12px;font-family:'JetBrains Mono',monospace;color:#c00;">₹ -<input class="cell-edit" type="number" style="width:48px;text-align:right;color:#c00;font-weight:800;font-size:12px;font-family:'JetBrains Mono',monospace;padding:0;border:none;background:transparent;" value="${Math.abs(u.amount)}" onchange="updateFixUpadAmt(${sIdx}, ${realIdx}, this.value)"></div>
-                    </div>`;
-                }).join('') : '';
-
-                let fixDutiesHtml = hasWorker ? (slip.duties || []).map(function (d, dIdx) {
-                    return '<tr style="border-bottom:1px solid #eee;"><td style="padding:4px 6px;"><select class="cell-edit" style="width:100%;font-size:12px;font-weight:700;" onchange="onFixTaskSelectChange(' + sIdx + ',' + dIdx + ',this.value)">' + getTaskOptionsHtml(d.task) + '</select></td><td style="text-align:right;padding:4px 6px;"><input class="cell-edit" type="number" style="width:44px;text-align:right;font-size:12px;font-weight:800;" value="' + (d.qty || 1) + '" onchange="updateFixDutyQty(' + sIdx + ',' + dIdx + ',this.value)"></td><td style="text-align:right;padding:4px 6px;"><input class="cell-edit" type="number" style="width:52px;text-align:right;font-size:12px;font-weight:700;" value="' + (d.rate || 0) + '" onchange="updateFixDutyRate(' + sIdx + ',' + dIdx + ',this.value)"></td><td style="text-align:right;padding:4px 6px;font-size:13px;font-weight:900;">' + rupee((d.qty || 0) * (d.rate || 0)) + '</td></tr>';
-                }).join('') : '';
-                card.innerHTML = `
-                    <div style="border:2px solid #000;background:#fff;border-radius:4px;height:100%;display:flex;flex-direction:column;justify-content:space-between;">
-                        <div style="padding:8px 12px;border-bottom:1.5px solid #000;background:#fff;">
-                            <div style="text-align:center;font-size:17px;font-weight:900;letter-spacing:1px;margin-bottom:4px;color:#000;"><span style="text-decoration:underline;">${slip.company || globalCompanyName}</span></div>
-                            <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
-                                <div style="font-size:14px;font-weight:800;color:#000;display:flex;align-items:center;gap:6px;">
-                                    <input class="cell-edit" type="text" value="${slip.category || 'HELPAR :-'}" style="max-width:130px;font-weight:800;border:1px solid #000;" onchange="updateFixCategory(${sIdx}, this.value)">
-                                    <select class="cell-edit" style="font-size:14px;font-weight:800;max-width:150px;" onchange="onFixWorkerNameChange(${sIdx}, this.value)">${getWorkerSelectOptionsHtml(slip.name, true, sIdx)}</select>
-                                </div>
-                                <div style="display:flex;align-items:center;gap:10px;">
-                                    <div style="display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:700;color:#555;">
-                                        <span>Base:</span>
-                                        <span style="background:#F6F4EB;border:1.5px solid #D0C9B8;border-radius:6px;padding:1px 7px;font-size:13px;font-weight:900;font-family:'JetBrains Mono',monospace;color:#000;">₹${salary}</span>
-                                    </div>
-                                    <div style="font-size:14px;font-weight:900;color:#c00;">${formatFilterMonthLabel(fixDateFilter, slip.month)}</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div style="display:grid;grid-template-columns:1fr 260px;min-height:190px;flex:1;">
-                            <div style="padding:8px 10px;border-right:1.5px solid #000;display:flex;flex-direction:column;justify-content:space-between;">
-                                <div>
-                                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;" class="no-print">
-                                        <span style="font-size:11px;font-weight:800;color:var(--ink-soft);text-transform:uppercase;">Duty Tasks:</span>
-                                        <button class="add-row-btn" onclick="addFixDutyRow(${sIdx})">+ Add Duty</button>
-                                    </div>
-                                    <table style="width:100%;border-collapse:collapse;">
-                                        <thead>
-                                            <tr style="border-bottom:1.5px solid #000;background:#f5f5f5;">
-                                                <th style="text-align:left;padding:4px 6px;font-size:11px;font-weight:900;color:#444;text-transform:uppercase;">DESCRIPTION</th>
-                                                <th style="text-align:right;padding:4px 6px;font-size:11px;font-weight:900;color:#444;text-transform:uppercase;">DAYS</th>
-                                                <th style="text-align:right;padding:4px 6px;font-size:11px;font-weight:900;color:#444;text-transform:uppercase;">RATE/DAY</th>
-                                                <th style="text-align:right;padding:4px 6px;font-size:11px;font-weight:900;color:#444;text-transform:uppercase;">AMOUNT</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr style="border-bottom:1px solid #ddd;background:#f9f9f2;">
-                                                <td style="padding:6px 6px;font-size:12px;font-weight:700;color:#555;vertical-align:middle;">Fix Salary</td>
-                                                <td style="text-align:right;padding:6px;vertical-align:middle;"><input class="cell-edit" type="number" style="width:44px;text-align:right;font-size:13px;font-family:'JetBrains Mono',monospace;font-weight:800;" value="${days}" onchange="updateFixDays(${sIdx}, this.value)"></td>
-                                                <td style="text-align:right;padding:6px;font-size:13px;font-family:'JetBrains Mono',monospace;font-weight:700;white-space:nowrap;vertical-align:middle;">${rupee(dailyRate)}</td>
-                                                <td style="text-align:right;padding:6px;font-size:14px;font-family:'JetBrains Mono',monospace;font-weight:900;white-space:nowrap;color:#000;vertical-align:middle;">${rupee(gross)}</td>
-                                            </tr>
-                                            ${fixDutiesHtml}
-                                        </tbody>
-                                    </table>
-                                </div>
-                                <div style="margin-top:8px;">
-                                    <div style="border-top:1.5px solid #000;padding-top:4px;display:flex;justify-content:space-between;font-weight:800;font-size:14px;"><span>Total પગાર</span><span style="font-family:'JetBrains Mono',monospace;">${rupee(gross)}</span></div>
-                                    <div style="display:flex;justify-content:space-between;font-weight:800;font-size:14px;color:#c00;margin-top:2px;"><span>ખર્ચો <small style="font-size:11px;">(₹)</small></span><span style="font-family:'JetBrains Mono',monospace;">₹ -${displayUpad.toLocaleString('en-IN')}</span></div>
-                                    <div style="border-top:3px double #000;margin:4px 0;"></div>
-                                    <div style="display:flex;justify-content:space-between;align-items:center;font-weight:900;font-size:16px;"><span>${isPaid ? 'हिसाब चुकते' : 'हिसाब बाकी'}</span><span style="font-family:'JetBrains Mono',monospace;">${displayNet < 0 ? '₹ -' + Math.abs(displayNet).toLocaleString('en-IN') : rupee(displayNet)}</span></div>
-                                </div>
-                            </div>
-                            <div style="padding:8px 10px;background:#f2f4f8;display:flex;flex-direction:column;justify-content:space-between;">
-                                <div>
-                                    <div style="margin-bottom:4px;"><span style="font-weight:900;font-size:13.5px;color:#c00;text-decoration:underline;"><u>ખર્ચો</u> <small style="font-size:11px;">(₹)</small></span></div>
-                                    <div style="width:100%;">${upadHtml}</div>
-                                </div>
-                                <div style="border-top:1.5px solid #000;padding-top:4px;margin-top:4px;text-align:right;font-weight:900;font-size:14px;color:#c00;font-family:'JetBrains Mono',monospace;">₹ -${displayUpad.toLocaleString('en-IN')}</div>
-                            </div>
-                        </div>
-                    </div>`;
-                grid.appendChild(card);
+                grid.appendChild(createFixSlipCard(slip, sIdx));
             });
         }
 
@@ -2097,43 +2187,35 @@
             renderFixTotalTable();
         }
 
-        // ── PRINT ALL SLIPS ──
+        // ── PRINT ALL & CURRENT SLIPS ──
+        function printCurrentOpSlips() {
+            renderOpSlips();
+            window.print();
+        }
+
         function printAllOpSlips() {
             const grid = document.getElementById('opSlipsGrid');
             grid.innerHTML = '';
-            opSlipsData.forEach(slip => {
-                const { gross, totalUpad, net, filteredUpad } = calcOpSlip(slip, opDateFilter);
-                const displayUpad = totalUpad;
-                const displayNet = net;
-                const isPaid = displayNet >= 0;
-                const card = document.createElement('div');
-                card.className = 'slip-card';
-                let dutiesHtml = (slip.duties || []).map(d => `<tr><td style="padding:2px 4px;font-size:11px;"><b>${d.task || 'Duty'}</b></td><td class="num" style="padding:2px 4px;font-size:11px;">${d.qty} × ${d.rate}</td><td class="num" style="padding:2px 4px;font-weight:800;font-size:11.5px;">${rupee((d.qty || 0) * (d.rate || 0))}</td></tr>`).join('');
-                let upadHtml = filteredUpad.map(u => `<div style="display:flex;justify-content:space-between;padding:1.5px 0;font-size:10.5px;color:#c00;border-bottom:1px solid #f8d0d0;"><span>${formatUpadDate(u.date)}</span><span>${u.ref || u.note || 'Kharchi'}</span><span style="font-weight:800;">₹ -${Math.abs(u.amount)}</span></div>`).join('');
-                card.innerHTML = `<div style="border:1.5px solid #000;background:#fff;border-radius:4px;height:100%;display:flex;flex-direction:column;justify-content:space-between;"><div style="padding:4px 8px;border-bottom:1.5px solid #000;"><div style="text-align:center;font-size:14px;font-weight:900;text-decoration:underline;">${slip.company || globalCompanyName}</div><div style="display:flex;justify-content:space-between;font-size:12px;font-weight:800;margin-top:2px;"><span>${slip.slipNo} Oprater: <b>${slip.name || '___________'}</b></span><span style="color:#c00;">${formatFilterMonthLabel(opDateFilter, slip.month)}</span></div></div><div style="display:grid;grid-template-columns:1fr 210px;flex:1;"><div style="padding:6px;border-right:1.5px solid #000;display:flex;flex-direction:column;justify-content:space-between;"><table style="width:100%;border-collapse:collapse;"><tbody>${dutiesHtml}</tbody></table><div style="margin-top:4px;"><div style="border-top:1.5px solid #000;padding-top:2px;display:flex;justify-content:space-between;font-weight:800;font-size:12px;"><span>Total પગાર</span><span>${rupee(gross)}</span></div><div style="display:flex;justify-content:space-between;font-weight:800;font-size:12px;color:#c00;"><span>ખર્ચો</span><span>₹ -${displayUpad.toLocaleString('en-IN')}</span></div><div style="border-top:2px double #000;margin:2px 0;"></div><div style="display:flex;justify-content:space-between;font-weight:900;font-size:13px;"><span>${isPaid ? 'हिसाब चुकते' : 'हिसाब बाकी'}</span><span>${displayNet < 0 ? '₹ -' + Math.abs(displayNet).toLocaleString('en-IN') : rupee(displayNet)}</span></div></div></div><div style="padding:6px;background:#f2f4f8;display:flex;flex-direction:column;justify-content:space-between;"><div><div style="font-weight:900;font-size:11.5px;color:#c00;margin-bottom:2px;"><u>ખર્ચો</u> (₹)</div>${upadHtml}</div><div style="border-top:1.5px solid #000;padding-top:2px;text-align:right;font-weight:900;font-size:12px;color:#c00;">₹ -${displayUpad.toLocaleString('en-IN')}</div></div></div></div>`;
-                grid.appendChild(card);
+            opSlipsData.forEach((slip, idx) => {
+                grid.appendChild(createOpSlipCard(slip, idx));
             });
             window.print();
-            setTimeout(() => renderOpSlips(), 500);
+            setTimeout(() => renderOpSlips(), 600);
+        }
+
+        function printCurrentFixSlips() {
+            renderFixSlips();
+            window.print();
         }
 
         function printAllFixSlips() {
             const grid = document.getElementById('fixSlipsGrid');
             grid.innerHTML = '';
-            fixSlipsData.forEach(slip => {
-                const { gross, totalUpad, net, dailyRate, days, salary, filteredUpad } = calcFixSlip(slip, fixDateFilter);
-                const displayUpad = totalUpad;
-                const displayNet = net;
-                const isPaid = displayNet >= 0;
-                const card = document.createElement('div');
-                card.className = 'slip-card';
-                let upadHtml = filteredUpad.map(u => `<div style="display:flex;justify-content:space-between;padding:1.5px 0;font-size:10.5px;color:#c00;border-bottom:1px solid #f8d0d0;"><span>${formatUpadDate(u.date)}</span><span>${u.ref || u.note || 'Kharchi'}</span><span style="font-weight:800;">₹ -${Math.abs(u.amount)}</span></div>`).join('');
-                let dutiesHtml = (slip.duties || []).map(d => `<tr><td style="padding:4px 2px;"><div style="font-weight:800;">${d.task || 'Duty'}</div></td><td style="text-align:right;padding:4px 2px;font-weight:800;">${d.qty}</td><td style="text-align:right;padding:4px 2px;font-weight:700;">${rupee(d.rate)}</td><td style="text-align:right;padding:4px 2px;font-weight:900;">${rupee((d.qty || 0) * (d.rate || 0))}</td></tr>`).join('');
-                card.innerHTML = `<div style="border:1.5px solid #000;background:#fff;border-radius:4px;height:100%;display:flex;flex-direction:column;justify-content:space-between;"><div style="padding:4px 8px;border-bottom:1.5px solid #000;"><div style="text-align:center;font-size:14px;font-weight:900;text-decoration:underline;">${slip.company || globalCompanyName}</div><div style="display:flex;justify-content:space-between;font-size:12px;font-weight:800;margin-top:2px;"><span>${slip.category || ''} <b>${slip.name || '___________'}</b></span><span style="color:#c00;">${formatFilterMonthLabel(fixDateFilter, slip.month)}</span></div></div><div style="display:grid;grid-template-columns:1fr 210px;flex:1;"><div style="padding:6px;border-right:1.5px solid #000;display:flex;flex-direction:column;justify-content:space-between;"><table style="width:100%;border-collapse:collapse;font-size:11px;"><thead><tr style="border-bottom:1.5px solid #000;background:#f0f0f0;"><th style="text-align:left;padding:3px;">DESCRIPTION</th><th style="text-align:right;padding:3px;">DAYS</th><th style="text-align:right;padding:3px;">RATE/DAY</th><th style="text-align:right;padding:3px;">AMOUNT</th></tr></thead><tbody><tr><td style="padding:4px 2px;"><div style="font-weight:800;">Fix Salary</div><div style="font-size:10px;color:#444;">Base: ₹<b>${salary}</b></div></td><td style="text-align:right;padding:4px 2px;font-weight:800;">${days}</td><td style="text-align:right;padding:4px 2px;font-weight:700;">${rupee(dailyRate)}</td><td style="text-align:right;padding:4px 2px;font-weight:900;">${rupee(Math.round(dailyRate * days))}</td></tr>${dutiesHtml}</tbody></table><div style="margin-top:4px;"><div style="border-top:1.5px solid #000;padding-top:2px;display:flex;justify-content:space-between;font-weight:800;font-size:12px;"><span>Total પગાર</span><span>${rupee(gross)}</span></div><div style="display:flex;justify-content:space-between;font-weight:800;font-size:12px;color:#c00;"><span>ખર્ચો</span><span>₹ -${displayUpad.toLocaleString('en-IN')}</span></div><div style="border-top:2px double #000;margin:2px 0;"></div><div style="display:flex;justify-content:space-between;font-weight:900;font-size:13px;"><span>${isPaid ? 'हिसाब चुकते' : 'हिसाब बाकी'}</span><span>${displayNet < 0 ? '₹ -' + Math.abs(displayNet).toLocaleString('en-IN') : rupee(displayNet)}</span></div></div></div><div style="padding:6px;background:#f2f4f8;display:flex;flex-direction:column;justify-content:space-between;"><div><div style="font-weight:900;font-size:11.5px;color:#c00;margin-bottom:2px;"><u>ખર્ચો</u> (₹)</div>${upadHtml}</div><div style="border-top:1.5px solid #000;padding-top:2px;text-align:right;font-weight:900;font-size:12px;color:#c00;">₹ -${displayUpad.toLocaleString('en-IN')}</div></div></div></div>`;
-                grid.appendChild(card);
+            fixSlipsData.forEach((slip, idx) => {
+                grid.appendChild(createFixSlipCard(slip, idx));
             });
             window.print();
-            setTimeout(() => renderFixSlips(), 500);
+            setTimeout(() => renderFixSlips(), 600);
         }
 
         // ── INIT ──
