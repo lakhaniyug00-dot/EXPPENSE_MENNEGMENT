@@ -976,16 +976,16 @@
         /* ── AUTH & USER SCOPING ── */
         function getAuthUser() {
             const u = (localStorage.getItem('auth_user') || '').trim().toLowerCase();
-            if (!u) return null;
+            if (!u || u === 'yug' || u === 'vipul') return null;
             try {
                 const raw = localStorage.getItem('app_accounts');
                 if (raw) {
                     const accs = JSON.parse(raw);
-                    if (Array.isArray(accs) && accs.find(function(a){ return a.username === u; })) return u;
+                    if (Array.isArray(accs) && accs.find(function(a){ return ((a && a.username) || '').toLowerCase() === u; })) return u;
                     return null;
                 }
             } catch(e) {}
-            return u === 'yug' ? u : null;
+            return u;
         }
 
         function checkAuth() {

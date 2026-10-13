@@ -290,12 +290,10 @@
                 </div>
 
                 <div class="add-panel" id="addPanel">
-                    <label class="ap-label">New Username</label>
-                    <input type="text" id="newUsername" placeholder="e.g. tapu" autocomplete="off">
-                    <label class="ap-label">Password</label>
-                    <input type="text" id="newPassword" placeholder="e.g. tapu123" autocomplete="off">
+                    <label class="ap-label">New Account Name / નામ</label>
+                    <input type="text" id="newUsername" placeholder="e.g. valam" autocomplete="off">
                     <div class="add-panel-btns">
-                        <button class="btn-panel-save" id="btnSaveAccount">&#x1F4BE; Save Account</button>
+                        <button class="btn-panel-save" id="btnSaveAccount">&#x1F4BE; Save &amp; Enter</button>
                         <button class="btn-panel-cancel" id="btnCancelAdd">Cancel</button>
                     </div>
                 </div>
@@ -314,14 +312,19 @@
         function loadAccounts() {
             try {
                 const raw = localStorage.getItem(STORAGE_KEY);
-                if (raw) return JSON.parse(raw);
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    const filtered = parsed.filter(function(a) {
+                        const u = ((a && a.username) || '').trim().toLowerCase();
+                        return u && u !== 'yug' && u !== 'vipul';
+                    });
+                    if (filtered.length !== parsed.length) {
+                        saveAccounts(filtered);
+                    }
+                    return filtered;
+                }
             } catch(e) {}
-            const defaults = [
-                { username: 'yug', password: 'yug123' },
-                { username: 'vipul', password: 'vipul123' }
-            ];
-            saveAccounts(defaults);
-            return defaults;
+            return [];
         }
 
         function saveAccounts(list) {
@@ -345,6 +348,8 @@
 
             if (!accounts.length) {
                 chips.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--ink-faint);font-size:12.5px;padding:12px 0;">No accounts yet. Click ＋ Add to create one.</div>';
+                // Automatically open add panel if no accounts
+                document.getElementById('addPanel').classList.add('open');
                 return;
             }
 
@@ -366,8 +371,8 @@
                 chip.addEventListener('click', function(e) {
                     if (e.target.closest && e.target.closest('.chip-del')) return;
                     if (manageMode) return;
-                    // 1-click direct login using stored password
-                    doLogin(acc.username, acc.password);
+                    // 1-click instant login
+                    doLogin(acc.username);
                 });
 
                 const delBtn = chip.querySelector('.chip-del');
@@ -420,34 +425,31 @@
         document.getElementById('btnCancelAdd').addEventListener('click', function() {
             document.getElementById('addPanel').classList.remove('open');
             document.getElementById('newUsername').value = '';
-            document.getElementById('newPassword').value = '';
         });
 
         function saveNewAccount() {
-            var uname = (document.getElementById('newUsername').value || '').trim().toLowerCase();
-            var pass = (document.getElementById('newPassword').value || '').trim();
-            if (!uname) { showError('Please enter a username.'); return; }
-            if (!pass) { showError('Please enter a password.'); return; }
-            if (!/^[a-z0-9_]+$/.test(uname)) { showError('Username: only letters, numbers, underscore.'); return; }
+            var rawUname = (document.getElementById('newUsername').value || '').trim();
+            if (!rawUname) { showError('Please enter an account name.'); return; }
+            var uname = rawUname.toLowerCase();
+            if (uname === 'yug' || uname === 'vipul') { showError('That account is disabled.'); return; }
             var list = loadAccounts();
-            if (list.find(function(a) { return a.username === uname; })) { showError('Account "' + uname + '" already exists.'); return; }
-            list.push({ username: uname, password: pass });
+            if (list.find(function(a) { return (a.username || '').toLowerCase() === uname; })) {
+                showError('Account "' + rawUname + '" already exists.');
+                return;
+            }
+            list.push({ username: rawUname });
             saveAccounts(list);
             document.getElementById('addPanel').classList.remove('open');
             document.getElementById('newUsername').value = '';
-            document.getElementById('newPassword').value = '';
             renderChips();
-            showSuccess(capitalize(uname) + ' added! Click to login.');
+            showSuccess(capitalize(rawUname) + ' added!');
+            doLogin(rawUname);
         }
 
         document.getElementById('btnSaveAccount').addEventListener('click', saveNewAccount);
         document.getElementById('newUsername').addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') { e.preventDefault(); document.getElementById('newPassword').focus(); }
-        });
-        document.getElementById('newPassword').addEventListener('keydown', function(e) {
             if (e.key === 'Enter') { e.preventDefault(); saveNewAccount(); }
         });
-
 
         // Alerts
         function showError(msg) {
@@ -470,22 +472,11 @@
         }
 
         // Login
-        function doLogin(uname, pass) {
+        function doLogin(uname) {
             hideError();
             var cleanUser = (uname || '').trim().toLowerCase();
-            var cleanPass = (pass || '').trim();
-
-            if (!cleanUser) { showError('Please enter a username.'); return; }
-            if (!cleanPass) { showError('Please enter a password.'); return; }
-
-            var accounts = loadAccounts();
-            var acc = null;
-            for (var i = 0; i < accounts.length; i++) {
-                if (accounts[i].username === cleanUser) { acc = accounts[i]; break; }
-            }
-
-            if (!acc || acc.password !== cleanPass) {
-                showError('Invalid username or password! Check and try again.');
+            if (!cleanUser || cleanUser === 'yug' || cleanUser === 'vipul') {
+                showError('Please choose or create an account.');
                 return;
             }
 
@@ -494,14 +485,18 @@
             window.location.href = 'dilyex.html';
         }
 
-
-        // Auto-redirect if already logged in
+        // Auto-redirect if already logged in (ignore old yug/vipul)
         var current = (localStorage.getItem('auth_user') || '').trim().toLowerCase();
+        if (current === 'yug' || current === 'vipul') {
+            localStorage.removeItem('auth_user');
+            localStorage.removeItem('auth_user_name');
+            current = '';
+        }
         if (current) {
             var accs = loadAccounts();
             var found = false;
             for (var i = 0; i < accs.length; i++) {
-                if (accs[i].username === current) { found = true; break; }
+                if ((accs[i].username || '').toLowerCase() === current) { found = true; break; }
             }
             if (found) window.location.href = 'dilyex.html';
         }
