@@ -222,43 +222,9 @@
         .btn-manage:hover { background: #f1f5f9; color: var(--ink); }
         .btn-manage.active { background: var(--danger-bg); border-color: var(--danger); color: var(--danger); }
 
-        .btn-add-account {
-            background: var(--success-bg); border: 1.5px solid var(--success);
-            border-radius: 8px; padding: 5px 12px;
-            font-size: 12px; font-weight: 700; color: var(--success);
-            cursor: pointer; font-family: inherit; transition: all 0.15s;
-        }
-        .btn-add-account:hover { background: #d1fae5; }
+        .btn-add-account { display: none; }
 
-        .add-panel {
-            display: none;
-            background: #F8FAFC; border: 1.5px solid var(--line);
-            border-radius: 12px; padding: 16px;
-            margin-top: 10px; margin-bottom: 10px;
-        }
-        .add-panel.open { display: block; }
-        .add-panel .ap-label { font-size: 12px; font-weight: 700; color: var(--ink-soft); display: block; margin-bottom: 5px; }
-        .add-panel input {
-            width: 100%; padding: 9px 12px;
-            border: 1.5px solid var(--line); border-radius: 8px;
-            font-size: 13px; font-weight: 600; color: var(--ink);
-            background: #fff; font-family: inherit; outline: none;
-            transition: border-color 0.15s;
-            margin-bottom: 10px;
-        }
-        .add-panel input:focus { border-color: var(--primary); }
-        .add-panel-btns { display: flex; gap: 8px; }
-        .btn-panel-save {
-            flex: 1; padding: 9px; background: var(--ink); color: #fff;
-            border: none; border-radius: 8px; font-size: 13px; font-weight: 700;
-            cursor: pointer; font-family: inherit; transition: opacity 0.15s;
-        }
-        .btn-panel-save:hover { opacity: 0.88; }
-        .btn-panel-cancel {
-            padding: 9px 14px; background: none; border: 1.5px solid var(--line);
-            border-radius: 8px; font-size: 13px; font-weight: 700; color: var(--ink-soft);
-            cursor: pointer; font-family: inherit;
-        }
+        .add-panel { display: none !important; }
 
         .footer-note { text-align: center; margin-top: 18px; font-size: 12px; color: var(--ink-faint); font-weight: 500; }
     </style>
@@ -306,21 +272,7 @@
             <div class="quick-users-section">
                 <div class="manage-bar">
                     <div class="section-label" style="margin-bottom:0;">⚡ 1-Click Fast Login / ઝડપી લૉગિન</div>
-                    <div style="display:flex;gap:6px;">
-                        <button class="btn-add-account" id="btnAddAccount">＋ Add</button>
-                        <button class="btn-manage" id="btnManage">✏️ Manage</button>
-                    </div>
-                </div>
-
-                <div class="add-panel" id="addPanel">
-                    <label class="ap-label">New Username</label>
-                    <input type="text" id="newUsername" placeholder="e.g. admin" autocomplete="off">
-                    <label class="ap-label">Password</label>
-                    <input type="text" id="newPassword" placeholder="e.g. admin123" autocomplete="off">
-                    <div class="add-panel-btns">
-                        <button class="btn-panel-save" id="btnSaveAccount">💾 Save Account</button>
-                        <button class="btn-panel-cancel" id="btnCancelAdd">Cancel</button>
-                    </div>
+                    <button class="btn-manage" id="btnManage">✏️ Manage</button>
                 </div>
 
                 <div class="quick-chips" id="quickChips"></div>
@@ -433,58 +385,7 @@
             renderChips();
         });
 
-        // Add panel toggle
-        document.getElementById('btnAddAccount').addEventListener('click', function() {
-            var panel = document.getElementById('addPanel');
-            if (panel.classList.contains('open')) {
-                panel.classList.remove('open');
-            } else {
-                panel.classList.add('open');
-                document.getElementById('newUsername').focus();
-            }
-        });
 
-        document.getElementById('btnCancelAdd').addEventListener('click', function() {
-            document.getElementById('addPanel').classList.remove('open');
-            document.getElementById('newUsername').value = '';
-            document.getElementById('newPassword').value = '';
-        });
-
-        function saveNewAccount() {
-            var uname = (document.getElementById('newUsername').value || '').trim().toLowerCase();
-            var pass = (document.getElementById('newPassword').value || '').trim();
-
-            if (!uname) { showError('Please enter a username.'); return; }
-            if (!pass) { showError('Please enter a password.'); return; }
-            if (!/^[a-z0-9_]+$/.test(uname)) {
-                showError('Username: only letters, numbers, underscore allowed.');
-                return;
-            }
-
-            var list = loadAccounts();
-            if (list.find(function(a) { return a.username === uname; })) {
-                showError('Account "' + uname + '" already exists.');
-                return;
-            }
-
-            list.push({ username: uname, password: pass });
-            saveAccounts(list);
-            renderChips();
-
-            document.getElementById('addPanel').classList.remove('open');
-            document.getElementById('newUsername').value = '';
-            document.getElementById('newPassword').value = '';
-            showSuccess('Account "' + capitalize(uname) + '" added! Click to login.');
-        }
-
-        document.getElementById('btnSaveAccount').addEventListener('click', saveNewAccount);
-
-        document.getElementById('newUsername').addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') { e.preventDefault(); document.getElementById('newPassword').focus(); }
-        });
-        document.getElementById('newPassword').addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') { e.preventDefault(); saveNewAccount(); }
-        });
 
         // Password toggle
         document.getElementById('togglePwd').addEventListener('click', function() {
