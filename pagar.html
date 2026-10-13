@@ -705,6 +705,63 @@
                 padding: 0 !important;
             }
         }
+
+        @media screen and (max-width: 768px) {
+            .top, .top-bar {
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: 10px !important;
+                padding: 10px 12px !important;
+            }
+
+            .top-left, .top-right {
+                flex-wrap: wrap !important;
+                justify-content: space-between !important;
+                width: 100% !important;
+                gap: 8px !important;
+            }
+
+            .nav-links {
+                flex-wrap: wrap !important;
+                gap: 6px !important;
+            }
+
+            .tab-bar-wrap {
+                padding: 8px 12px !important;
+            }
+
+            .container {
+                padding: 12px 8px !important;
+            }
+
+            .section-hdr {
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                gap: 10px !important;
+            }
+
+            .pagination-bar {
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: 10px !important;
+            }
+
+            .slips-grid {
+                grid-template-columns: 1fr !important;
+                gap: 14px !important;
+            }
+
+            .modal {
+                width: calc(100% - 20px) !important;
+                max-width: 95vw !important;
+                padding: 16px 12px !important;
+            }
+
+            .table-wrap, .table-container {
+                overflow-x: auto !important;
+                -webkit-overflow-scrolling: touch !important;
+            }
+        }
     </style>
 </head>
 

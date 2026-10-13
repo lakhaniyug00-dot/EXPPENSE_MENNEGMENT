@@ -326,23 +326,99 @@
             overflow-y: auto;
         }
 
-        @media(max-width: 700px) {
+        @media(max-width: 768px) {
+            .wrap {
+                padding: 10px 10px 48px;
+            }
+
+            header.top {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+                margin-bottom: 12px;
+            }
+
+            .header-left {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                flex-wrap: wrap;
+                gap: 8px;
+                width: 100%;
+            }
+
+            .header-left .brand h1 {
+                font-size: 22px;
+            }
+
+            .header-right {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                flex-wrap: wrap;
+                gap: 8px;
+                width: 100%;
+            }
+
+            .datebox {
+                flex: 1;
+                min-width: 140px;
+                justify-content: space-between;
+            }
+
             .board {
                 grid-template-columns: 1fr;
+                border-radius: 12px;
             }
 
             .panel.income,
             .panel.expense {
                 border-right: none;
                 border-bottom: 1px solid var(--line);
+                padding: 14px 12px;
             }
 
-            header.top {
-                flex-wrap: wrap;
+            .row {
+                padding: 7px 0;
+                gap: 6px;
             }
 
-            .wrap {
-                padding: 16px 14px 60px;
+            .row .name {
+                font-size: 13.5px;
+            }
+
+            .amount-box {
+                font-size: 14px;
+                padding: 3px 8px;
+                min-height: 28px;
+            }
+
+            .note-box {
+                font-size: 11px;
+                padding: 2px 7px;
+            }
+
+            .net-bar {
+                flex-direction: column;
+                align-items: center;
+                gap: 10px;
+                padding: 12px 14px;
+            }
+
+            .net-bar .net-pills {
+                justify-content: center;
+                gap: 8px;
+            }
+
+            .net-bar .net-value {
+                font-size: 22px;
+            }
+
+            .modal {
+                width: calc(100% - 20px) !important;
+                max-width: 440px !important;
+                padding: 18px 14px 16px !important;
+                margin: 10px auto;
             }
         }
 
