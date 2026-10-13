@@ -1109,10 +1109,15 @@
             <div class="logo">Khata <span>Book</span></div>
             <span id="headerYearBadge" style="cursor:pointer;background:var(--carry-bg, #FEF7EE);color:var(--carry, #C67D0A);border:1.5px solid var(--carry, #C67D0A);border-radius:6px;padding:3px 9px;font-size:11.5px;font-weight:800;margin-left:4px;" title="Accounting Year — Click to change in Master">📅 ...</span>
         </div>
-        <div class="top-right">
-
+        <div class="top-right" style="display:flex;align-items:center;gap:8px;">
             <button class="report-btn" id="reportBtn" title="Report">Report</button>
             <button class="icon-btn" id="searchBtn" title="Search">🔍</button>
+            <span style="background:var(--card-bg, #fff);border:1px solid var(--line);border-radius:8px;padding:5px 9px;font-size:12px;font-weight:700;color:var(--ink);display:inline-flex;align-items:center;gap:4px;">
+                👤 <span id="authUserName">...</span>
+            </span>
+            <button type="button" onclick="logout()" style="background:#FEE2E2;color:#DC2626;border:1px solid #FCA5A5;border-radius:8px;padding:5px 9px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;" title="Log Out">
+                🚪 Logout
+            </button>
         </div>
     </header>
 
@@ -1372,25 +1377,132 @@
         const toKey = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
         const escHtml = s => String(s || '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
-        // ── STORAGE ──
-        // NOTE: window.storage.get returns {value:...}, so we extract .value — same as dilyex.html
+        /* ── AUTH & USER SCOPING ── */
+        function getAuthUser() {
+            const u = (localStorage.getItem('auth_user') || '').trim().toLowerCase();
+            if (!u) return null;
+            try {
+                const raw = localStorage.getItem('app_accounts');
+                if (raw) {
+                    const accs = JSON.parse(raw);
+                    if (Array.isArray(accs) && accs.find(function(a){ return a.username === u; })) return u;
+                    return null;
+                }
+            } catch(e) {}
+            return u === 'yug' ? u : null;
+        }
+
+        function checkAuth() {
+            const u = getAuthUser();
+            if (!u) {
+                window.location.replace('login.html');
+                return null;
+            }
+            return u;
+        }
+
+        if (!checkAuth()) {
+            throw new Error('Unauthorized');
+        }
+
+        function getUserStorageKey(k) {
+            const u = getAuthUser();
+            if (!u || k.startsWith('auth_') || k.startsWith('u:')) return k;
+            return `u:${u}:${k}`;
+        }
+
+        function userLocalGet(k) {
+            const uk = getUserStorageKey(k);
+            let val = localStorage.getItem(uk);
+            if (val === null && getAuthUser() === 'yug') {
+                val = localStorage.getItem(k);
+                if (val !== null) localStorage.setItem(uk, val);
+            }
+            return val;
+        }
+
+        function userLocalSet(k, v) {
+            localStorage.setItem(getUserStorageKey(k), v);
+        }
+
+        function userLocalRemove(k) {
+            localStorage.removeItem(getUserStorageKey(k));
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to log out?')) {
+                localStorage.removeItem('auth_user');
+                localStorage.removeItem('auth_user_name');
+                window.location.replace('login.html');
+            }
+        }
+
+        function renderAuthHeader() {
+            const el = $('authUserName');
+            if (el) {
+                const u = getAuthUser();
+                el.textContent = u ? (u.charAt(0).toUpperCase() + u.slice(1)) : 'User';
+            }
+        }
+
         const storageGet = async k => {
+            const uk = getUserStorageKey(k);
             try {
-                if (window.storage) { const r = await window.storage.get(k, false); return r ? r.value : null; }
-                return localStorage.getItem(k);
-            } catch (e) { return null; }
+                if (window.storage) {
+                    const r = await window.storage.get(uk, false);
+                    if (r && r.value !== null && r.value !== undefined) return r.value;
+                }
+                const val = userLocalGet(k);
+                if (val !== null) return val;
+                if (getAuthUser() === 'yug' && window.storage) {
+                    const rLegacy = await window.storage.get(k, false);
+                    if (rLegacy && rLegacy.value !== null && rLegacy.value !== undefined) {
+                        await storageSet(k, rLegacy.value);
+                        return rLegacy.value;
+                    }
+                }
+                return null;
+            } catch (e) {
+                return userLocalGet(k);
+            }
         };
+
         const storageSet = async (k, v) => {
+            const uk = getUserStorageKey(k);
             try {
-                if (window.storage) return await window.storage.set(k, v, false);
-                localStorage.setItem(k, v); return true;
-            } catch (e) { return false; }
+                if (window.storage) await window.storage.set(uk, v, false);
+                userLocalSet(k, v);
+                return true;
+            } catch (e) {
+                userLocalSet(k, v);
+                return false;
+            }
         };
+
         const storageList = async () => {
-            let keys = [];
-            if (window.storage && window.storage.list) { try { const r = await window.storage.list(); if (r && r.keys) keys = r.keys; } catch (e) { } }
-            else { for (let i = 0; i < localStorage.length; i++) keys.push(localStorage.key(i)); }
-            return keys;
+            const u = getAuthUser();
+            const prefix = `u:${u}:`;
+            let rawKeys = [];
+            if (window.storage && window.storage.list) {
+                try {
+                    let r = await window.storage.list();
+                    if (r && r.keys) rawKeys = r.keys;
+                } catch (e) { }
+            } else {
+                for (let i = 0; i < localStorage.length; i++) rawKeys.push(localStorage.key(i));
+            }
+            let userKeys = [];
+            rawKeys.forEach(k => {
+                if (k && k.startsWith(prefix)) userKeys.push(k.slice(prefix.length));
+            });
+            if (u === 'yug') {
+                rawKeys.forEach(k => {
+                    if (k && !k.startsWith('u:') && !k.startsWith('auth_') && !userKeys.includes(k)) {
+                        userKeys.push(k);
+                    }
+                });
+            }
+            return Array.from(new Set(userKeys));
         };
 
         let accounts = [];
@@ -2567,6 +2679,7 @@
 
         // ── INIT ──
         (async () => {
+            renderAuthHeader();
             await getActiveYear();
             updateHeaderYearBadge();
             await loadCategories();

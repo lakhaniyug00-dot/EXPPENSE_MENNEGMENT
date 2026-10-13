@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login · Rojmel &amp; Khata Book</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #F4F7FB;
+            --card-bg: #FFFFFF;
+            --ink: #0F172A;
+            --ink-soft: #475569;
+            --ink-faint: #94A3B8;
+            --line: #E2E8F0;
+            --primary: #2563EB;
+            --primary-hover: #1D4ED8;
+            --primary-light: #EFF6FF;
+            --danger: #EF4444;
+            --danger-bg: #FEF2F2;
+            --success: #10B981;
+            --success-bg: #ECFDF5;
+            --gold: #D97706;
+            --gold-bg: #FFFBEB;
+            --shadow-lg: 0 20px 25px -5px rgba(15, 23, 42, 0.08), 0 10px 10px -5px rgba(15, 23, 42, 0.04);
+            --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.07), 0 2px 4px -1px rgba(15, 23, 42, 0.04);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 50%, #EEF2F6 100%);
+            color: var(--ink);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            width: 480px; height: 480px;
+            background: radial-gradient(circle, rgba(37,99,235,0.12) 0%, rgba(37,99,235,0) 70%);
+            top: -100px; right: -100px;
+            border-radius: 50%; pointer-events: none;
+        }
+
+        body::after {
+            content: '';
+            position: absolute;
+            width: 520px; height: 520px;
+            background: radial-gradient(circle, rgba(217,119,6,0.08) 0%, rgba(217,119,6,0) 70%);
+            bottom: -150px; left: -150px;
+            border-radius: 50%; pointer-events: none;
+        }
+
+        .login-wrap {
+            width: 100%; max-width: 460px;
+            position: relative; z-index: 1;
+        }
+
+        .login-card {
+            background: var(--card-bg);
+            border: 1px solid rgba(226,232,240,0.9);
+            border-radius: 20px;
+            padding: 36px 32px;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .brand-header { text-align: center; margin-bottom: 28px; }
+
+        .brand-icon {
+            width: 56px; height: 56px;
+            background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%);
+            color: #fff;
+            border-radius: 14px;
+            display: inline-flex; align-items: center; justify-content: center;
+            font-size: 26px;
+            box-shadow: 0 8px 16px -4px rgba(15,23,42,0.2);
+            margin-bottom: 12px;
+        }
+
+        .brand-title { font-size: 22px; font-weight: 800; color: var(--ink); letter-spacing: -0.5px; }
+        .brand-subtitle { font-size: 13px; font-weight: 500; color: var(--ink-soft); margin-top: 4px; }
+
+        .form-group { margin-bottom: 18px; }
+
+        .form-label {
+            display: block; font-size: 12.5px; font-weight: 700;
+            color: var(--ink-soft); margin-bottom: 6px; letter-spacing: 0.2px;
+        }
+
+        .input-wrap { position: relative; display: flex; align-items: center; }
+
+        .input-wrap input {
+            width: 100%;
+            padding: 12px 14px 12px 40px;
+            background: #F8FAFC;
+            border: 1.5px solid var(--line);
+            border-radius: 10px;
+            font-size: 14px; font-weight: 600; color: var(--ink);
+            font-family: inherit; outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .input-wrap input:focus {
+            background: #fff;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
+        }
+
+        .input-icon { position: absolute; left: 13px; font-size: 16px; color: var(--ink-faint); pointer-events: none; }
+
+        .toggle-pwd {
+            position: absolute; right: 12px;
+            background: none; border: none; color: var(--ink-soft);
+            font-size: 16px; cursor: pointer; padding: 4px; border-radius: 4px;
+        }
+        .toggle-pwd:hover { color: var(--ink); }
+
+        .pr-40 { padding-right: 40px !important; }
+
+        .alert-box {
+            padding: 10px 14px; border-radius: 10px;
+            font-size: 13px; font-weight: 600;
+            margin-bottom: 16px;
+            display: none; align-items: center; gap: 8px;
+        }
+        .alert-box.error { background: var(--danger-bg); border: 1px solid rgba(239,68,68,0.3); color: var(--danger); }
+        .alert-box.success { background: var(--success-bg); border: 1px solid rgba(16,185,129,0.3); color: var(--success); }
+        .alert-box.show { display: flex; animation: shake 0.3s ease; }
+        .alert-box.success.show { animation: none; }
+
+        @keyframes shake {
+            0%,100% { transform: translateX(0); }
+            20%,60% { transform: translateX(-4px); }
+            40%,80% { transform: translateX(4px); }
+        }
+
+        .btn-submit {
+            width: 100%; padding: 13px 18px;
+            background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%);
+            color: #fff; border: none; border-radius: 10px;
+            font-size: 14.5px; font-weight: 700; cursor: pointer;
+            font-family: inherit;
+            box-shadow: 0 4px 12px rgba(15,23,42,0.18);
+            transition: all 0.2s ease;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .btn-submit:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(15,23,42,0.24); }
+        .btn-submit:active { transform: translateY(0); }
+
+        .quick-users-section {
+            margin-top: 22px; padding-top: 18px;
+            border-top: 1px dashed var(--line);
+        }
+
+        .section-label {
+            text-align: center; font-size: 11px; font-weight: 700;
+            color: var(--ink-faint); text-transform: uppercase; letter-spacing: 0.6px;
+            margin-bottom: 10px;
+        }
+
+        .quick-chips { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+        .user-chip {
+            background: #F8FAFC; border: 1.5px solid var(--line);
+            border-radius: 10px; padding: 9px 11px;
+            cursor: pointer; text-align: left;
+            transition: all 0.2s ease;
+            display: flex; align-items: center; gap: 9px;
+            position: relative; width: 100%;
+        }
+        .user-chip:hover { background: var(--primary-light); border-color: var(--primary); transform: translateY(-1px); }
+
+        .chip-avatar {
+            width: 32px; height: 32px; border-radius: 8px;
+            background: #0F172A; color: #fff;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 13px; font-weight: 800; flex-shrink: 0;
+        }
+
+        .chip-info { line-height: 1.25; flex: 1; min-width: 0; }
+        .chip-name { font-size: 13px; font-weight: 700; color: var(--ink); }
+        .chip-pass { font-size: 11px; font-weight: 500; color: var(--ink-faint); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+        .chip-del {
+            position: absolute; top: 4px; right: 4px;
+            width: 20px; height: 20px; border-radius: 50%;
+            background: var(--danger); color: #fff;
+            border: none; cursor: pointer; font-size: 11px; font-weight: 700;
+            display: none; align-items: center; justify-content: center;
+            line-height: 1;
+        }
+        .quick-chips.manage-mode .chip-del { display: flex; }
+        .quick-chips.manage-mode .user-chip { border-color: #FCA5A5 !important; background: #fff7f7 !important; }
+        .quick-chips.manage-mode .user-chip:hover { transform: none; }
+
+        .no-accounts-msg {
+            text-align: center; color: var(--ink-faint); font-size: 12.5px;
+            padding: 12px 0; grid-column: 1 / -1;
+        }
+
+        .manage-bar {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .btn-manage {
+            background: none; border: 1.5px solid var(--line);
+            border-radius: 8px; padding: 5px 12px;
+            font-size: 12px; font-weight: 700; color: var(--ink-soft);
+            cursor: pointer; font-family: inherit; transition: all 0.15s;
+        }
+        .btn-manage:hover { background: #f1f5f9; color: var(--ink); }
+        .btn-manage.active { background: var(--danger-bg); border-color: var(--danger); color: var(--danger); }
+
+        .btn-add-account {
+            background: var(--success-bg); border: 1.5px solid var(--success);
+            border-radius: 8px; padding: 5px 12px;
+            font-size: 12px; font-weight: 700; color: var(--success);
+            cursor: pointer; font-family: inherit; transition: all 0.15s;
+        }
+        .btn-add-account:hover { background: #d1fae5; }
+
+        .add-panel {
+            display: none;
+            background: #F8FAFC; border: 1.5px solid var(--line);
+            border-radius: 12px; padding: 16px;
+            margin-top: 10px; margin-bottom: 10px;
+        }
+        .add-panel.open { display: block; }
+        .add-panel .ap-label { font-size: 12px; font-weight: 700; color: var(--ink-soft); display: block; margin-bottom: 5px; }
+        .add-panel input {
+            width: 100%; padding: 9px 12px;
+            border: 1.5px solid var(--line); border-radius: 8px;
+            font-size: 13px; font-weight: 600; color: var(--ink);
+            background: #fff; font-family: inherit; outline: none;
+            transition: border-color 0.15s;
+            margin-bottom: 10px;
+        }
+        .add-panel input:focus { border-color: var(--primary); }
+        .add-panel-btns { display: flex; gap: 8px; }
+        .btn-panel-save {
+            flex: 1; padding: 9px; background: var(--ink); color: #fff;
+            border: none; border-radius: 8px; font-size: 13px; font-weight: 700;
+            cursor: pointer; font-family: inherit; transition: opacity 0.15s;
+        }
+        .btn-panel-save:hover { opacity: 0.88; }
+        .btn-panel-cancel {
+            padding: 9px 14px; background: none; border: 1.5px solid var(--line);
+            border-radius: 8px; font-size: 13px; font-weight: 700; color: var(--ink-soft);
+            cursor: pointer; font-family: inherit;
+        }
+
+        .footer-note { text-align: center; margin-top: 18px; font-size: 12px; color: var(--ink-faint); font-weight: 500; }
+    </style>
+</head>
+
+<body>
+    <div class="login-wrap">
+        <div class="login-card">
+            <div class="brand-header">
+                <div class="brand-icon">📑</div>
+                <h1 class="brand-title">Rojmel &amp; Khata</h1>
+                <div class="brand-subtitle">Expense &amp; Payroll Management System</div>
+            </div>
+
+            <div id="errorAlert" class="alert-box error">
+                <span>⚠️</span><span id="errorMsg">Invalid username or password.</span>
+            </div>
+            <div id="successAlert" class="alert-box success">
+                <span>✅</span><span id="successMsg">Account created!</span>
+            </div>
+
+            <form id="loginForm" autocomplete="on">
+                <div class="form-group">
+                    <label class="form-label" for="username">Username (વપરાશકર્તા નામ)</label>
+                    <div class="input-wrap">
+                        <span class="input-icon">👤</span>
+                        <input type="text" id="username" placeholder="Enter username" required autofocus autocomplete="username">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="password">Password (પાસવર્ડ)</label>
+                    <div class="input-wrap">
+                        <span class="input-icon">🔒</span>
+                        <input type="password" id="password" class="pr-40" placeholder="Enter password" required autocomplete="current-password">
+                        <button type="button" class="toggle-pwd" id="togglePwd" title="Show/Hide Password">👁️</button>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-submit" id="submitBtn">
+                    <span>Sign In</span><span>→</span>
+                </button>
+            </form>
+
+            <div class="quick-users-section">
+                <div class="manage-bar">
+                    <div class="section-label" style="margin-bottom:0;">⚡ 1-Click Fast Login / ઝડપી લૉગિન</div>
+                    <div style="display:flex;gap:6px;">
+                        <button class="btn-add-account" id="btnAddAccount">＋ Add</button>
+                        <button class="btn-manage" id="btnManage">✏️ Manage</button>
+                    </div>
+                </div>
+
+                <div class="add-panel" id="addPanel">
+                    <label class="ap-label">New Username</label>
+                    <input type="text" id="newUsername" placeholder="e.g. admin" autocomplete="off">
+                    <label class="ap-label">Password</label>
+                    <input type="text" id="newPassword" placeholder="e.g. admin123" autocomplete="off">
+                    <div class="add-panel-btns">
+                        <button class="btn-panel-save" id="btnSaveAccount">💾 Save Account</button>
+                        <button class="btn-panel-cancel" id="btnCancelAdd">Cancel</button>
+                    </div>
+                </div>
+
+                <div class="quick-chips" id="quickChips"></div>
+            </div>
+
+            <div class="footer-note">🔒 Secure isolated workspace for each user</div>
+        </div>
+    </div>
+
+    <script>
+        const STORAGE_KEY = 'app_accounts';
+        const AVATAR_COLORS = ['#0F172A','#D97706','#2563EB','#7C3AED','#059669','#DB2777','#DC2626','#0891B2'];
+
+        function loadAccounts() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (raw) return JSON.parse(raw);
+            } catch(e) {}
+            const defaults = [
+                { username: 'yug', password: 'yug123' },
+                { username: 'vipul', password: 'vipul123' }
+            ];
+            saveAccounts(defaults);
+            return defaults;
+        }
+
+        function saveAccounts(list) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+        }
+
+        function escHtml(s) {
+            return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+        }
+
+        function capitalize(s) {
+            return s.charAt(0).toUpperCase() + s.slice(1);
+        }
+
+        let manageMode = false;
+
+        function renderChips() {
+            const accounts = loadAccounts();
+            const chips = document.getElementById('quickChips');
+            chips.innerHTML = '';
+
+            if (!accounts.length) {
+                chips.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--ink-faint);font-size:12.5px;padding:12px 0;">No accounts yet. Click ＋ Add to create one.</div>';
+                return;
+            }
+
+            accounts.forEach((acc, idx) => {
+                const chip = document.createElement('button');
+                chip.type = 'button';
+                chip.className = 'user-chip';
+
+                const initial = acc.username.charAt(0).toUpperCase();
+                const color = AVATAR_COLORS[idx % AVATAR_COLORS.length];
+
+                chip.innerHTML =
+                    '<div class="chip-avatar" style="background:' + color + ';">' + escHtml(initial) + '</div>' +
+                    '<div class="chip-info">' +
+                        '<div class="chip-name">' + escHtml(capitalize(acc.username)) + '</div>' +
+                        '<div class="chip-pass">' + escHtml(acc.password) + '</div>' +
+                    '</div>' +
+                    '<button class="chip-del" type="button" data-del="' + escHtml(acc.username) + '">&#x2715;</button>';
+
+                chip.addEventListener('click', function(e) {
+                    if (e.target.closest && e.target.closest('.chip-del')) return;
+                    if (manageMode) return;
+                    doLogin(acc.username, acc.password);
+                });
+
+                const delBtn = chip.querySelector('.chip-del');
+                delBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const uname = delBtn.getAttribute('data-del');
+                    if (confirm('Delete account "' + uname + '"?\n\nTheir saved data stays safe in storage.')) {
+                        const list = loadAccounts().filter(function(a) { return a.username !== uname; });
+                        saveAccounts(list);
+                        renderChips();
+                        showSuccess('Account "' + uname + '" removed.');
+                    }
+                });
+
+                chips.appendChild(chip);
+            });
+
+            if (manageMode) {
+                chips.classList.add('manage-mode');
+            } else {
+                chips.classList.remove('manage-mode');
+            }
+        }
+
+        // Manage toggle
+        document.getElementById('btnManage').addEventListener('click', function() {
+            manageMode = !manageMode;
+            var btn = document.getElementById('btnManage');
+            if (manageMode) {
+                btn.textContent = '✓ Done';
+                btn.classList.add('active');
+            } else {
+                btn.textContent = '✏️ Manage';
+                btn.classList.remove('active');
+            }
+            renderChips();
+        });
+
+        // Add panel toggle
+        document.getElementById('btnAddAccount').addEventListener('click', function() {
+            var panel = document.getElementById('addPanel');
+            if (panel.classList.contains('open')) {
+                panel.classList.remove('open');
+            } else {
+                panel.classList.add('open');
+                document.getElementById('newUsername').focus();
+            }
+        });
+
+        document.getElementById('btnCancelAdd').addEventListener('click', function() {
+            document.getElementById('addPanel').classList.remove('open');
+            document.getElementById('newUsername').value = '';
+            document.getElementById('newPassword').value = '';
+        });
+
+        function saveNewAccount() {
+            var uname = (document.getElementById('newUsername').value || '').trim().toLowerCase();
+            var pass = (document.getElementById('newPassword').value || '').trim();
+
+            if (!uname) { showError('Please enter a username.'); return; }
+            if (!pass) { showError('Please enter a password.'); return; }
+            if (!/^[a-z0-9_]+$/.test(uname)) {
+                showError('Username: only letters, numbers, underscore allowed.');
+                return;
+            }
+
+            var list = loadAccounts();
+            if (list.find(function(a) { return a.username === uname; })) {
+                showError('Account "' + uname + '" already exists.');
+                return;
+            }
+
+            list.push({ username: uname, password: pass });
+            saveAccounts(list);
+            renderChips();
+
+            document.getElementById('addPanel').classList.remove('open');
+            document.getElementById('newUsername').value = '';
+            document.getElementById('newPassword').value = '';
+            showSuccess('Account "' + capitalize(uname) + '" added! Click to login.');
+        }
+
+        document.getElementById('btnSaveAccount').addEventListener('click', saveNewAccount);
+
+        document.getElementById('newUsername').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') { e.preventDefault(); document.getElementById('newPassword').focus(); }
+        });
+        document.getElementById('newPassword').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') { e.preventDefault(); saveNewAccount(); }
+        });
+
+        // Password toggle
+        document.getElementById('togglePwd').addEventListener('click', function() {
+            var input = document.getElementById('password');
+            var isPwd = input.type === 'password';
+            input.type = isPwd ? 'text' : 'password';
+            document.getElementById('togglePwd').textContent = isPwd ? '🙈' : '👁️';
+        });
+
+        // Alerts
+        function showError(msg) {
+            var el = document.getElementById('errorAlert');
+            document.getElementById('errorMsg').textContent = msg;
+            el.classList.add('show');
+            document.getElementById('successAlert').classList.remove('show');
+        }
+
+        function showSuccess(msg) {
+            var el = document.getElementById('successAlert');
+            document.getElementById('successMsg').textContent = msg;
+            el.classList.add('show');
+            document.getElementById('errorAlert').classList.remove('show');
+            setTimeout(function() { el.classList.remove('show'); }, 3000);
+        }
+
+        function hideError() {
+            document.getElementById('errorAlert').classList.remove('show');
+        }
+
+        // Login
+        function doLogin(uname, pass) {
+            hideError();
+            var cleanUser = (uname || '').trim().toLowerCase();
+            var cleanPass = (pass || '').trim();
+
+            if (!cleanUser) { showError('Please enter a username.'); return; }
+            if (!cleanPass) { showError('Please enter a password.'); return; }
+
+            var accounts = loadAccounts();
+            var acc = null;
+            for (var i = 0; i < accounts.length; i++) {
+                if (accounts[i].username === cleanUser) { acc = accounts[i]; break; }
+            }
+
+            if (!acc || acc.password !== cleanPass) {
+                showError('Invalid username or password! Check and try again.');
+                return;
+            }
+
+            localStorage.setItem('auth_user', cleanUser);
+            localStorage.setItem('auth_user_name', capitalize(cleanUser));
+            window.location.href = 'dilyex.html';
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            doLogin(document.getElementById('username').value, document.getElementById('password').value);
+        });
+
+        // Auto-redirect if already logged in
+        var current = (localStorage.getItem('auth_user') || '').trim().toLowerCase();
+        if (current) {
+            var accs = loadAccounts();
+            var found = false;
+            for (var i = 0; i < accs.length; i++) {
+                if (accs[i].username === current) { found = true; break; }
+            }
+            if (found) window.location.href = 'dilyex.html';
+        }
+
+        // Init
+        renderChips();
+    </script>
+</body>
+
+</html>

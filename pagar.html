@@ -724,6 +724,12 @@
                 style="padding:5px 10px;border-radius:8px;border:1.5px solid var(--line);background:var(--card-bg, #fff);font-size:13px;font-weight:800;color:var(--ink);cursor:pointer;outline:none;"
                 onchange="handlePagarYearChange(this.value)">
             </select>
+            <span style="background:var(--paper-card, #fff);border:1.5px solid var(--line);border-radius:8px;padding:5px 10px;font-size:12px;font-weight:700;color:var(--ink);display:inline-flex;align-items:center;gap:4px;">
+                👤 <span id="authUserName">...</span>
+            </span>
+            <button type="button" onclick="logout()" style="background:#FEE2E2;color:#DC2626;border:1px solid #FCA5A5;border-radius:8px;padding:5px 10px;font-size:12px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:4px;" title="Log Out">
+                🚪 Logout
+            </button>
         </div>
     </header>
 
@@ -967,17 +973,111 @@
     <script>
         const rupee = n => '₹' + Math.abs(Math.round(n || 0)).toLocaleString('en-IN');
 
+        /* ── AUTH & USER SCOPING ── */
+        function getAuthUser() {
+            const u = (localStorage.getItem('auth_user') || '').trim().toLowerCase();
+            if (!u) return null;
+            try {
+                const raw = localStorage.getItem('app_accounts');
+                if (raw) {
+                    const accs = JSON.parse(raw);
+                    if (Array.isArray(accs) && accs.find(function(a){ return a.username === u; })) return u;
+                    return null;
+                }
+            } catch(e) {}
+            return u === 'yug' ? u : null;
+        }
+
+        function checkAuth() {
+            const u = getAuthUser();
+            if (!u) { window.location.replace('login.html'); return null; }
+            return u;
+        }
+
+        if (!checkAuth()) { throw new Error('Unauthorized'); }
+
+        function getUserStorageKey(k) {
+            const u = getAuthUser();
+            if (!u || k.startsWith('auth_') || k.startsWith('app_') || k.startsWith('u:')) return k;
+            return 'u:' + u + ':' + k;
+        }
+
+        function userLocalGet(k) {
+            const uk = getUserStorageKey(k);
+            let val = localStorage.getItem(uk);
+            if (val === null && getAuthUser() === 'yug') {
+                val = localStorage.getItem(k);
+                if (val !== null) localStorage.setItem(uk, val);
+            }
+            return val;
+        }
+
+        function userLocalSet(k, v) {
+            localStorage.setItem(getUserStorageKey(k), v);
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to log out?')) {
+                localStorage.removeItem('auth_user');
+                localStorage.removeItem('auth_user_name');
+                window.location.replace('login.html');
+            }
+        }
+
+        function renderAuthHeader() {
+            var el = document.getElementById('authUserName');
+            if (el) {
+                var u = getAuthUser();
+                el.textContent = u ? (u.charAt(0).toUpperCase() + u.slice(1)) : 'User';
+            }
+        }
+
         const storageGet = async k => {
-            try { if (window.storage) { const r = await window.storage.get(k, false); return r ? r.value : null; } return localStorage.getItem(k); } catch (e) { return localStorage.getItem(k); }
+            const uk = getUserStorageKey(k);
+            try {
+                if (window.storage) {
+                    const r = await window.storage.get(uk, false);
+                    if (r && r.value !== null && r.value !== undefined) return r.value;
+                }
+                const val = userLocalGet(k);
+                if (val !== null) return val;
+                if (getAuthUser() === 'yug' && window.storage) {
+                    const rLeg = await window.storage.get(k, false);
+                    if (rLeg && rLeg.value !== null && rLeg.value !== undefined) {
+                        await storageSet(k, rLeg.value);
+                        return rLeg.value;
+                    }
+                }
+                return null;
+            } catch(e) { return userLocalGet(k); }
         };
+
         const storageSet = async (k, v) => {
-            try { if (window.storage) return await window.storage.set(k, v, false); localStorage.setItem(k, v); return true; } catch (e) { localStorage.setItem(k, v); return false; }
+            const uk = getUserStorageKey(k);
+            try {
+                if (window.storage) await window.storage.set(uk, v, false);
+                userLocalSet(k, v);
+                return true;
+            } catch(e) { userLocalSet(k, v); return false; }
         };
+
         const getAllKeys = async () => {
-            let keys = [];
-            if (window.storage && window.storage.list) { try { let r = await window.storage.list(); if (r && r.keys) keys = r.keys; } catch (e) { } }
-            else { for (let i = 0; i < localStorage.length; i++) keys.push(localStorage.key(i)); }
-            return keys;
+            const u = getAuthUser();
+            const prefix = 'u:' + u + ':';
+            let rawKeys = [];
+            if (window.storage && window.storage.list) {
+                try { let r = await window.storage.list(); if (r && r.keys) rawKeys = r.keys; } catch(e) {}
+            } else {
+                for (let i = 0; i < localStorage.length; i++) rawKeys.push(localStorage.key(i));
+            }
+            let userKeys = [];
+            rawKeys.forEach(k => { if (k && k.startsWith(prefix)) userKeys.push(k.slice(prefix.length)); });
+            if (u === 'yug') {
+                rawKeys.forEach(k => {
+                    if (k && !k.startsWith('u:') && !k.startsWith('auth_') && !k.startsWith('app_') && !userKeys.includes(k)) userKeys.push(k);
+                });
+            }
+            return Array.from(new Set(userKeys));
         };
 
         function getActiveYear() {
@@ -1081,10 +1181,10 @@
 
         function loadLocalStorageState() {
             try {
-                const compOverride = localStorage.getItem('khata:company_name');
+                const compOverride = userLocalGet('khata:company_name');
                 const curY = getActiveYear();
                 const specificKey = `khata_pagar_data_${curY}`;
-                const s = localStorage.getItem(specificKey) || localStorage.getItem('khata_pagar_data');
+                const s = userLocalGet(specificKey) || userLocalGet('khata_pagar_data');
                 if (s) {
                     const parsed = JSON.parse(s);
                     if (compOverride && compOverride.trim()) globalCompanyName = compOverride.trim();
@@ -1144,9 +1244,9 @@
             try {
                 const curY = getActiveYear();
                 const dataObj = { globalCompanyName, ratesData, opSlipsData, fixSlipsData, opWorkerDuties, fixWorkerDuties };
-                localStorage.setItem(`khata_pagar_data_${curY}`, JSON.stringify(dataObj));
-                localStorage.setItem('khata_pagar_data', JSON.stringify(dataObj));
-                localStorage.setItem('khata:company_name', globalCompanyName);
+                userLocalSet(`khata_pagar_data_${curY}`, JSON.stringify(dataObj));
+                userLocalSet('khata_pagar_data', JSON.stringify(dataObj));
+                userLocalSet('khata:company_name', globalCompanyName);
             } catch (e) { }
         }
 
@@ -2260,6 +2360,7 @@
 
         // ── INIT ──
         (async function init() {
+            renderAuthHeader();
             await renderPagarYearSelect();
             loadLocalStorageState();
             await syncAllKhataData();

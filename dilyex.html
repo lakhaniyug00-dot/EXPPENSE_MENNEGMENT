@@ -1713,6 +1713,14 @@
                         <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                     </svg>
                 </button>
+                <div style="display:flex;align-items:center;gap:6px;margin-left:8px;">
+                    <span style="background:var(--card-bg, #fff);border:1.5px solid var(--line);border-radius:8px;padding:5px 10px;font-size:12px;font-weight:700;color:var(--ink);display:inline-flex;align-items:center;gap:4px;">
+                        👤 <span id="authUserName">...</span>
+                    </span>
+                    <button type="button" onclick="logout()" style="background:#FEE2E2;color:#DC2626;border:1px solid #FCA5A5;border-radius:8px;padding:5px 10px;font-size:12px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:4px;" title="Log Out">
+                        🚪 Logout
+                    </button>
+                </div>
             </div>
         </header>
 
@@ -2015,14 +2023,118 @@
         // ── Entry form type state ──
         let entryType = 'aavak'; // 'aavak' | 'kharch'
 
+        /* ── AUTH & USER SCOPING ── */
+        function getAuthUser() {
+            const u = (localStorage.getItem('auth_user') || '').trim().toLowerCase();
+            if (!u) return null;
+            // Validate against the dynamic accounts list
+            try {
+                const raw = localStorage.getItem('app_accounts');
+                if (raw) {
+                    const accs = JSON.parse(raw);
+                    if (Array.isArray(accs) && accs.find(function(a){ return a.username === u; })) return u;
+                    return null;
+                }
+            } catch(e) {}
+            // Fallback: allow yug (legacy) if no account list yet
+            return u === 'yug' ? u : null;
+        }
+
+        function checkAuth() {
+            const u = getAuthUser();
+            if (!u) {
+                window.location.replace('login.html');
+                return null;
+            }
+            return u;
+        }
+
+        if (!checkAuth()) {
+            throw new Error('Unauthorized');
+        }
+
+        function getUserStorageKey(k) {
+            const u = getAuthUser();
+            if (!u || k.startsWith('auth_') || k.startsWith('u:')) return k;
+            return `u:${u}:${k}`;
+        }
+
+        function userLocalGet(k) {
+            const uk = getUserStorageKey(k);
+            let val = localStorage.getItem(uk);
+            if (val === null && getAuthUser() === 'yug') {
+                val = localStorage.getItem(k);
+                if (val !== null) localStorage.setItem(uk, val);
+            }
+            return val;
+        }
+
+        function userLocalSet(k, v) {
+            localStorage.setItem(getUserStorageKey(k), v);
+        }
+
+        function userLocalRemove(k) {
+            localStorage.removeItem(getUserStorageKey(k));
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to log out?')) {
+                localStorage.removeItem('auth_user');
+                localStorage.removeItem('auth_user_name');
+                window.location.replace('login.html');
+            }
+        }
+
+        function renderAuthHeader() {
+            const el = $('authUserName');
+            if (el) {
+                const u = getAuthUser();
+                el.textContent = u ? (u.charAt(0).toUpperCase() + u.slice(1)) : 'User';
+            }
+        }
+
         const storageGet = async k => {
-            try { if (window.storage) { const r = await window.storage.get(k, false); return r ? r.value : null; } return localStorage.getItem(k); } catch (e) { return null; }
+            const uk = getUserStorageKey(k);
+            try {
+                if (window.storage) {
+                    const r = await window.storage.get(uk, false);
+                    if (r && r.value !== null && r.value !== undefined) return r.value;
+                }
+                const val = userLocalGet(k);
+                if (val !== null) return val;
+                if (getAuthUser() === 'yug' && window.storage) {
+                    const rLegacy = await window.storage.get(k, false);
+                    if (rLegacy && rLegacy.value !== null && rLegacy.value !== undefined) {
+                        await storageSet(k, rLegacy.value);
+                        return rLegacy.value;
+                    }
+                }
+                return null;
+            } catch (e) {
+                return userLocalGet(k);
+            }
         };
+
         const storageSet = async (k, v) => {
-            try { if (window.storage) return await window.storage.set(k, v, false); localStorage.setItem(k, v); return true; } catch (e) { return false; }
+            const uk = getUserStorageKey(k);
+            try {
+                if (window.storage) await window.storage.set(uk, v, false);
+                userLocalSet(k, v);
+                return true;
+            } catch (e) {
+                userLocalSet(k, v);
+                return false;
+            }
         };
+
         const storageRemove = async k => {
-            try { if (window.storage && window.storage.remove) { await window.storage.remove(k, false); return; } localStorage.removeItem(k); } catch (e) { }
+            const uk = getUserStorageKey(k);
+            try {
+                if (window.storage && window.storage.remove) await window.storage.remove(uk, false);
+                userLocalRemove(k);
+            } catch (e) {
+                userLocalRemove(k);
+            }
         };
 
         const syncChannel = (() => { try { return new BroadcastChannel('khata_sync'); } catch (e) { return { postMessage: () => { }, addEventListener: () => { } }; } })();
@@ -3490,10 +3602,29 @@
         document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeModal(); closeSearchModal(); closeReportModal(); } });
 
         async function getAllKeys() {
-            let keys = [];
-            if (window.storage && window.storage.list) { try { let r = await window.storage.list(); if (r && r.keys) keys = r.keys; } catch (e) { } }
-            else { for (let i = 0; i < localStorage.length; i++) keys.push(localStorage.key(i)); }
-            return keys;
+            const u = getAuthUser();
+            const prefix = `u:${u}:`;
+            let rawKeys = [];
+            if (window.storage && window.storage.list) {
+                try {
+                    let r = await window.storage.list();
+                    if (r && r.keys) rawKeys = r.keys;
+                } catch (e) { }
+            } else {
+                for (let i = 0; i < localStorage.length; i++) rawKeys.push(localStorage.key(i));
+            }
+            let userKeys = [];
+            rawKeys.forEach(k => {
+                if (k && k.startsWith(prefix)) userKeys.push(k.slice(prefix.length));
+            });
+            if (u === 'yug') {
+                rawKeys.forEach(k => {
+                    if (k && !k.startsWith('u:') && !k.startsWith('auth_') && !userKeys.includes(k)) {
+                        userKeys.push(k);
+                    }
+                });
+            }
+            return Array.from(new Set(userKeys));
         }
         let searchTimeout;
         $('searchInput').addEventListener('input', e => {
@@ -4031,6 +4162,7 @@
 
         /* ── INIT ── */
         (async function init() {
+            renderAuthHeader();
             await getActiveYear();
             if (currentDate.getFullYear() !== Number(activeAccountingYear)) {
                 currentDate.setFullYear(Number(activeAccountingYear));
