@@ -1550,16 +1550,19 @@
             color: var(--ink);
             border: 1px solid transparent;
         }
+
         .name-list-item:hover {
             background: var(--gold-bg);
             border-color: var(--line);
         }
+
         .name-list-item .name-label {
             flex: 1;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
         }
+
         .name-list-item .rename-btn {
             background: none;
             border: none;
@@ -1572,14 +1575,17 @@
             transition: opacity 0.15s, transform 0.15s;
             line-height: 1;
         }
+
         .name-list-item:hover .rename-btn,
         .name-list-item:focus-within .rename-btn {
             opacity: 1;
         }
+
         .name-list-item .rename-btn:hover {
             opacity: 1 !important;
             transform: scale(1.15);
         }
+
         .name-list-item .del-btn {
             background: none;
             border: none;
@@ -1593,22 +1599,27 @@
             line-height: 1;
             font-weight: 700;
         }
+
         .name-list-item:hover .del-btn,
         .name-list-item:focus-within .del-btn {
             opacity: 0.7;
         }
+
         .name-list-item .del-btn:hover {
             opacity: 1 !important;
             background: #fdf2f2;
         }
+
         @media (hover: none) {
             .name-list-item .rename-btn {
                 opacity: 0.85;
             }
+
             .name-list-item .del-btn {
                 opacity: 0.85;
             }
         }
+
         /* inline rename row */
         .name-rename-row {
             display: none;
@@ -1621,13 +1632,23 @@
             margin-top: 2px;
             animation: slideDown 0.15s ease;
         }
+
         .name-rename-row.open {
             display: flex;
         }
+
         @keyframes slideDown {
-            from { opacity: 0; transform: translateY(-4px); }
-            to   { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(-4px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
+
         .name-rename-row input {
             flex: 1;
             font-family: 'Inter', sans-serif;
@@ -1640,9 +1661,11 @@
             color: var(--ink);
             outline: none;
         }
+
         .name-rename-row input:focus {
             border-color: var(--gold);
         }
+
         .name-rename-row .rename-hint {
             font-size: 10px;
             color: var(--ink-soft);
@@ -1667,7 +1690,10 @@
                     style="background:var(--carry-bg);color:var(--carry);border:1.5px solid var(--carry);border-radius:8px;padding:5px 11px;font-size:12px;font-weight:700;text-decoration:none;white-space:nowrap;"
                     title="Khata Book">📒 Khata</a>
                 <div class="brand">
-                    <h1>ROJMEL</h1>
+                    <div style="display:flex;align-items:center;gap:8px;">
+                        <h1>ROJMEL</h1>
+                        <span id="headerYearBadge" style="cursor:pointer;background:var(--carry-bg);color:var(--carry);border:1.5px solid var(--carry);border-radius:6px;padding:2px 8px;font-size:11px;font-weight:800;" title="Accounting Year — Click to change in Master">📅 ...</span>
+                    </div>
                     <span>Income and expense book</span>
                 </div>
             </div>
@@ -1748,6 +1774,27 @@
                             style="background:var(--ink);color:#fff;border:none;padding:8px 14px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;transition:all 0.2s ease;">
                             Save Name
                         </button>
+                    </div>
+                </div>
+
+                <!-- 0.1 ACCOUNTING YEAR SELECT & COMPLETE YEAR -->
+                <div style="margin-bottom:14px;padding-bottom:12px;border-bottom:1px dashed var(--line);">
+                    <label
+                        style="display:block;font-size:12px;font-weight:700;color:var(--ink-soft);margin-bottom:4px;">
+                        📅 Accounting Year (વર્ષ પસંદ કરો)
+                    </label>
+                    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                        <select id="masterYearSelect"
+                            style="flex:1;min-width:130px;padding:8px 12px;border:1.5px solid var(--line);border-radius:8px;font-size:13.5px;font-weight:700;font-family:'Inter',sans-serif;background:var(--bg);color:var(--ink);outline:none;">
+                        </select>
+                        <button type="button" id="completeYearBtn"
+                            style="background:#D9534F;color:#fff;border:none;padding:8px 14px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;transition:all 0.2s ease;"
+                            title="Complete this year and start new year with blank Rojmel while keeping names">
+                            ✓ Complete Year
+                        </button>
+                    </div>
+                    <div style="font-size:11px;color:var(--ink-soft);margin-top:4px;">
+                        વર્ષ બદલવાથી આખા સાઇટનો ડેટા એ વર્ષ મુજબ દેખાશે. Complete Year કરવાથી ચાલુ વર્ષ સેવ રહેશે અને નવું વર્ષ ખાલી રોજમેળ સાથે શરૂ થશે.
                     </div>
                 </div>
 
@@ -1978,6 +2025,28 @@
             try { if (window.storage && window.storage.remove) { await window.storage.remove(k, false); return; } localStorage.removeItem(k); } catch (e) { }
         };
 
+        const syncChannel = (() => { try { return new BroadcastChannel('khata_sync'); } catch (e) { return { postMessage: () => { }, addEventListener: () => { } }; } })();
+        syncChannel.addEventListener('message', async (ev) => {
+            if (!ev.data) return;
+            if (ev.data.type === 'year-changed' || ev.data.type === 'year-completed') {
+                location.reload();
+                return;
+            }
+            if (ev.data.type === 'day-updated') {
+                await loadCategories();
+                await loadMasters();
+                await loadMasterEntries();
+                await loadWorkers();
+                rebuildCatSelect();
+                rebuildMasterSelect();
+                rebuildWorkerDatalist();
+                await loadDay();
+                renderIncome();
+                renderExpense();
+                renderTotals();
+            }
+        });
+
         async function loadCategories() {
             try { const v = await storageGet('khata:categories'); if (v) { const p = JSON.parse(v); if (Array.isArray(p) && p.length) categories = p; } } catch (e) { }
             if (!categories.includes('Factory Karigar')) categories.unshift('Factory Karigar');
@@ -2022,7 +2091,7 @@
 
                 const pastDayKeys = dayKeys
                     .map(k => k.replace('khata:day:', ''))
-                    .filter(d => d < curKey)
+                    .filter(d => (!activeAccountingYear || d.startsWith(activeAccountingYear + '-')) && d < curKey)
                     .sort();
 
                 for (const dateStr of pastDayKeys) {
@@ -2278,7 +2347,180 @@
             } catch (e) { console.error(e); }
         }
 
-        function openModal() { $('overlay').classList.add('open'); resetModal(); loadCompanyNameInModal(); checkAndAutoPopulateMaster(); setTimeout(() => $('expName').focus(), 80); }
+        /* ── ACCOUNTING YEAR MANAGEMENT ── */
+        let activeAccountingYear = String(new Date().getFullYear());
+
+        async function getActiveYear() {
+            let y = await storageGet('khata:active_year') || localStorage.getItem('khata:active_year');
+            if (!y || !/^\d{4}$/.test(y)) {
+                y = String(new Date().getFullYear());
+                await storageSet('khata:active_year', y);
+                localStorage.setItem('khata:active_year', y);
+            }
+            activeAccountingYear = String(y);
+            return activeAccountingYear;
+        }
+
+        async function setActiveYear(year) {
+            const yStr = String(year);
+            activeAccountingYear = yStr;
+            await storageSet('khata:active_year', yStr);
+            localStorage.setItem('khata:active_year', yStr);
+            await ensureYearInList(yStr);
+            updateHeaderYearBadge();
+            try { syncChannel.postMessage({ type: 'year-changed', year: yStr }); } catch (e) { }
+        }
+
+        async function getAvailableYears() {
+            let list = [];
+            try {
+                const raw = await storageGet('khata:years_list') || localStorage.getItem('khata:years_list');
+                if (raw) list = JSON.parse(raw);
+            } catch (e) { }
+            if (!Array.isArray(list)) list = [];
+
+            try {
+                const keys = await getAllKeys();
+                (keys || []).forEach(k => {
+                    if (k && k.startsWith('khata:day:')) {
+                        const y = k.replace('khata:day:', '').slice(0, 4);
+                        if (y && /^\d{4}$/.test(y) && !list.includes(y)) list.push(y);
+                    }
+                });
+            } catch (e) { }
+
+            const curY = String(new Date().getFullYear());
+            ['2024', '2025', '2026', curY].forEach(y => { if (!list.includes(y)) list.push(y); });
+            list = Array.from(new Set(list)).filter(y => /^\d{4}$/.test(y)).sort();
+            return list;
+        }
+
+        async function ensureYearInList(year) {
+            const list = await getAvailableYears();
+            if (!list.includes(String(year))) {
+                list.push(String(year));
+                list.sort();
+                await storageSet('khata:years_list', JSON.stringify(list));
+                localStorage.setItem('khata:years_list', JSON.stringify(list));
+            }
+        }
+
+        function updateHeaderYearBadge() {
+            const badge = $('headerYearBadge');
+            if (badge) badge.textContent = `📅 ${activeAccountingYear}`;
+        }
+
+        async function loadYearInModal() {
+            const sel = $('masterYearSelect');
+            if (!sel) return;
+            const years = await getAvailableYears();
+            const cur = await getActiveYear();
+            sel.innerHTML = years.map(y => `<option value="${y}" ${y === cur ? 'selected' : ''}>Year ${y}</option>`).join('') +
+                `<option value="__add__">+ Add Other Year...</option>`;
+            updateHeaderYearBadge();
+        }
+
+        async function handleYearSelectChange(val) {
+            if (val === '__add__') {
+                const entered = prompt('Enter 4-digit Year (e.g. 2027):');
+                if (entered && /^\d{4}$/.test(entered.trim())) {
+                    const y = entered.trim();
+                    await ensureYearInList(y);
+                    await switchYear(y);
+                } else {
+                    await loadYearInModal();
+                }
+                return;
+            }
+            await switchYear(val);
+        }
+
+        async function switchYear(targetYear) {
+            await setActiveYear(targetYear);
+            const targetNum = Number(targetYear);
+            if (currentDate.getFullYear() !== targetNum) {
+                currentDate.setFullYear(targetNum);
+            }
+            renderDateBar();
+            await loadDay();
+            await loadPrevNet();
+            renderIncome();
+            renderExpense();
+            renderTotals();
+            await loadYearInModal();
+            setStatus(`Switched to Year ${targetYear}. Showing data for ${targetYear}.`, false);
+        }
+
+        async function handleCompleteYear() {
+            const activeY = await getActiveYear();
+            const curYNum = parseInt(activeY, 10) || new Date().getFullYear();
+            const nextY = String(curYNum + 1);
+
+            const msg = `વર્ષ ${activeY} પૂર્ણ (Complete) કરવું છે?\n\n` +
+                `• વર્ષ ${activeY} નો તમામ ડેટા (રોજમેળ, ખાતા, પગાર) સેવ રહેશે.\n` +
+                `• નવું વર્ષ ${nextY} શરૂ થશે.\n` +
+                `• નવા વર્ષમાં રોજમેળ (Rojmel) ખાલી (Blank) રહેશે.\n` +
+                `• તમામ વર્કર અને એકાઉન્ટના નામ યથાવત (Safe) રહેશે.\n` +
+                `• તમે ગમે ત્યારે જૂનું વર્ષ (${activeY}) સિલેક્ટ કરીને જૂનો ડેટા જોઈ શકશો.`;
+
+            if (!confirm(msg)) return;
+
+            try {
+                let pagarData = {};
+                const rawPagar = await storageGet(`khata_pagar_data_${activeY}`) ||
+                                 await storageGet('khata_pagar_data') ||
+                                 localStorage.getItem(`khata_pagar_data_${activeY}`) ||
+                                 localStorage.getItem('khata_pagar_data');
+                if (rawPagar) {
+                    try { pagarData = JSON.parse(rawPagar); } catch (e) { }
+                }
+
+                await storageSet(`khata_pagar_data_${activeY}`, JSON.stringify(pagarData));
+                localStorage.setItem(`khata_pagar_data_${activeY}`, JSON.stringify(pagarData));
+
+                const nextPagar = {
+                    globalCompanyName: pagarData.globalCompanyName || 'TAPU FAB',
+                    ratesData: pagarData.ratesData || [],
+                    opSlipsData: (pagarData.opSlipsData || []).map(s => ({
+                        ...s,
+                        duties: [],
+                        upad: [],
+                        days: 0,
+                        extraHours: 0
+                    })),
+                    fixSlipsData: (pagarData.fixSlipsData || []).map(s => ({
+                        ...s,
+                        duties: [],
+                        upad: [],
+                        days: 0,
+                        extraHours: 0
+                    })),
+                    opWorkerDuties: {},
+                    fixWorkerDuties: {}
+                };
+                await storageSet(`khata_pagar_data_${nextY}`, JSON.stringify(nextPagar));
+                localStorage.setItem(`khata_pagar_data_${nextY}`, JSON.stringify(nextPagar));
+            } catch (e) { }
+
+            await ensureYearInList(nextY);
+            await setActiveYear(nextY);
+
+            const now = new Date();
+            if (now.getFullYear() === curYNum + 1) {
+                currentDate = now;
+            } else {
+                currentDate = new Date(curYNum + 1, 0, 1);
+            }
+
+            try {
+                syncChannel.postMessage({ type: 'year-completed', oldYear: activeY, newYear: nextY });
+            } catch (e) { }
+
+            alert(`વર્ષ ${activeY} સફળતાપૂર્વક પૂર્ણ થયું!\nહવે નવું વર્ષ ${nextY} શરૂ થયું છે. રોજમેળ ખાલી છે અને તમામ નામ હાજર છે.`);
+            location.reload();
+        }
+
+        function openModal() { $('overlay').classList.add('open'); resetModal(); loadCompanyNameInModal(); loadYearInModal(); checkAndAutoPopulateMaster(); setTimeout(() => $('expName').focus(), 80); }
         function closeModal() { $('overlay').classList.remove('open'); }
         /* ── RENAME CATEGORY ACROSS ALL STORAGE ── */
         async function renameCategory(oldCat, newCat) {
@@ -3043,11 +3285,12 @@
                 if (found.master && $('expMaster')) {
                     $('expMaster').value = found.master;
                 }
+                // FIX: also understand entries saved from Khata Book (pagarType = 'fix' / 'daily')
                 const fl = found.fixedLabel || (found.pagarType === 'fix' ? 'Fix Pagar' : found.pagarType === 'daily' ? 'Daily Pagar' : '');
                 if (fl && $('expFixed')) {
                     $('expFixed').value = fl;
                     if ($('pagarAmountWrap')) $('pagarAmountWrap').style.display = 'block';
-                    if ($('expPagarAmount') && found.pagarAmount) $('expPagarAmount').value = found.pagarAmount;
+                    if ($('expPagarAmount') && (found.pagarAmount || found.amount)) $('expPagarAmount').value = found.pagarAmount || found.amount;
                 }
                 // Note always blank — user types fresh each day
                 if ($('entryNote')) $('entryNote').value = '';
@@ -3070,6 +3313,9 @@
                 if ($('karigarFields')) $('karigarFields').style.display = 'block';
             } else {
                 if ($('karigarFields')) $('karigarFields').style.display = 'none';
+                // FIX: clear leftover Fix/Daily choice when category is not Factory Karigar
+                if ($('expFixed')) $('expFixed').value = '';
+                if ($('pagarAmountWrap')) $('pagarAmountWrap').style.display = 'none';
             }
             if ($('expenseFields')) $('expenseFields').style.display = 'none';
         }
@@ -3308,24 +3554,6 @@
         }
 
         /* ── REPORT ── */
-        // ── CROSS-TAB SYNC ──
-        const syncChannel = (() => { try { return new BroadcastChannel('khata_sync'); } catch (e) { return { postMessage: () => { }, addEventListener: () => { } }; } })();
-        syncChannel.addEventListener('message', async (ev) => {
-            if (!ev.data) return;
-            if (ev.data.type === 'day-updated') {
-                await loadCategories();
-                await loadMasters();
-                await loadMasterEntries();
-                await loadWorkers();
-                rebuildCatSelect();
-                rebuildMasterSelect();
-                rebuildWorkerDatalist();
-                await loadDay();
-                renderIncome();
-                renderExpense();
-                renderTotals();
-            }
-        });
 
         let repCatFilters = new Set(); // currently selected category filters (empty = All)
         function openReportModal() {
@@ -3667,9 +3895,9 @@
                 err.textContent = 'Enter a name.'; err.style.display = 'block'; return;
             }
 
-            const pagarType = (category.toLowerCase() === 'factory karigar')
-                ? (fixedLabel === 'Fix Pagar' ? 'fix' : fixedLabel === 'Daily Pagar' ? 'daily' : '')
-                : '';
+            // FIX: Pagar type that pagar.html reads ('fix' → Fix Pagar slips, 'daily' → Operator slips)
+            const pagarType = fixedLabel === 'Fix Pagar' ? 'fix' : fixedLabel === 'Daily Pagar' ? 'daily' : '';
+
             const existingIdx = masterEntries.findIndex(m => m.name && m.name.toLowerCase() === name.toLowerCase());
             if (existingIdx !== -1) {
                 masterEntries[existingIdx].category = category;
@@ -3774,6 +4002,16 @@
             });
         }
 
+        if ($('masterYearSelect')) {
+            $('masterYearSelect').addEventListener('change', e => handleYearSelectChange(e.target.value));
+        }
+        if ($('completeYearBtn')) {
+            $('completeYearBtn').addEventListener('click', handleCompleteYear);
+        }
+        if ($('headerYearBadge')) {
+            $('headerYearBadge').addEventListener('click', openModal);
+        }
+
         /* ── DATE NAV ── */
         async function goToDate(d) {
             currentDate = d; renderDateBar(); setStatus('Loading…', false);
@@ -3793,6 +4031,11 @@
 
         /* ── INIT ── */
         (async function init() {
+            await getActiveYear();
+            if (currentDate.getFullYear() !== Number(activeAccountingYear)) {
+                currentDate.setFullYear(Number(activeAccountingYear));
+            }
+            updateHeaderYearBadge();
             await loadCategories(); await loadMasters(); await loadWorkers(); await loadMasterEntries();
             await deleteWorkerOrAccountName('goving', true);
             await deleteWorkerOrAccountName('govind', true);

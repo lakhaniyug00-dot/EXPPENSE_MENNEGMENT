@@ -1107,6 +1107,7 @@
                 style="background:var(--gold-bg);color:var(--gold);border-color:var(--gold);font-weight:700;">💼
                 Pagar</a>
             <div class="logo">Khata <span>Book</span></div>
+            <span id="headerYearBadge" style="cursor:pointer;background:var(--carry-bg, #FEF7EE);color:var(--carry, #C67D0A);border:1.5px solid var(--carry, #C67D0A);border-radius:6px;padding:3px 9px;font-size:11.5px;font-weight:800;margin-left:4px;" title="Accounting Year — Click to change in Master">📅 ...</span>
         </div>
         <div class="top-right">
 
@@ -1262,8 +1263,35 @@
                         style="display:block;font-size:12px;font-weight:700;color:var(--ink-soft);margin-bottom:4px;">
                         🏢 Company Name
                     </label>
-                    <input type="text" id="masterCompanyName" placeholder="e.g. TAPU FAB" value="TAPU FAB"
-                        class="form-input" style="width:100%;">
+                    <div style="display:flex;gap:8px;align-items:center;">
+                        <input type="text" id="masterCompanyName" placeholder="e.g. TAPU FAB" value="TAPU FAB"
+                            class="form-input" style="flex:1;">
+                        <button type="button" id="saveCompanyNameBtn"
+                            style="background:var(--ink);color:#fff;border:none;padding:8px 14px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;">
+                            Save Name
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ACCOUNTING YEAR SELECT & COMPLETE YEAR -->
+                <div style="padding-bottom:10px;border-bottom:1px dashed var(--line);">
+                    <label
+                        style="display:block;font-size:12px;font-weight:700;color:var(--ink-soft);margin-bottom:4px;">
+                        📅 Accounting Year (વર્ષ પસંદ કરો)
+                    </label>
+                    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                        <select id="masterYearSelect" class="form-input"
+                            style="flex:1;min-width:130px;font-size:13.5px;font-weight:700;">
+                        </select>
+                        <button type="button" id="completeYearBtn"
+                            style="background:#D9534F;color:#fff;border:none;padding:8px 14px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;"
+                            title="Complete this year and start new year with blank Rojmel while keeping names">
+                            ✓ Complete Year
+                        </button>
+                    </div>
+                    <div style="font-size:11px;color:var(--ink-soft);margin-top:4px;">
+                        વર્ષ બદલવાથી આખા સાઇટનો ડેટા એ વર્ષ મુજબ દેખાશે. Complete Year કરવાથી ચાલુ વર્ષ સેવ રહેશે અને નવું વર્ષ ખાલી રોજમેળ સાથે શરૂ થશે.
+                    </div>
                 </div>
                 <div>
                     <label
@@ -1400,13 +1428,17 @@
                     } catch (e) { }
                 }
             }
+            if (activeAccountingYear) {
+                entries = entries.filter(e => !e.date || e.date.startsWith(activeAccountingYear + '-'));
+            }
             return entries;
         }
         async function saveManualEntries(accId, entries) { await storageSet('khata:acc:' + accId, JSON.stringify(entries)); }
 
         async function getDailyEntries(accountName) {
             const keys = await storageList();
-            const dayKeys = keys.filter(k => k && k.startsWith('khata:day:'));
+            const yearPrefix = 'khata:day:' + (activeAccountingYear ? (activeAccountingYear + '-') : '');
+            const dayKeys = keys.filter(k => k && k.startsWith(yearPrefix));
             let entries = [];
             for (const key of dayKeys) {
                 try {
@@ -1480,7 +1512,10 @@
                 if (me.category) category = me.category;
                 if (me.master) master = me.master;
                 if (me.fixedLabel) fixedLabel = me.fixedLabel;
+                else if (me.pagarType === 'fix') fixedLabel = 'Fix Pagar';
+                else if (me.pagarType === 'daily') fixedLabel = 'Daily Pagar';
                 if (me.pagarAmount) pagarAmount = me.pagarAmount;
+                else if (me.amount) pagarAmount = me.amount;
             }
             try {
                 const daily = await getDailyEntries(accName);
@@ -1636,13 +1671,10 @@
             const aavakEntries = filtered.filter(e => e.aavak > 0);
             const javakEntries = filtered.filter(e => e.javak > 0);
 
-            // Update badge & subtitle
+            // Update badge
             const badge = $('filterBadge');
             if (isFiltered) {
                 badge.classList.add('show');
-                const fLabel = fromVal ? fromVal.split('-').reverse().join('/') : '…';
-                const tLabel = toVal ? toVal.split('-').reverse().join('/') : '…';
-                // optional: could update a label somewhere, but sub was removed
             } else {
                 badge.classList.remove('show');
             }
@@ -1803,7 +1835,8 @@
             }
 
             const keys = await storageList();
-            const dayKeys = keys.filter(k => k && k.startsWith('khata:day:'));
+            const yearPrefix = 'khata:day:' + (activeAccountingYear ? (activeAccountingYear + '-') : '');
+            const dayKeys = keys.filter(k => k && k.startsWith(yearPrefix));
             const byName = new Map();
 
             function getRecord(rawName, entryCat) {
@@ -2067,8 +2100,12 @@
                 if (found.category && $('expCat')) $('expCat').value = found.category;
                 if (found.master && $('expMaster')) $('expMaster').value = found.master;
                 if (found.note && $('entryNote')) $('entryNote').value = found.note;
-                if (found.amount && $('expAmount')) $('expAmount').value = found.amount;
-                if ($('expPagarType')) $('expPagarType').value = found.pagarType || '';
+                const amt = found.amount || found.pagarAmount;
+                if (amt && $('expAmount')) $('expAmount').value = amt;
+                // understand entries saved from Rojmel (fixedLabel) as well
+                const fl = String(found.fixedLabel || '').toLowerCase();
+                const type = found.pagarType || (fl.includes('fix') ? 'fix' : fl.includes('daily') ? 'daily' : '');
+                if ($('expPagarType')) $('expPagarType').value = type;
             } else {
                 if ($('expCat')) $('expCat').value = '';
                 if ($('expMaster')) $('expMaster').value = '';
@@ -2080,6 +2117,208 @@
             if (saveChangeBtn) saveChangeBtn.style.display = 'block';
         }
 
+        /* ── COMPANY NAME & YEAR MANAGEMENT ── */
+        async function loadCompanyNameInMasterModal() {
+            try {
+                let comp = await storageGet('khata:company_name') || localStorage.getItem('khata:company_name');
+                if (!comp) {
+                    const rawPagar = await storageGet('khata_pagar_data') || localStorage.getItem('khata_pagar_data');
+                    if (rawPagar) {
+                        try {
+                            const parsed = JSON.parse(rawPagar);
+                            if (parsed.globalCompanyName) comp = parsed.globalCompanyName;
+                        } catch (e) { }
+                    }
+                }
+                if ($('masterCompanyName')) $('masterCompanyName').value = comp || 'TAPU FAB';
+            } catch (e) {
+                if ($('masterCompanyName')) $('masterCompanyName').value = 'TAPU FAB';
+            }
+        }
+
+        async function saveGlobalCompanyName(newComp) {
+            const comp = (newComp || '').trim() || 'TAPU FAB';
+            try {
+                await storageSet('khata:company_name', comp);
+                localStorage.setItem('khata:company_name', comp);
+
+                let pagarData = {};
+                const rawPagar = await storageGet('khata_pagar_data') || localStorage.getItem('khata_pagar_data');
+                if (rawPagar) {
+                    try { pagarData = JSON.parse(rawPagar); } catch (e) { }
+                }
+                pagarData.globalCompanyName = comp;
+                if (pagarData.opSlipsData && Array.isArray(pagarData.opSlipsData)) {
+                    pagarData.opSlipsData.forEach(s => s.company = comp);
+                }
+                if (pagarData.fixSlipsData && Array.isArray(pagarData.fixSlipsData)) {
+                    pagarData.fixSlipsData.forEach(s => s.company = comp);
+                }
+                await storageSet('khata_pagar_data', JSON.stringify(pagarData));
+                localStorage.setItem('khata_pagar_data', JSON.stringify(pagarData));
+                try { syncChannel.postMessage({ type: 'company-updated' }); } catch (e) { }
+                setStatus(`Company name updated to "${comp}".`, false);
+            } catch (e) { console.error(e); }
+        }
+
+        /* ── ACCOUNTING YEAR MANAGEMENT ── */
+        let activeAccountingYear = String(new Date().getFullYear());
+
+        async function getActiveYear() {
+            let y = await storageGet('khata:active_year') || localStorage.getItem('khata:active_year');
+            if (!y || !/^\d{4}$/.test(y)) {
+                y = String(new Date().getFullYear());
+                await storageSet('khata:active_year', y);
+                localStorage.setItem('khata:active_year', y);
+            }
+            activeAccountingYear = String(y);
+            return activeAccountingYear;
+        }
+
+        async function setActiveYear(year) {
+            const yStr = String(year);
+            activeAccountingYear = yStr;
+            await storageSet('khata:active_year', yStr);
+            localStorage.setItem('khata:active_year', yStr);
+            await ensureYearInList(yStr);
+            updateHeaderYearBadge();
+            try { syncChannel.postMessage({ type: 'year-changed', year: yStr }); } catch (e) { }
+        }
+
+        async function getAvailableYears() {
+            let list = [];
+            try {
+                const raw = await storageGet('khata:years_list') || localStorage.getItem('khata:years_list');
+                if (raw) list = JSON.parse(raw);
+            } catch (e) { }
+            if (!Array.isArray(list)) list = [];
+
+            try {
+                const keys = await storageList();
+                (keys || []).forEach(k => {
+                    if (k && k.startsWith('khata:day:')) {
+                        const y = k.replace('khata:day:', '').slice(0, 4);
+                        if (y && /^\d{4}$/.test(y) && !list.includes(y)) list.push(y);
+                    }
+                });
+            } catch (e) { }
+
+            const curY = String(new Date().getFullYear());
+            ['2024', '2025', '2026', curY].forEach(y => { if (!list.includes(y)) list.push(y); });
+            list = Array.from(new Set(list)).filter(y => /^\d{4}$/.test(y)).sort();
+            return list;
+        }
+
+        async function ensureYearInList(year) {
+            const list = await getAvailableYears();
+            if (!list.includes(String(year))) {
+                list.push(String(year));
+                list.sort();
+                await storageSet('khata:years_list', JSON.stringify(list));
+                localStorage.setItem('khata:years_list', JSON.stringify(list));
+            }
+        }
+
+        function updateHeaderYearBadge() {
+            const badge = $('headerYearBadge');
+            if (badge) badge.textContent = `📅 ${activeAccountingYear}`;
+        }
+
+        async function loadYearInMasterModal() {
+            const sel = $('masterYearSelect');
+            if (!sel) return;
+            const years = await getAvailableYears();
+            const cur = await getActiveYear();
+            sel.innerHTML = years.map(y => `<option value="${y}" ${y === cur ? 'selected' : ''}>Year ${y}</option>`).join('') +
+                `<option value="__add__">+ Add Other Year...</option>`;
+            updateHeaderYearBadge();
+        }
+
+        async function handleYearSelectChange(val) {
+            if (val === '__add__') {
+                const entered = prompt('Enter 4-digit Year (e.g. 2027):');
+                if (entered && /^\d{4}$/.test(entered.trim())) {
+                    const y = entered.trim();
+                    await ensureYearInList(y);
+                    await switchYear(y);
+                } else {
+                    await loadYearInMasterModal();
+                }
+                return;
+            }
+            await switchYear(val);
+        }
+
+        async function switchYear(targetYear) {
+            await setActiveYear(targetYear);
+            await renderAccountsList();
+            if (currentAccount) await renderLedger();
+            await loadYearInMasterModal();
+            setStatus(`Switched to Year ${targetYear}. Showing data for ${targetYear}.`, false);
+        }
+
+        async function handleCompleteYear() {
+            const activeY = await getActiveYear();
+            const curYNum = parseInt(activeY, 10) || new Date().getFullYear();
+            const nextY = String(curYNum + 1);
+
+            const msg = `વર્ષ ${activeY} પૂર્ણ (Complete) કરવું છે?\n\n` +
+                `• વર્ષ ${activeY} નો તમામ ડેટા (રોજમેળ, ખાતા, પગાર) સેવ રહેશે.\n` +
+                `• નવું વર્ષ ${nextY} શરૂ થશે.\n` +
+                `• નવા વર્ષમાં રોજમેળ (Rojmel) ખાલી (Blank) રહેશે.\n` +
+                `• તમામ વર્કર અને એકાઉન્ટના નામ યથાવત (Safe) રહેશે.\n` +
+                `• તમે ગમે ત્યારે જૂનું વર્ષ (${activeY}) સિલેક્ટ કરીને જૂનો ડેટા જોઈ શકશો.`;
+
+            if (!confirm(msg)) return;
+
+            try {
+                let pagarData = {};
+                const rawPagar = await storageGet(`khata_pagar_data_${activeY}`) ||
+                                 await storageGet('khata_pagar_data') ||
+                                 localStorage.getItem(`khata_pagar_data_${activeY}`) ||
+                                 localStorage.getItem('khata_pagar_data');
+                if (rawPagar) {
+                    try { pagarData = JSON.parse(rawPagar); } catch (e) { }
+                }
+
+                await storageSet(`khata_pagar_data_${activeY}`, JSON.stringify(pagarData));
+                localStorage.setItem(`khata_pagar_data_${activeY}`, JSON.stringify(pagarData));
+
+                const nextPagar = {
+                    globalCompanyName: pagarData.globalCompanyName || 'TAPU FAB',
+                    ratesData: pagarData.ratesData || [],
+                    opSlipsData: (pagarData.opSlipsData || []).map(s => ({
+                        ...s,
+                        duties: [],
+                        upad: [],
+                        days: 0,
+                        extraHours: 0
+                    })),
+                    fixSlipsData: (pagarData.fixSlipsData || []).map(s => ({
+                        ...s,
+                        duties: [],
+                        upad: [],
+                        days: 0,
+                        extraHours: 0
+                    })),
+                    opWorkerDuties: {},
+                    fixWorkerDuties: {}
+                };
+                await storageSet(`khata_pagar_data_${nextY}`, JSON.stringify(nextPagar));
+                localStorage.setItem(`khata_pagar_data_${nextY}`, JSON.stringify(nextPagar));
+            } catch (e) { }
+
+            await ensureYearInList(nextY);
+            await setActiveYear(nextY);
+
+            try {
+                syncChannel.postMessage({ type: 'year-completed', oldYear: activeY, newYear: nextY });
+            } catch (e) { }
+
+            alert(`વર્ષ ${activeY} સફળતાપૂર્વક પૂર્ણ થયું!\nહવે નવું વર્ષ ${nextY} શરૂ થયું છે. રોજમેળ ખાલી છે અને તમામ નામ હાજર છે.`);
+            location.reload();
+        }
+
         function openMasterModal() {
             rebuildCatSelect(); rebuildMasterSelect(); rebuildWorkerDatalist();
             if ($('expName')) $('expName').value = currentAccount ? currentAccount.name : '';
@@ -2089,6 +2328,8 @@
             if ($('masterErr')) $('masterErr').style.display = 'none';
             if ($('masterSave')) $('masterSave').textContent = 'Add Master';
             if ($('saveChangeBtn')) $('saveChangeBtn').style.display = 'none';
+            loadCompanyNameInMasterModal();
+            loadYearInMasterModal();
             $('masterOverlay').classList.add('open');
             setTimeout(() => $('expName') && $('expName').focus(), 80);
             checkAndAutoPopulateMaster();
@@ -2148,8 +2389,11 @@
 
             if (!name) { err.textContent = 'Enter a name.'; err.style.display = 'block'; return; }
 
+            // keep Rojmel-style label in sync with pagarType so both pages agree
+            const fixedLabel = pagarType === 'fix' ? 'Fix Pagar' : pagarType === 'daily' ? 'Daily Pagar' : '';
+
             masterEntries = masterEntries.filter(m => m && m.name && m.name.toLowerCase() !== name.toLowerCase());
-            const entry = { id: uid(), category, master, name, amount, pagarType, note, _type: 'income', _dateKey: toKey(new Date()) };
+            const entry = { id: uid(), category, master, name, amount, pagarType, fixedLabel, pagarAmount: amount ? String(amount) : '', note, _type: 'income', _dateKey: toKey(new Date()) };
             masterEntries.push(entry);
             await saveMasterEntries();
             await addWorkerIfNew(name);
@@ -2182,19 +2426,6 @@
 
         $('masterSave').addEventListener('click', saveMasterHandler);
         if ($('saveChangeBtn')) $('saveChangeBtn').addEventListener('click', saveMasterHandler);
-        if ($('saveCompanyNameBtn')) {
-            $('saveCompanyNameBtn').addEventListener('click', async () => {
-                const btn = $('saveCompanyNameBtn');
-                const compVal = ($('masterCompanyName') ? $('masterCompanyName').value : '').trim();
-                await saveGlobalCompanyName(compVal);
-                btn.textContent = '✓ Saved!';
-                btn.style.background = '#3D7A5A';
-                setTimeout(() => {
-                    btn.textContent = 'Save Name';
-                    btn.style.background = 'var(--ink)';
-                }, 1500);
-            });
-        }
 
         // ── KHATA PICKER (Tap to Past Income) ──
         let kpAllEntries = [];
@@ -2306,12 +2537,38 @@
             });
         }
 
+        if ($('saveCompanyNameBtn')) {
+            $('saveCompanyNameBtn').addEventListener('click', async () => {
+                const val = ($('masterCompanyName') ? $('masterCompanyName').value : '').trim();
+                await saveGlobalCompanyName(val);
+                const btn = $('saveCompanyNameBtn');
+                btn.textContent = '✓ Saved!';
+                btn.style.background = '#3D7A5A';
+                setTimeout(() => {
+                    btn.textContent = 'Save Name';
+                    btn.style.background = 'var(--ink)';
+                }, 1500);
+            });
+        }
+
+        if ($('masterYearSelect')) {
+            $('masterYearSelect').addEventListener('change', e => handleYearSelectChange(e.target.value));
+        }
+        if ($('completeYearBtn')) {
+            $('completeYearBtn').addEventListener('click', handleCompleteYear);
+        }
+        if ($('headerYearBadge')) {
+            $('headerYearBadge').addEventListener('click', openMasterModal);
+        }
+
         document.addEventListener('keydown', e => {
             if (e.key === 'Escape') { closeSearchModal(); closeReportModal(); closeMasterModal(); $('kpOverlay').classList.remove('open'); }
         });
 
         // ── INIT ──
         (async () => {
+            await getActiveYear();
+            updateHeaderYearBadge();
             await loadCategories();
             await loadMasters();
             await loadWorkers();
@@ -2322,9 +2579,13 @@
 
         // ── CROSS-TAB SYNC ──
         // Listen for changes made in dilyex.html and auto-refresh
-        const syncChannel = (() => { try { return new BroadcastChannel('khata_sync'); } catch (e) { return { addEventListener: () => { } }; } })();
+        const syncChannel = (() => { try { return new BroadcastChannel('khata_sync'); } catch (e) { return { postMessage: () => { }, addEventListener: () => { } }; } })();
         syncChannel.addEventListener('message', async (ev) => {
             if (!ev.data) return;
+            if (ev.data.type === 'year-changed' || ev.data.type === 'year-completed') {
+                location.reload();
+                return;
+            }
             if (ev.data.type === 'day-updated') {
                 await loadMasterEntries();
                 await loadWorkers();
@@ -2338,6 +2599,10 @@
         });
         // Also listen via storage event (same-origin, different tabs)
         window.addEventListener('storage', async (ev) => {
+            if (ev.key === 'khata:active_year') {
+                location.reload();
+                return;
+            }
             if (ev.key && ev.key.startsWith('khata:day:')) {
                 await loadAccounts();
                 if (currentAccount) {

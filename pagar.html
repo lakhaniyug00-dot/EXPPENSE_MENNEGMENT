@@ -718,7 +718,12 @@
                 <a class="nav-btn active" href="pagar.html">💼 Pagar Book</a>
             </nav>
         </div>
-        <div class="top-right">
+        <div class="top-right" style="display:flex;align-items:center;gap:8px;">
+            <span style="font-size:12px;font-weight:700;color:var(--ink-soft);">📅 Year:</span>
+            <select id="pagarYearSelect"
+                style="padding:5px 10px;border-radius:8px;border:1.5px solid var(--line);background:var(--card-bg, #fff);font-size:13px;font-weight:800;color:var(--ink);cursor:pointer;outline:none;"
+                onchange="handlePagarYearChange(this.value)">
+            </select>
         </div>
     </header>
 
@@ -975,8 +980,67 @@
             return keys;
         };
 
+        function getActiveYear() {
+            let y = localStorage.getItem('khata:active_year');
+            if (!y || !/^\d{4}$/.test(y)) {
+                y = String(new Date().getFullYear());
+            }
+            return String(y);
+        }
+
+        async function getAvailableYears() {
+            let list = [];
+            try {
+                const raw = localStorage.getItem('khata:years_list');
+                if (raw) list = JSON.parse(raw);
+            } catch (e) { }
+            if (!Array.isArray(list)) list = [];
+
+            try {
+                const keys = await getAllKeys();
+                (keys || []).forEach(k => {
+                    if (k && k.startsWith('khata:day:')) {
+                        const y = k.replace('khata:day:', '').slice(0, 4);
+                        if (y && /^\d{4}$/.test(y) && !list.includes(y)) list.push(y);
+                    }
+                });
+            } catch (e) { }
+
+            const curY = String(new Date().getFullYear());
+            ['2024', '2025', '2026', curY].forEach(y => { if (!list.includes(y)) list.push(y); });
+            list = Array.from(new Set(list)).filter(y => /^\d{4}$/.test(y)).sort();
+            return list;
+        }
+
+        async function renderPagarYearSelect() {
+            const sel = $('pagarYearSelect');
+            if (!sel) return;
+            const years = await getAvailableYears();
+            const cur = getActiveYear();
+            sel.innerHTML = years.map(y => `<option value="${y}" ${y === cur ? 'selected' : ''}>${y}</option>`).join('') +
+                `<option value="__add__">+ Add Year...</option>`;
+        }
+
+        async function handlePagarYearChange(val) {
+            if (val === '__add__') {
+                const entered = prompt('Enter 4-digit Year (e.g. 2027):');
+                if (entered && /^\d{4}$/.test(entered.trim())) {
+                    const y = entered.trim();
+                    localStorage.setItem('khata:active_year', y);
+                    try { syncChannel.postMessage({ type: 'year-changed', year: y }); } catch (e) { }
+                    location.reload();
+                } else {
+                    renderPagarYearSelect();
+                }
+                return;
+            }
+            localStorage.setItem('khata:active_year', val);
+            try { syncChannel.postMessage({ type: 'year-changed', year: val }); } catch (e) { }
+            location.reload();
+        }
+
         let globalCompanyName = 'TAPU FAB';
-        let globalMonthLabel = (() => { const mn = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]; const now = new Date(); return `${mn[now.getMonth()]} ${now.getFullYear()} पगार`; })();
+        let globalMonthLabel = (() => { const mn = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]; const now = new Date(); return `${mn[now.getMonth()]} ${getActiveYear()} पगार`; })();
 
         let ratesData = [
             { id: 1, task: '36 Oprater :-', rate: 700 },
@@ -1018,7 +1082,9 @@
         function loadLocalStorageState() {
             try {
                 const compOverride = localStorage.getItem('khata:company_name');
-                const s = localStorage.getItem('khata_pagar_data');
+                const curY = getActiveYear();
+                const specificKey = `khata_pagar_data_${curY}`;
+                const s = localStorage.getItem(specificKey) || localStorage.getItem('khata_pagar_data');
                 if (s) {
                     const parsed = JSON.parse(s);
                     if (compOverride && compOverride.trim()) globalCompanyName = compOverride.trim();
@@ -1027,6 +1093,10 @@
                     if (parsed.ratesData) ratesData = parsed.ratesData;
                     if (parsed.opWorkerDuties) opWorkerDuties = parsed.opWorkerDuties;
                     if (parsed.fixWorkerDuties) fixWorkerDuties = parsed.fixWorkerDuties;
+
+                    const mn = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                    const now = new Date();
+                    globalMonthLabel = `${mn[now.getMonth()]} ${curY} पगार`;
 
                     if (parsed.opSlipsData && Array.isArray(parsed.opSlipsData)) {
                         opSlipsData = parsed.opSlipsData.map((slip, idx) => ({
@@ -1072,7 +1142,10 @@
 
         function saveStorage() {
             try {
-                localStorage.setItem('khata_pagar_data', JSON.stringify({ globalCompanyName, ratesData, opSlipsData, fixSlipsData, opWorkerDuties, fixWorkerDuties }));
+                const curY = getActiveYear();
+                const dataObj = { globalCompanyName, ratesData, opSlipsData, fixSlipsData, opWorkerDuties, fixWorkerDuties };
+                localStorage.setItem(`khata_pagar_data_${curY}`, JSON.stringify(dataObj));
+                localStorage.setItem('khata_pagar_data', JSON.stringify(dataObj));
                 localStorage.setItem('khata:company_name', globalCompanyName);
             } catch (e) { }
         }
@@ -1081,6 +1154,10 @@
         const syncChannel = (() => { try { return new BroadcastChannel('khata_sync'); } catch (e) { return { postMessage: () => { }, addEventListener: () => { } }; } })();
         syncChannel.addEventListener('message', async (ev) => {
             if (!ev.data) return;
+            if (ev.data.type === 'year-changed' || ev.data.type === 'year-completed') {
+                location.reload();
+                return;
+            }
             if (ev.data.type === 'company-updated' || ev.data.type === 'day-updated') {
                 loadLocalStorageState();
                 await syncAllKhataData();
@@ -1101,79 +1178,32 @@
         });
 
         // ── KHATA SYNC ──
+        // FIX: reads BOTH `pagarType` ('fix' / 'daily', saved by Khata Book + Rojmel)
+        //      and the older `fixedLabel` ('Fix Pagar' / 'Daily Pagar', saved earlier by Rojmel).
+        //      Fix names -> Fix Pagar slips only. Daily names -> Operator Pagar slips only.
         async function getKhataMasterWorkers() {
-            const fixMasterSet = new Set();   // pagarType === 'fix' in Master
-            const opMasterSet = new Set();    // pagarType === 'daily' in Master
-            const khataAllNames = new Set();  // all names from Khata accounts + rojmel
+            const fixSet = new Set();
+            const opSet = new Set();
 
             try {
-                // Step 1: Read Master entries — strict pagarType assignment
                 const mastersRaw = await storageGet('khata:master_entries');
                 if (mastersRaw) {
                     const masterEntries = JSON.parse(mastersRaw) || [];
                     masterEntries.forEach(m => {
-                        if (m && m.name && m.name.trim()) {
-                            const nm = m.name.trim();
-                            const fl = (m.fixedLabel || '').toLowerCase();
-                            const type = (m.pagarType || '').toLowerCase()
-                                || (fl.includes('fix') ? 'fix' : fl.includes('daily') ? 'daily' : '');
-                            if (type === 'fix') {
-                                fixMasterSet.add(nm);
-                            } else if (type === 'daily') {
-                                opMasterSet.add(nm);
-                            }
-                            // Also track all master names regardless of pagarType
-                            khataAllNames.add(nm);
-                        }
+                        if (!m || !m.name || !m.name.trim()) return;
+                        const nm = m.name.trim();
+                        const fl = String(m.fixedLabel || '').toLowerCase();
+                        const type = String(m.pagarType || '').toLowerCase()
+                            || (fl.includes('fix') ? 'fix' : fl.includes('daily') ? 'daily' : '');
+                        if (type === 'fix') fixSet.add(nm);
+                        else if (type === 'daily') opSet.add(nm);
                     });
                 }
             } catch (e) { }
 
-            try {
-                // Step 2: Read Khata accounts list (all accounts in Khata Book)
-                const accountsRaw = await storageGet('khata:accounts');
-                if (accountsRaw) {
-                    const accs = JSON.parse(accountsRaw) || [];
-                    accs.forEach(a => { if (a && a.name && a.name.trim()) khataAllNames.add(a.name.trim()); });
-                }
-            } catch (e) { }
-
-            try {
-                // Step 3: Read Rojmel (dilyex) daily entries for worker names
-                const keys = await getAllKeys();
-                for (const key of (keys || []).filter(k => k && k.startsWith('khata:day:'))) {
-                    try {
-                        const raw = await storageGet(key);
-                        if (raw) {
-                            const dayObj = JSON.parse(raw);
-                            // Income entries (aavak) — worker names
-                            (dayObj.income || []).forEach(item => {
-                                if (item && item.name && item.name.trim()) khataAllNames.add(item.name.trim());
-                            });
-                            // Expense entries (javak) — worker names
-                            (dayObj.expense || []).forEach(item => {
-                                if (item && item.name && item.name.trim()) khataAllNames.add(item.name.trim());
-                            });
-                        }
-                    } catch (e) { }
-                }
-            } catch (e) { }
-
-            // Enforce mutual exclusivity: if same name in both, fix takes priority
-            opMasterSet.forEach(ow => {
-                const owLower = ow.trim().toLowerCase();
-                fixMasterSet.forEach(fw => {
-                    if (fw.trim().toLowerCase() === owLower) opMasterSet.delete(ow);
-                });
-            });
-
-            // Build final sets:
-            // fixWorkers = ONLY explicitly set as 'fix' in Master
-            const fixSet = new Set(fixMasterSet);
-
-            // opWorkers = ONLY explicitly set as 'daily' in Master
-            // (workers without a pagarType will NOT appear in any slip until they are assigned a type in Master)
-            const opSet = new Set(opMasterSet);
+            // a name can only be in one list (Fix wins)
+            const fixLower = new Set(Array.from(fixSet).map(n => n.toLowerCase()));
+            Array.from(opSet).forEach(n => { if (fixLower.has(n.toLowerCase())) opSet.delete(n); });
 
             const fixList = Array.from(fixSet).sort();
             const opList = Array.from(opSet).sort();
@@ -1195,8 +1225,8 @@
                 upadEntries.push({ ref: (ref && ref.trim()) ? ref.trim() : 'Kharchi', note: (ref && ref.trim()) ? ref.trim() : 'Kharchi', date: dt, amount: numAmt });
             };
             try {
-                const keys = await getAllKeys();
-                for (const key of keys.filter(k => k && k.startsWith('khata:day:'))) {
+                const curY = getActiveYear();
+                for (const key of keys.filter(k => k && k.startsWith('khata:day:' + (curY ? (curY + '-') : '')))) {
                     const dateStr = key.replace('khata:day:', '');
                     try {
                         const raw = await storageGet(key);
@@ -1230,9 +1260,9 @@
                                 ? found.subCategory.trim()
                                 : ((found.category && found.category.trim()) ? found.category.trim() : ''));
                         const amt = found.amount || found.pagarAmount || found.salary || '';
-                        const fl = (found.fixedLabel || '').toLowerCase();
-                        const pType = (found.pagarType || '').toLowerCase() || (fl.includes('fix') ? 'fix' : fl.includes('daily') ? 'daily' : '');
-                        return { category: cat, pagarAmount: amt, pagarType: pType };
+                        const fl = String(found.fixedLabel || '').toLowerCase();
+                        const type = found.pagarType || (fl.includes('fix') ? 'fix' : fl.includes('daily') ? 'daily' : '');
+                        return { category: cat, pagarAmount: amt, pagarType: type };
                     }
                 }
             } catch (e) { }
@@ -2230,6 +2260,7 @@
 
         // ── INIT ──
         (async function init() {
+            await renderPagarYearSelect();
             loadLocalStorageState();
             await syncAllKhataData();
             switchTab('rates');
