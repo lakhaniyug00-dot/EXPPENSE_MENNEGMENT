@@ -1878,6 +1878,11 @@
                         <select id="masterYearSelect"
                             style="flex:1;min-width:130px;padding:8px 12px;border:1.5px solid var(--line);border-radius:8px;font-size:13.5px;font-weight:700;font-family:'Inter',sans-serif;background:var(--bg);color:var(--ink);outline:none;">
                         </select>
+                        <button type="button" id="editYearDatesBtn" onclick="openYearModal(false)"
+                            style="background:var(--carry-bg);color:var(--carry);border:1.5px solid var(--carry-border);padding:8px 12px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;transition:all 0.2s ease;"
+                            title="Set or view Start Date and End Date for this accounting year">
+                            📅 તારીખ સેટ કરો
+                        </button>
                         <button type="button" id="completeYearBtn"
                             style="background:#D9534F;color:#fff;border:none;padding:8px 14px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;transition:all 0.2s ease;"
                             title="Complete this year and start new year with blank Rojmel while keeping names">
@@ -2080,6 +2085,59 @@
                 <tbody id="reportTableBody"></tbody>
             </table>
             <button class="report-print-btn" id="reportPrintBtn">🖨️ Print Report</button>
+        </div>
+    </div>
+
+    <!-- ── FINANCIAL YEAR DATE RANGE POPUP MODAL (Diwali to Diwali / Custom Range) ── -->
+    <div id="yearModalOverlay" style="position:fixed;inset:0;background:rgba(15,23,42,0.65);backdrop-filter:blur(4px);z-index:99998;display:none;align-items:center;justify-content:center;padding:16px;box-sizing:border-box;">
+        <div style="background:#FFFDF7;border:1.5px solid #E1D8BE;border-radius:20px;width:100%;max-width:440px;padding:26px 22px;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);position:relative;max-height:92vh;overflow-y:auto;font-family:'Inter',sans-serif;color:var(--ink);box-sizing:border-box;">
+            <button id="closeYearModalBtn" type="button" style="position:absolute;top:14px;right:16px;background:none;border:none;font-size:22px;cursor:pointer;color:var(--ink-soft);line-height:1;">✕</button>
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+                <span style="font-size:30px;line-height:1;">📅</span>
+                <div>
+                    <h2 style="margin:0;font-size:18px;font-weight:800;color:var(--ink);letter-spacing:-0.3px;">નાણાકીય વર્ષ (Financial Year)</h2>
+                    <div style="font-size:12.5px;color:var(--ink-soft);">તારીખ પસંદ કરો (દા.ત. દિવાળી થી દિવાળી)</div>
+                </div>
+            </div>
+
+            <div style="background:#F5F1E6;border-radius:12px;padding:12px 14px;margin-bottom:16px;font-size:12px;color:var(--ink-soft);line-height:1.45;">
+                ℹ️ આ પસંદ કરેલી તારીખો વચ્ચેનો તમામ રોજમેળ, ખાતા અને પગાર આ વર્ષમાં સ્ટોર થશે.
+            </div>
+
+            <div style="margin-bottom:14px;">
+                <label style="display:block;font-size:12.5px;font-weight:700;color:var(--ink-soft);margin-bottom:6px;">
+                    📅 શરૂઆત તારીખ (Start Date)
+                </label>
+                <input type="date" id="yearStartDateInput" style="width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;font-size:14px;font-weight:700;background:#fff;color:var(--ink);outline:none;font-family:inherit;box-sizing:border-box;">
+            </div>
+
+            <div style="margin-bottom:14px;">
+                <label style="display:block;font-size:12.5px;font-weight:700;color:var(--ink-soft);margin-bottom:6px;">
+                    📅 અંતિમ તારીખ (End Date)
+                </label>
+                <input type="date" id="yearEndDateInput" style="width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;font-size:14px;font-weight:700;background:#fff;color:var(--ink);outline:none;font-family:inherit;box-sizing:border-box;">
+            </div>
+
+            <div style="margin-bottom:18px;">
+                <label style="display:block;font-size:12.5px;font-weight:700;color:var(--ink-soft);margin-bottom:6px;">
+                    🏷️ વર્ષનું નામ / શીર્ષક (Year Title)
+                </label>
+                <input type="text" id="yearTitleInput" placeholder="દા.ત. 2024 - 2025 (દિવાળી)" style="width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;font-size:13.5px;font-weight:700;background:#fff;color:var(--ink);outline:none;font-family:inherit;box-sizing:border-box;">
+                <div style="font-size:11.5px;color:var(--ink-faint);margin-top:4px;">
+                    તારીખો પસંદ કરતાં ઓટોમેટિક નામ બની જશે અથવા તમે બદલી શકો છો.
+                </div>
+            </div>
+
+            <div id="yearModalError" style="display:none;padding:9px 12px;border-radius:8px;background:var(--rust-bg);border:1px solid rgba(156,74,56,0.3);color:var(--rust);font-size:12.5px;font-weight:700;margin-bottom:14px;"></div>
+
+            <div style="display:flex;gap:10px;">
+                <button type="button" id="btnSaveYearDates" style="flex:1;padding:12px;background:var(--ink);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;box-shadow:0 4px 12px rgba(15,23,42,0.15);">
+                    💾 સેવ કરો અને શરૂ કરો
+                </button>
+                <button type="button" id="btnCancelYearModal" style="padding:12px 16px;background:none;border:1.5px solid var(--line);border-radius:10px;font-size:13px;font-weight:700;color:var(--ink-soft);cursor:pointer;font-family:inherit;">
+                    Cancel
+                </button>
+            </div>
         </div>
     </div>
 
@@ -2364,9 +2422,15 @@
                 const dayKeys = keys.filter(k => k && k.startsWith('khata:day:'));
                 const curKey = toKey(currentDate);
 
+                const yearInfo = await getActiveYearInfo();
                 const pastDayKeys = dayKeys
                     .map(k => k.replace('khata:day:', ''))
-                    .filter(d => (!activeAccountingYear || d.startsWith(activeAccountingYear + '-')) && d < curKey)
+                    .filter(d => {
+                        if (yearInfo && yearInfo.startDate && yearInfo.endDate) {
+                            return d >= yearInfo.startDate && d <= yearInfo.endDate && d < curKey;
+                        }
+                        return (!activeAccountingYear || d.startsWith(activeAccountingYear + '-')) && d < curKey;
+                    })
                     .sort();
 
                 for (const dateStr of pastDayKeys) {
@@ -2622,100 +2686,237 @@
             } catch (e) { console.error(e); }
         }
 
-        /* ── ACCOUNTING YEAR MANAGEMENT ── */
+        /* ── ACCOUNTING YEAR & DATE RANGE MANAGEMENT (Diwali to Diwali / Custom Period) ── */
         let activeAccountingYear = String(new Date().getFullYear());
+        let activeYearRecord = null;
+        let isFirstTimeYearSetup = false;
 
-        async function getActiveYear() {
-            let y = await storageGet('khata:active_year') || localStorage.getItem('khata:active_year');
-            if (!y || !/^\d{4}$/.test(y)) {
-                y = String(new Date().getFullYear());
-                await storageSet('khata:active_year', y);
-                localStorage.setItem('khata:active_year', y);
+        function formatDateCompact(dStr) {
+            if (!dStr) return '';
+            try {
+                const parts = dStr.split('-');
+                if (parts.length === 3) {
+                    return `${parts[2]}/${parts[1]}/${parts[0].slice(-2)}`;
+                }
+            } catch (e) { }
+            return dStr;
+        }
+
+        async function getActiveYearInfo() {
+            if (activeYearRecord && activeYearRecord.startDate && activeYearRecord.endDate) {
+                return activeYearRecord;
             }
-            activeAccountingYear = String(y);
-            return activeAccountingYear;
+            try {
+                const raw = await storageGet('khata:active_year_info') || localStorage.getItem('khata:active_year_info');
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    if (parsed && parsed.startDate && parsed.endDate) {
+                        activeYearRecord = parsed;
+                        activeAccountingYear = parsed.id || parsed.title || String(new Date().getFullYear());
+                        return activeYearRecord;
+                    }
+                }
+            } catch (e) { }
+
+            // Fallback for legacy 4-digit key
+            let legacyY = await storageGet('khata:active_year') || localStorage.getItem('khata:active_year');
+            if (legacyY && /^\d{4}$/.test(legacyY)) {
+                activeYearRecord = {
+                    id: legacyY,
+                    title: `Year ${legacyY}`,
+                    startDate: `${legacyY}-01-01`,
+                    endDate: `${legacyY}-12-31`,
+                    isCompleted: false,
+                    createdAt: new Date().toISOString()
+                };
+                activeAccountingYear = legacyY;
+                return activeYearRecord;
+            }
+
+            return null;
         }
 
-        async function setActiveYear(year) {
-            const yStr = String(year);
-            activeAccountingYear = yStr;
-            await storageSet('khata:active_year', yStr);
-            localStorage.setItem('khata:active_year', yStr);
-            await ensureYearInList(yStr);
+        async function saveActiveYearInfo(record) {
+            activeYearRecord = record;
+            activeAccountingYear = record.id || record.title;
+            const recStr = JSON.stringify(record);
+            await storageSet('khata:active_year_info', recStr);
+            localStorage.setItem('khata:active_year_info', recStr);
+            await storageSet('khata:active_year', activeAccountingYear);
+            localStorage.setItem('khata:active_year', activeAccountingYear);
+
+            // Maintain in years_records_list
+            let list = await getYearsRecordsList();
+            const existingIdx = list.findIndex(y => y.id === record.id);
+            if (existingIdx >= 0) {
+                list[existingIdx] = record;
+            } else {
+                list.push(record);
+            }
+            list.sort((a, b) => (a.startDate || '').localeCompare(b.startDate || ''));
+            const listStr = JSON.stringify(list);
+            await storageSet('khata:years_records_list', listStr);
+            localStorage.setItem('khata:years_records_list', listStr);
+
             updateHeaderYearBadge();
-            try { syncChannel.postMessage({ type: 'year-changed', year: yStr }); } catch (e) { }
+            try { syncChannel.postMessage({ type: 'year-changed', year: activeAccountingYear }); } catch (e) { }
         }
 
-        async function getAvailableYears() {
+        async function getYearsRecordsList() {
             let list = [];
             try {
-                const raw = await storageGet('khata:years_list') || localStorage.getItem('khata:years_list');
+                const raw = await storageGet('khata:years_records_list') || localStorage.getItem('khata:years_records_list');
                 if (raw) list = JSON.parse(raw);
             } catch (e) { }
             if (!Array.isArray(list)) list = [];
 
-            try {
-                const keys = await getAllKeys();
-                (keys || []).forEach(k => {
-                    if (k && k.startsWith('khata:day:')) {
-                        const y = k.replace('khata:day:', '').slice(0, 4);
-                        if (y && /^\d{4}$/.test(y) && !list.includes(y)) list.push(y);
-                    }
-                });
-            } catch (e) { }
-
-            const curY = String(new Date().getFullYear());
-            ['2024', '2025', '2026', curY].forEach(y => { if (!list.includes(y)) list.push(y); });
-            list = Array.from(new Set(list)).filter(y => /^\d{4}$/.test(y)).sort();
+            if (activeYearRecord && !list.some(y => y.id === activeYearRecord.id)) {
+                list.push(activeYearRecord);
+            }
             return list;
         }
 
-        async function ensureYearInList(year) {
-            const list = await getAvailableYears();
-            if (!list.includes(String(year))) {
-                list.push(String(year));
-                list.sort();
-                await storageSet('khata:years_list', JSON.stringify(list));
-                localStorage.setItem('khata:years_list', JSON.stringify(list));
+        async function getActiveYear() {
+            const info = await getActiveYearInfo();
+            if (info && info.id) return info.id;
+            return activeAccountingYear;
+        }
+
+        async function setActiveYear(yearId) {
+            const list = await getYearsRecordsList();
+            const target = list.find(y => y.id === yearId);
+            if (target) {
+                await saveActiveYearInfo(target);
+            } else {
+                activeAccountingYear = String(yearId);
+                await storageSet('khata:active_year', activeAccountingYear);
+                localStorage.setItem('khata:active_year', activeAccountingYear);
+                updateHeaderYearBadge();
             }
         }
 
         function updateHeaderYearBadge() {
             const badge = $('headerYearBadge');
-            if (badge) badge.textContent = `📅 ${activeAccountingYear}`;
+            if (!badge) return;
+            if (activeYearRecord && activeYearRecord.startDate && activeYearRecord.endDate) {
+                const s = formatDateCompact(activeYearRecord.startDate);
+                const e = formatDateCompact(activeYearRecord.endDate);
+                badge.textContent = `📅 ${activeYearRecord.title || 'Year'} (${s} - ${e})`;
+                badge.title = `Accounting Year: ${activeYearRecord.title} (${activeYearRecord.startDate} to ${activeYearRecord.endDate})\nClick to change date range`;
+            } else {
+                badge.textContent = `📅 ${activeAccountingYear}`;
+            }
         }
 
-        async function loadYearInModal() {
-            const sel = $('masterYearSelect');
-            if (!sel) return;
-            const years = await getAvailableYears();
-            const cur = await getActiveYear();
-            sel.innerHTML = years.map(y => `<option value="${y}" ${y === cur ? 'selected' : ''}>Year ${y}</option>`).join('') +
-                `<option value="__add__">+ Add Other Year...</option>`;
-            updateHeaderYearBadge();
+        // Open Financial Year Date Range Modal
+        function openYearModal(isFirstTime, prefillStart, prefillEnd) {
+            isFirstTimeYearSetup = !!isFirstTime;
+            const overlay = $('yearModalOverlay');
+            if (!overlay) return;
+
+            const errEl = $('yearModalError');
+            if (errEl) errEl.style.display = 'none';
+
+            const closeBtn = $('closeYearModalBtn');
+            const cancelBtn = $('btnCancelYearModal');
+
+            if (isFirstTime) {
+                if (closeBtn) closeBtn.style.display = 'none';
+                if (cancelBtn) cancelBtn.style.display = 'none';
+            } else {
+                if (closeBtn) closeBtn.style.display = 'block';
+                if (cancelBtn) cancelBtn.style.display = 'block';
+            }
+
+            const startInp = $('yearStartDateInput');
+            const endInp = $('yearEndDateInput');
+            const titleInp = $('yearTitleInput');
+
+            if (prefillStart && prefillEnd) {
+                startInp.value = prefillStart;
+                endInp.value = prefillEnd;
+                titleInp.value = autoGenerateYearTitle(prefillStart, prefillEnd);
+            } else if (activeYearRecord && activeYearRecord.startDate && activeYearRecord.endDate && !isFirstTime) {
+                startInp.value = activeYearRecord.startDate;
+                endInp.value = activeYearRecord.endDate;
+                titleInp.value = activeYearRecord.title || autoGenerateYearTitle(activeYearRecord.startDate, activeYearRecord.endDate);
+            } else {
+                const today = new Date();
+                const curY = today.getFullYear();
+                const defStart = `${curY - 1}-11-01`;
+                const defEnd = `${curY}-10-25`;
+                startInp.value = defStart;
+                endInp.value = defEnd;
+                titleInp.value = `${curY - 1} - ${curY} (દિવાળી)`;
+            }
+
+            overlay.style.display = 'flex';
+            setTimeout(() => { if (startInp) startInp.focus(); }, 100);
         }
 
-        async function handleYearSelectChange(val) {
-            if (val === '__add__') {
-                const entered = prompt('Enter 4-digit Year (e.g. 2027):');
-                if (entered && /^\d{4}$/.test(entered.trim())) {
-                    const y = entered.trim();
-                    await ensureYearInList(y);
-                    await switchYear(y);
-                } else {
-                    await loadYearInModal();
-                }
+        function closeYearModal() {
+            if (isFirstTimeYearSetup && (!activeYearRecord || !activeYearRecord.startDate)) {
+                alert('કૃપા કરી નાણાકીય વર્ષની તારીખો પસંદ કરીને સેવ કરો.');
                 return;
             }
-            await switchYear(val);
+            const overlay = $('yearModalOverlay');
+            if (overlay) overlay.style.display = 'none';
         }
 
-        async function switchYear(targetYear) {
-            await setActiveYear(targetYear);
-            const targetNum = Number(targetYear);
-            if (currentDate.getFullYear() !== targetNum) {
-                currentDate.setFullYear(targetNum);
+        function autoGenerateYearTitle(s, e) {
+            if (!s || !e) return '';
+            const y1 = s.split('-')[0];
+            const y2 = e.split('-')[0];
+            return y1 === y2 ? `Year ${y1}` : `${y1} - ${y2} (દિવાળી)`;
+        }
+
+        async function saveYearDatesFromModal() {
+            const startVal = ($('yearStartDateInput').value || '').trim();
+            const endVal = ($('yearEndDateInput').value || '').trim();
+            let titleVal = ($('yearTitleInput').value || '').trim();
+            const errEl = $('yearModalError');
+
+            function showErr(msg) {
+                if (errEl) {
+                    errEl.textContent = msg;
+                    errEl.style.display = 'block';
+                } else {
+                    alert(msg);
+                }
             }
+
+            if (!startVal) { showErr('કૃપા કરી શરૂઆત તારીખ (Start Date) પસંદ કરો.'); return; }
+            if (!endVal) { showErr('કૃપા કરી અંતિમ તારીખ (End Date) પસંદ કરો.'); return; }
+            if (endVal < startVal) { showErr('અંતિમ તારીખ શરૂઆત તારીખ પછીની હોવી જોઈએ.'); return; }
+
+            if (!titleVal) {
+                titleVal = autoGenerateYearTitle(startVal, endVal);
+            }
+
+            const yId = `${startVal.slice(0, 4)}-${endVal.slice(0, 4)}_${Date.now().toString(36)}`;
+            const yearRecord = {
+                id: (activeYearRecord && !isFirstTimeYearSetup && activeYearRecord.id) ? activeYearRecord.id : yId,
+                title: titleVal,
+                startDate: startVal,
+                endDate: endVal,
+                isCompleted: false,
+                updatedAt: new Date().toISOString()
+            };
+
+            await saveActiveYearInfo(yearRecord);
+            closeYearModal();
+
+            // Set current date inside year bounds if needed
+            const curStr = toKey(currentDate);
+            if (curStr < startVal || curStr > endVal) {
+                const nowStr = toKey(new Date());
+                if (nowStr >= startVal && nowStr <= endVal) {
+                    currentDate = new Date();
+                } else {
+                    currentDate = fromKey(startVal);
+                }
+            }
+
             renderDateBar();
             await loadDay();
             await loadPrevNet();
@@ -2723,36 +2924,104 @@
             renderExpense();
             renderTotals();
             await loadYearInModal();
-            setStatus(`Switched to Year ${targetYear}. Showing data for ${targetYear}.`, false);
+            setStatus(`નાણાકીય વર્ષ "${titleVal}" સેવ થઈ ગયું! (${formatDateCompact(startVal)} થી ${formatDateCompact(endVal)})`, false);
+        }
+
+        async function loadYearInModal() {
+            const sel = $('masterYearSelect');
+            if (!sel) return;
+            const yearsList = await getYearsRecordsList();
+            const curInfo = await getActiveYearInfo();
+            const curId = curInfo ? curInfo.id : activeAccountingYear;
+
+            let html = '';
+            yearsList.forEach(y => {
+                const isSelected = y.id === curId;
+                const statusTag = y.isCompleted ? '✓ પૂર્ણ (Completed)' : '[ચાલુ / Active]';
+                const datesTag = (y.startDate && y.endDate) ? `(${formatDateCompact(y.startDate)} to ${formatDateCompact(y.endDate)})` : '';
+                html += `<option value="${escHtml(y.id)}" ${isSelected ? 'selected' : ''}>${escHtml(y.title || y.id)} ${datesTag} ${statusTag}</option>`;
+            });
+
+            html += `<option value="__add__">+ નવી તારીખ સાથે નવું વર્ષ ઉમેરો... (+ Add New Year Range)</option>`;
+            sel.innerHTML = html;
+            updateHeaderYearBadge();
+        }
+
+        async function handleYearSelectChange(val) {
+            if (val === '__add__') {
+                openYearModal(false);
+                return;
+            }
+            await switchYear(val);
+        }
+
+        async function switchYear(targetYearId) {
+            const list = await getYearsRecordsList();
+            const target = list.find(y => y.id === targetYearId);
+            if (target) {
+                await saveActiveYearInfo(target);
+                if (target.startDate) {
+                    const nowStr = toKey(new Date());
+                    if (nowStr >= target.startDate && nowStr <= (target.endDate || '9999-99-99')) {
+                        currentDate = new Date();
+                    } else {
+                        currentDate = fromKey(target.startDate);
+                    }
+                }
+            } else {
+                await setActiveYear(targetYearId);
+            }
+
+            renderDateBar();
+            await loadDay();
+            await loadPrevNet();
+            renderIncome();
+            renderExpense();
+            renderTotals();
+            await loadYearInModal();
+            setStatus(`Switched to Year "${(target && target.title) || targetYearId}". Showing data.`, false);
         }
 
         async function handleCompleteYear() {
-            const activeY = await getActiveYear();
-            const curYNum = parseInt(activeY, 10) || new Date().getFullYear();
-            const nextY = String(curYNum + 1);
+            const curInfo = await getActiveYearInfo();
+            const title = curInfo ? curInfo.title : activeAccountingYear;
+            const sDate = curInfo ? formatDateCompact(curInfo.startDate) : '';
+            const eDate = curInfo ? formatDateCompact(curInfo.endDate) : '';
 
-            const msg = `વર્ષ ${activeY} પૂર્ણ (Complete) કરવું છે?\n\n` +
-                `• વર્ષ ${activeY} નો તમામ ડેટા (રોજમેળ, ખાતા, પગાર) સેવ રહેશે.\n` +
-                `• નવું વર્ષ ${nextY} શરૂ થશે.\n` +
-                `• નવા વર્ષમાં રોજમેળ (Rojmel) ખાલી (Blank) રહેશે.\n` +
+            const msg = `વર્ષ "${title}" પૂર્ણ (Complete) કરવું છે?\n\n` +
+                (sDate && eDate ? `તારીખ ગાળો: ${sDate} થી ${eDate}\n\n` : '') +
+                `• આ વર્ષનો તમામ ડેટા (રોજમેળ, ખાતા, પગાર) Master માં સુરક્ષિત સેવ રહેશે.\n` +
+                `• આગલા નવા વર્ષ માટે તારીખો પસંદ કરવાની પોપઅપ ખુલશે.\n` +
+                `• નવા વર્ષમાં રોજમેળ (Rojmel) ખાલી (Blank) શરૂ થશે.\n` +
                 `• તમામ વર્કર અને એકાઉન્ટના નામ યથાવત (Safe) રહેશે.\n` +
-                `• તમે ગમે ત્યારે જૂનું વર્ષ (${activeY}) સિલેક્ટ કરીને જૂનો ડેટા જોઈ શકશો.`;
+                `• તમે ગમે ત્યારે જૂનું વર્ષ સિલેક્ટ કરીને જૂનો ડેટા જોઈ શકશો.`;
 
             if (!confirm(msg)) return;
 
             try {
+                // Mark current year completed
+                if (curInfo) {
+                    curInfo.isCompleted = true;
+                    curInfo.completedAt = new Date().toISOString();
+                    await saveActiveYearInfo(curInfo);
+                }
+
+                const activeYId = (curInfo && curInfo.id) || activeAccountingYear;
+
+                // Save old pagar data under year-specific key
                 let pagarData = {};
-                const rawPagar = await storageGet(`khata_pagar_data_${activeY}`) ||
+                const rawPagar = await storageGet(`khata_pagar_data_${activeYId}`) ||
                     await storageGet('khata_pagar_data') ||
-                    localStorage.getItem(`khata_pagar_data_${activeY}`) ||
+                    localStorage.getItem(`khata_pagar_data_${activeYId}`) ||
                     localStorage.getItem('khata_pagar_data');
                 if (rawPagar) {
                     try { pagarData = JSON.parse(rawPagar); } catch (e) { }
                 }
 
-                await storageSet(`khata_pagar_data_${activeY}`, JSON.stringify(pagarData));
-                localStorage.setItem(`khata_pagar_data_${activeY}`, JSON.stringify(pagarData));
+                await storageSet(`khata_pagar_data_${activeYId}`, JSON.stringify(pagarData));
+                localStorage.setItem(`khata_pagar_data_${activeYId}`, JSON.stringify(pagarData));
 
+                // Carry forward clean pagar for next year
                 const nextPagar = {
                     globalCompanyName: pagarData.globalCompanyName || 'TAPU FAB',
                     ratesData: pagarData.ratesData || [],
@@ -2773,26 +3042,32 @@
                     opWorkerDuties: {},
                     fixWorkerDuties: {}
                 };
-                await storageSet(`khata_pagar_data_${nextY}`, JSON.stringify(nextPagar));
-                localStorage.setItem(`khata_pagar_data_${nextY}`, JSON.stringify(nextPagar));
-            } catch (e) { }
+                await storageSet('khata_pagar_data', JSON.stringify(nextPagar));
+                localStorage.setItem('khata_pagar_data', JSON.stringify(nextPagar));
 
-            await ensureYearInList(nextY);
-            await setActiveYear(nextY);
+                // Calculate next year default start and end dates
+                let nextStart = '';
+                let nextEnd = '';
+                if (curInfo && curInfo.endDate) {
+                    const lastEnd = fromKey(curInfo.endDate);
+                    const nStartDate = new Date(lastEnd.getFullYear(), lastEnd.getMonth(), lastEnd.getDate() + 1);
+                    const nEndDate = new Date(nStartDate.getFullYear() + 1, nStartDate.getMonth(), nStartDate.getDate() - 1);
+                    nextStart = toKey(nStartDate);
+                    nextEnd = toKey(nEndDate);
+                }
 
-            const now = new Date();
-            if (now.getFullYear() === curYNum + 1) {
-                currentDate = now;
-            } else {
-                currentDate = new Date(curYNum + 1, 0, 1);
+                closeModal();
+                alert(`વર્ષ "${title}" સફળતાપૂર્વક પૂર્ણ થયું!\nહવે નવા વર્ષ માટે તારીખો પસંદ કરો.`);
+                // Open Year Modal for new year setup!
+                openYearModal(true, nextStart, nextEnd);
+
+                try {
+                    syncChannel.postMessage({ type: 'year-completed', oldYear: activeYId });
+                } catch (e) { }
+
+            } catch (e) {
+                console.error(e);
             }
-
-            try {
-                syncChannel.postMessage({ type: 'year-completed', oldYear: activeY, newYear: nextY });
-            } catch (e) { }
-
-            alert(`વર્ષ ${activeY} સફળતાપૂર્વક પૂર્ણ થયું!\nહવે નવું વર્ષ ${nextY} શરૂ થયું છે. રોજમેળ ખાલી છે અને તમામ નામ હાજર છે.`);
-            location.reload();
         }
 
         function openModal() { $('overlay').classList.add('open'); resetModal(); loadCompanyNameInModal(); loadYearInModal(); checkAndAutoPopulateMaster(); setTimeout(() => $('expName').focus(), 80); }
@@ -4303,7 +4578,27 @@
             $('completeYearBtn').addEventListener('click', handleCompleteYear);
         }
         if ($('headerYearBadge')) {
-            $('headerYearBadge').addEventListener('click', openModal);
+            $('headerYearBadge').addEventListener('click', () => openYearModal(false));
+        }
+
+        // Year Modal buttons and dynamic title generator
+        if ($('btnSaveYearDates')) $('btnSaveYearDates').addEventListener('click', saveYearDatesFromModal);
+        if ($('btnCancelYearModal')) $('btnCancelYearModal').addEventListener('click', closeYearModal);
+        if ($('closeYearModalBtn')) $('closeYearModalBtn').addEventListener('click', closeYearModal);
+        if ($('yearStartDateInput') && $('yearEndDateInput')) {
+            const autoUpdateTitle = () => {
+                const s = $('yearStartDateInput').value;
+                const e = $('yearEndDateInput').value;
+                if (s && e && (!$('yearTitleInput').value || $('yearTitleInput').dataset.auto !== 'false')) {
+                    $('yearTitleInput').value = autoGenerateYearTitle(s, e);
+                    $('yearTitleInput').dataset.auto = 'true';
+                }
+            };
+            $('yearStartDateInput').addEventListener('change', autoUpdateTitle);
+            $('yearEndDateInput').addEventListener('change', autoUpdateTitle);
+            if ($('yearTitleInput')) {
+                $('yearTitleInput').addEventListener('input', () => { $('yearTitleInput').dataset.auto = 'false'; });
+            }
         }
 
         /* ── DATE NAV ── */
@@ -4326,9 +4621,17 @@
         /* ── INIT ── */
         (async function init() {
             renderAuthHeader();
-            await getActiveYear();
-            if (currentDate.getFullYear() !== Number(activeAccountingYear)) {
-                currentDate.setFullYear(Number(activeAccountingYear));
+            const yInfo = await getActiveYearInfo();
+            if (yInfo && yInfo.startDate && yInfo.endDate) {
+                const nowStr = toKey(new Date());
+                if (nowStr >= yInfo.startDate && nowStr <= yInfo.endDate) {
+                    currentDate = new Date();
+                } else {
+                    currentDate = fromKey(yInfo.startDate);
+                }
+            } else {
+                // First time login or no year range configured for this account (e.g. valam) -> Open Year Date Range Modal!
+                setTimeout(() => openYearModal(true), 150);
             }
             updateHeaderYearBadge();
             await loadCategories(); await loadMasters(); await loadWorkers(); await loadMasterEntries();
