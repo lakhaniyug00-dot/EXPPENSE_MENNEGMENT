@@ -1,94 +1,126 @@
-# Expense Management System (MERN Stack)
+# 💰 Expense Management System
 
-A complete MERN stack (MongoDB, Express.js, React, Node.js) Expense Management Application featuring:
-- **Rojmel (Daily Book)**: Daily Income/Expense entry, cascade renaming across all dates, master entries modal, date search across history.
-- **Khata Book**: Multi-account ledger management with credit/debit transactions, automatic balance tracking.
-- **Pagar (Payroll System)**: Daily & Fixed Karigar salary calculation across 4 views (Daily Slips, Daily Total, Fix Slips, Fix Total).
+A **Dynamic** multi-user Expense, Khata Ledger & Payroll Management System — works on any PC or phone with full cross-device data sync via MongoDB.
 
 ---
 
-## 🚀 How to Run Locally
+## ✨ Features
 
-### 1. Prerequisites
-- **Node.js**: v18+ installed
-- **MongoDB**: Local MongoDB instance running on `mongodb://localhost:27017` OR a MongoDB Atlas cloud connection URI.
+- 📅 **Custom Accounting Year** — Set any date range (e.g. Diwali to Diwali)
+- 📒 **Rojmel (Daily Expense Book)** — Day-by-day income/expense tracking
+- 📖 **Khata Ledger** — Party-wise credit/debit management
+- 💼 **Pagar Book** — Monthly payroll for workers/employees
+- 👥 **Multi-User** — Create separate accounts (valam, rahul, etc.)
+- 🌐 **Cross-Device Sync** — Open on any PC or phone; data is the same everywhere
+- 📱 **Mobile Responsive** — Fully optimized for phones
+- 🌙 **Dark / Light Theme** — Auto-detects system preference
 
-### 2. Run Backend
+---
+
+## 🚀 Quick Start (Dynamic Mode — Recommended)
+
+> **Dynamic mode** stores all your data in MongoDB. Open on any PC or phone and your data is always there.
+
+### 1. Install Dependencies
+
 ```bash
-cd backend
 npm install
+```
+
+### 2. Set Up MongoDB
+
+**Option A — Free MongoDB Atlas (Cloud, works from any network)**
+
+1. Go to [mongodb.com/atlas](https://www.mongodb.com/atlas) → Create free cluster
+2. Get your connection string (looks like `mongodb+srv://user:pass@cluster.mongodb.net/expense_management`)
+3. Create a `.env` file in the project root:
+
+```env
+MONGO_URI=mongodb+srv://youruser:yourpass@yourcluster.mongodb.net/expense_management
+PORT=5000
+```
+
+**Option B — Local MongoDB (same computer only)**
+
+```env
+MONGO_URI=mongodb://127.0.0.1:27017/expense_management
+PORT=5000
+```
+
+### 3. Start the Server
+
+```bash
 npm start
 ```
-The Express server will start at `http://localhost:5000` and connect to MongoDB.
 
-### 3. Run Frontend
-Open a second terminal window:
-```bash
-cd frontend
-npm install
-npm run dev
+### 4. Open in Browser
+
 ```
-The React Vite app will run at `http://localhost:3000` (or `3001`).
+http://localhost:5000
+```
+
+From another PC or phone on the same network:
+```
+http://YOUR_PC_IP:5000
+```
+(The server prints the exact URL when it starts)
 
 ---
 
-## 🌐 Deploying Live Online
-
-### Step 1: Set Up Cloud Database (MongoDB Atlas)
-1. Go to [mongodb.com/atlas](https://www.mongodb.com/cloud/atlas) and create a free account.
-2. Create a free M0 cluster.
-3. In **Network Access**, add IP `0.0.0.0/0` (allow access from anywhere).
-4. In **Database Access**, create a user (e.g., `user` with a strong password).
-5. Click **Connect** → **Drivers** and copy your MongoDB connection string:
-   `mongodb+srv://<username>:<password>@cluster0.xxx.mongodb.net/expense_management?retryWrites=true&w=majority`
-
-### Step 2: Deploy Backend to Render.com (or Railway/Render/Cyclic)
-1. Push your repository to GitHub.
-2. Sign up at [render.com](https://render.com).
-3. Create a **Web Service** and connect your GitHub repo.
-4. Set **Root Directory**: `backend`
-5. Set **Build Command**: `npm install`
-6. Set **Start Command**: `npm start`
-7. Under **Environment Variables**, add:
-   - `MONGO_URI`: *Your MongoDB Atlas connection string from Step 1*
-   - `PORT`: `5000`
-8. Deploy! Render will give you a backend URL like `https://your-backend.onrender.com`.
-
-### Step 3: Deploy Frontend to Vercel / Netlify
-1. Build frontend for production or link repository to Vercel ([vercel.com](https://vercel.com)).
-2. Import project, select `frontend` directory.
-3. Set **Framework Preset**: Vite.
-4. Under **Environment Variables**, add:
-   - `VITE_API_URL`: `https://your-backend.onrender.com/api`
-5. Deploy! Vercel will give you a production web URL.
-
----
-
-## 📂 Project Structure
+## 📁 Project Structure
 
 ```
-exppense_Managment/
-├── backend/
-│   ├── models/        # DayEntry, MasterEntry, Account, Config
-│   ├── routes/        # API endpoints for days, masters, accounts, config
-│   ├── server.js      # Express app setup & Mongo connection
-│   └── package.json
-├── frontend/
-│   ├── src/
-│   │   ├── api/       # Axios API client functions
-│   │   ├── components/# MasterModal, SearchModal
-│   │   ├── pages/     # Rojmel, Khata, Pagar
-│   │   ├── utils.js   # Formatting & helper functions
-│   │   ├── App.jsx    # React Router config
-│   │   └── main.jsx   # Entry point
-│   ├── package.json
-│   └── vite.config.js
-└── README.md
+├── server.js        ← Node.js + Express backend (API + file serving)
+├── api.js           ← Frontend bridge for dynamic backend sync
+├── package.json
+├── .env             ← Your MongoDB URI (not committed to git)
+│
+├── index.html       ← App entry point (redirects to login)
+├── login.html       ← Account selection / login page
+├── dilyex.html      ← Rojmel daily expense book
+├── khata.html       ← Khata ledger
+└── pagar.html       ← Pagar payroll system
 ```
 
 ---
 
-## ✅ Verified & Bug-Free
-- All data saved to MongoDB database (no reliance on local storage).
-- Complete cascade update on worker/master renaming.
-- Fast reactive React pages with responsive UI matching original design.
+## 🗄️ API Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/health` | Server & DB status |
+| GET | `/api/accounts` | List all user accounts |
+| POST | `/api/accounts` | Create a new account |
+| DELETE | `/api/accounts/:username` | Delete an account |
+| GET | `/api/data/:username` | Get all data for a user |
+| GET | `/api/data/:username/:key` | Get specific data key |
+| POST | `/api/data/:username/:key` | Save a data key |
+| POST | `/api/data/:username/batch` | Batch save multiple keys |
+| DELETE | `/api/data/:username/:key` | Delete a data key |
+
+---
+
+## 💾 Offline / Static Mode
+
+If you open the HTML files directly (without running `npm start`), the app works entirely with `localStorage`. Data is stored only on that device/browser.
+
+The **status badge** in the top bar shows:
+- 🟢 **Dynamic (MongoDB)** — Server connected, data syncs everywhere
+- ⚪ **Local Storage** — Offline mode, data on this device only
+
+---
+
+## 🔒 Notes
+
+- No passwords — accounts are identified by name (valam, rahul, etc.)
+- `.env` file is **not committed** to git (keep your MongoDB URI safe)
+- `node_modules/` is excluded from git — run `npm install` after cloning
+
+---
+
+## 📦 Tech Stack
+
+- **Frontend**: Vanilla HTML, CSS, JavaScript
+- **Backend**: Node.js, Express.js
+- **Database**: MongoDB (via Mongoose)
+- **Fonts**: Google Fonts (Inter, Outfit, JetBrains Mono)

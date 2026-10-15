@@ -10,6 +10,7 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@500;600&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap"
         rel="stylesheet">
+    <script src="api.js"></script>
     <style>
         :root {
             --paper: #F5F1E6;
@@ -1792,6 +1793,7 @@
                     </svg>
                 </button>
                 <div style="display:flex;align-items:center;gap:6px;margin-left:8px;">
+                    <span id="backendStatusBadge" style="background:var(--card-bg, #fff);border:1.5px solid var(--line);border-radius:8px;padding:5px 9px;font-size:11.5px;font-weight:700;color:var(--ink-soft);display:inline-flex;align-items:center;">⚪ Local Storage</span>
                     <span
                         style="background:var(--card-bg, #fff);border:1.5px solid var(--line);border-radius:8px;padding:5px 10px;font-size:12px;font-weight:700;color:var(--ink);display:inline-flex;align-items:center;gap:4px;">
                         &#x1F464; <span id="authUserName">...</span>
@@ -2287,6 +2289,7 @@
         function acDelete(uname) {
             if (!confirm('Delete account "' + uname + '"?')) return;
             acSaveAccounts(acLoadAccounts().filter(function (a) { return a.username !== uname; }));
+            if (window.AppAPI) AppAPI.deleteAccount(uname);
             acRenderList();
             var msg = document.getElementById('acMsg'); if (msg) { msg.style.color = '#10B981'; msg.textContent = 'Deleted "' + uname + '".'; setTimeout(function () { msg.textContent = ''; }, 2500); }
         }
@@ -2301,6 +2304,7 @@
             if (list.find(function (a) { return ((a && a.username) || '').toLowerCase() === uname; })) { setMsg('Already exists.', false); return; }
             list.push({ username: rawUname });
             acSaveAccounts(list);
+            if (window.AppAPI) AppAPI.saveAccount(rawUname);
             document.getElementById('acNewUser').value = '';
             acRenderList();
             setMsg(rawUname.charAt(0).toUpperCase() + rawUname.slice(1) + ' added!', true);
@@ -2341,9 +2345,11 @@
             try {
                 if (window.storage) await window.storage.set(uk, v, false);
                 userLocalSet(k, v);
+                if (window.AppAPI) AppAPI.set(k, v);
                 return true;
             } catch (e) {
                 userLocalSet(k, v);
+                if (window.AppAPI) AppAPI.set(k, v);
                 return false;
             }
         };
@@ -2353,8 +2359,10 @@
             try {
                 if (window.storage && window.storage.remove) await window.storage.remove(uk, false);
                 userLocalRemove(k);
+                if (window.AppAPI) AppAPI.remove(k);
             } catch (e) {
                 userLocalRemove(k);
+                if (window.AppAPI) AppAPI.remove(k);
             }
         };
 

@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <script src="api.js"></script>
     <style>
         :root {
             --bg: #F4F7FB;
@@ -285,6 +286,9 @@
                 <div class="brand-icon">📑</div>
                 <h1 class="brand-title">Rojmel &amp; Khata</h1>
                 <div class="brand-subtitle">Expense &amp; Payroll Management System</div>
+                <div style="margin-top:10px;">
+                    <span id="backendStatusBadge" style="display:inline-flex;align-items:center;padding:4px 12px;border-radius:20px;font-size:11.5px;font-weight:700;border:1px solid #E2E8F0;background:#F8FAFC;color:#64748B;">⚪ Local Storage</span>
+                </div>
             </div>
 
             <div id="errorAlert" class="alert-box error">
@@ -397,6 +401,7 @@
                     if (confirm('Delete account "' + uname + '"?\n\nTheir saved data stays safe in storage.')) {
                         const list = loadAccounts().filter(function(a) { return a.username !== uname; });
                         saveAccounts(list);
+                        if (window.AppAPI) AppAPI.deleteAccount(uname);
                         renderChips();
                         showSuccess('Account "' + uname + '" removed.');
                     }
@@ -454,6 +459,7 @@
             }
             list.push({ username: rawUname });
             saveAccounts(list);
+            if (window.AppAPI) AppAPI.saveAccount(rawUname);
             document.getElementById('addPanel').classList.remove('open');
             document.getElementById('newUsername').value = '';
             renderChips();

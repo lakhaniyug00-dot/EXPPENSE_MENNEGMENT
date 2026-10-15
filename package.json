@@ -1,0 +1,19 @@
+{
+  "name": "expense-management-system",
+  "version": "1.0.0",
+  "description": "Dynamic Expense & Payroll Management System with Node.js, Express, and MongoDB",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "keywords": ["expense", "khata", "rojmel", "payroll", "mongodb", "express"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "mongoose": "^8.9.5"
+  }
+}
