@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -708,14 +708,17 @@
         }
 
         @media screen and (max-width: 768px) {
-            .top, .top-bar {
+
+            .top,
+            .top-bar {
                 flex-direction: column !important;
                 align-items: stretch !important;
                 gap: 10px !important;
                 padding: 10px 12px !important;
             }
 
-            .top-left, .top-right {
+            .top-left,
+            .top-right {
                 flex-wrap: wrap !important;
                 justify-content: space-between !important;
                 width: 100% !important;
@@ -758,9 +761,131 @@
                 padding: 16px 12px !important;
             }
 
-            .table-wrap, .table-container {
+            .table-wrap,
+            .table-container {
                 overflow-x: auto !important;
                 -webkit-overflow-scrolling: touch !important;
+            }
+        }
+
+        /* ── PASARVANO HISAB ── */
+        .ph-wrap {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 300px;
+            gap: 20px;
+            align-items: start;
+        }
+
+        .ph-sheet-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 14px;
+            align-items: center;
+        }
+
+        .ph-sheet-tab {
+            padding: 6px 14px;
+            border-radius: 8px;
+            border: 1.5px solid var(--line);
+            background: var(--bg);
+            color: var(--ink-soft);
+            font-weight: 700;
+            font-size: 12.5px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            text-transform: uppercase;
+        }
+
+        .ph-sheet-tab.active {
+            background: var(--moss);
+            border-color: var(--moss);
+            color: #fff;
+        }
+
+        .ph-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            padding: 14px;
+            border-bottom: 1px solid var(--line);
+            background: var(--paper);
+        }
+
+        .ph-meta label {
+            font-size: 11px;
+            font-weight: 800;
+            color: var(--ink-soft);
+            text-transform: uppercase;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .ph-meta input {
+            min-width: 150px;
+        }
+
+        .ph-scroll {
+            overflow-x: auto;
+        }
+
+        .ph-summary td {
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--line);
+            font-size: 13.5px;
+        }
+
+        .ph-summary td.num {
+            text-align: right;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+        }
+
+        .ph-baki td {
+            background: var(--moss-bg);
+            color: var(--moss);
+            font-weight: 800;
+            font-size: 15px;
+        }
+
+        .ph-del {
+            background: none;
+            border: none;
+            color: var(--rust);
+            cursor: pointer;
+            font-weight: 800;
+        }
+
+        .ph-title {
+            margin: 0 0 6px;
+            font-weight: 800;
+            font-size: 13px;
+            color: var(--ink-soft);
+            text-transform: uppercase;
+            padding: 12px 14px 0;
+        }
+
+        @media (max-width: 1000px) {
+            .ph-wrap {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media print {
+            .ph-wrap {
+                display: block !important;
+            }
+
+            .ph-sheet-tabs {
+                display: none !important;
+            }
+
+            .ph-meta input,
+            .ph-wrap input.cell-edit,
+            .ph-wrap select.cell-edit {
+                border: none !important;
+                background: transparent !important;
             }
         }
     </style>
@@ -782,10 +907,13 @@
                 style="padding:5px 10px;border-radius:8px;border:1.5px solid var(--line);background:var(--card-bg, #fff);font-size:13px;font-weight:800;color:var(--ink);cursor:pointer;outline:none;"
                 onchange="handlePagarYearChange(this.value)">
             </select>
-            <span style="background:var(--paper-card, #fff);border:1.5px solid var(--line);border-radius:8px;padding:5px 10px;font-size:12px;font-weight:700;color:var(--ink);display:inline-flex;align-items:center;gap:4px;">
+            <span
+                style="background:var(--paper-card, #fff);border:1.5px solid var(--line);border-radius:8px;padding:5px 10px;font-size:12px;font-weight:700;color:var(--ink);display:inline-flex;align-items:center;gap:4px;">
                 👤 <span id="authUserName">...</span>
             </span>
-            <button type="button" onclick="logout()" style="background:#FEE2E2;color:#DC2626;border:1px solid #FCA5A5;border-radius:8px;padding:5px 10px;font-size:12px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:4px;" title="Log Out">
+            <button type="button" onclick="logout()"
+                style="background:#FEE2E2;color:#DC2626;border:1px solid #FCA5A5;border-radius:8px;padding:5px 10px;font-size:12px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:4px;"
+                title="Log Out">
                 🚪 Logout
             </button>
         </div>
@@ -798,6 +926,7 @@
             <button class="tab-btn" id="tabOpTotal" onclick="switchTab('op_total')">📊 OPRATER TOTAL PAGAR</button>
             <button class="tab-btn" id="tabFixTotal" onclick="switchTab('fix_total')">📊 FIX TOTAL PAGAR</button>
             <button class="tab-btn" id="tabFixSlip" onclick="switchTab('fix_slips')">📄 FIX PAGAR SLIP (1-36)</button>
+            <button class="tab-btn" id="tabPasarvano" onclick="switchTab('pasarvano')">📑 PASARVANO HISAB</button>
         </div>
     </div>
 
@@ -1026,6 +1155,95 @@
             </div>
             <div class="slips-grid" id="fixSlipsGrid"></div>
         </section>
+
+        <!-- VIEW 6: PASARVANO HISAB -->
+        <section id="viewPasarvano" style="display:none;">
+            <div class="section-hdr">
+                <h2 class="section-title">📑 PASARVANO HISAB</h2>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                    <button class="btn-action" onclick="phAddSheet()">+ New Month Sheet</button>
+                    <button class="btn-action btn-print no-print" onclick="window.print()">🖨️ Print</button>
+                </div>
+            </div>
+            <div class="ph-sheet-tabs" id="phSheetTabs"></div>
+            <div class="ph-wrap">
+                <div>
+                    <div class="table-card">
+                        <div class="ph-meta">
+                            <label>Name<input class="cell-edit" id="phName"
+                                    oninput="phSetMeta('name', this.value)"></label>
+                            <label>From<input class="cell-edit" id="phFrom" placeholder="dd/mm/yy"
+                                    oninput="phSetMeta('from', this.value)"></label>
+                            <label>To<input class="cell-edit" id="phTo" placeholder="dd/mm/yy"
+                                    oninput="phSetMeta('to', this.value)"></label>
+                            <label>Sheet Label<input class="cell-edit" id="phLabel"
+                                    oninput="phSetMeta('label', this.value)"></label>
+                            <button class="ph-del no-print" style="align-self:flex-end;" onclick="phDeleteSheet()">✕
+                                Delete Sheet</button>
+                        </div>
+                        <div class="ph-scroll">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Quality</th>
+                                        <th class="num">Tar</th>
+                                        <th class="num">Total Rid</th>
+                                        <th class="num">Total Beam</th>
+                                        <th class="num">Kg</th>
+                                        <th class="num">Bhav</th>
+                                        <th class="num">Rs</th>
+                                        <th class="no-print"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="phRowsBody"></tbody>
+                                <tfoot class="table-foot" id="phRowsFoot"></tfoot>
+                            </table>
+                        </div>
+                        <div style="padding:10px 14px;" class="no-print"><button class="btn-action"
+                                onclick="phAddRow()">+ Add Row</button></div>
+                    </div>
+
+                    <div class="table-card">
+                        <div class="ph-title">Upad</div>
+                        <div class="ph-scroll">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Upad Date</th>
+                                        <th class="num">Rs</th>
+                                        <th class="no-print"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="phUpadBody"></tbody>
+                                <tfoot class="table-foot" id="phUpadFoot"></tfoot>
+                            </table>
+                        </div>
+                        <div style="padding:10px 14px;" class="no-print"><button class="btn-action"
+                                onclick="phAddUpad()">+ Add Upad</button></div>
+                    </div>
+
+                    <div class="table-card">
+                        <table class="ph-summary" style="width:100%;border-collapse:collapse;" id="phSummary"></table>
+                    </div>
+                </div>
+
+                <div class="table-card no-print">
+                    <div class="ph-title">Bhav (Rate per Kg / Rid)</div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Quality</th>
+                                <th class="num">Rate</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="phRatesBody"></tbody>
+                    </table>
+                    <div style="padding:10px 14px;"><button class="btn-action" onclick="phAddRate()">+ Add
+                            Quality</button></div>
+                </div>
+            </div>
+        </section>
     </main>
 
     <script>
@@ -1039,10 +1257,10 @@
                 const raw = localStorage.getItem('app_accounts');
                 if (raw) {
                     const accs = JSON.parse(raw);
-                    if (Array.isArray(accs) && accs.find(function(a){ return ((a && a.username) || '').toLowerCase() === u; })) return u;
+                    if (Array.isArray(accs) && accs.find(function (a) { return ((a && a.username) || '').toLowerCase() === u; })) return u;
                     return null;
                 }
-            } catch(e) {}
+            } catch (e) { }
             return u;
         }
 
@@ -1107,7 +1325,7 @@
                     }
                 }
                 return null;
-            } catch(e) { return userLocalGet(k); }
+            } catch (e) { return userLocalGet(k); }
         };
 
         const storageSet = async (k, v) => {
@@ -1117,7 +1335,7 @@
                 userLocalSet(k, v);
                 if (window.AppAPI) AppAPI.set(k, v);
                 return true;
-            } catch(e) { userLocalSet(k, v); if (window.AppAPI) AppAPI.set(k, v); return false; }
+            } catch (e) { userLocalSet(k, v); if (window.AppAPI) AppAPI.set(k, v); return false; }
         };
 
         const getAllKeys = async () => {
@@ -1125,7 +1343,7 @@
             const prefix = 'u:' + u + ':';
             let rawKeys = [];
             if (window.storage && window.storage.list) {
-                try { let r = await window.storage.list(); if (r && r.keys) rawKeys = r.keys; } catch(e) {}
+                try { let r = await window.storage.list(); if (r && r.keys) rawKeys = r.keys; } catch (e) { }
             } else {
                 for (let i = 0; i < localStorage.length; i++) rawKeys.push(localStorage.key(i));
             }
@@ -1511,13 +1729,14 @@
         async function switchTab(tabKey) {
             currentTab = tabKey;
             await syncAllKhataData();
-            ['viewRates', 'viewOpSlips', 'viewOpTotal', 'viewFixTotal', 'viewFixSlips'].forEach(id => document.getElementById(id).style.display = 'none');
-            ['tabSetRate', 'tabOpSlip', 'tabOpTotal', 'tabFixTotal', 'tabFixSlip'].forEach(id => document.getElementById(id).classList.remove('active'));
+            ['viewRates', 'viewOpSlips', 'viewOpTotal', 'viewFixTotal', 'viewFixSlips', 'viewPasarvano'].forEach(id => document.getElementById(id).style.display = 'none');
+            ['tabSetRate', 'tabOpSlip', 'tabOpTotal', 'tabFixTotal', 'tabFixSlip', 'tabPasarvano'].forEach(id => document.getElementById(id).classList.remove('active'));
             if (tabKey === 'rates') { document.getElementById('viewRates').style.display = 'block'; document.getElementById('tabSetRate').classList.add('active'); renderRatesTable(); }
             else if (tabKey === 'op_slips') { document.getElementById('viewOpSlips').style.display = 'block'; document.getElementById('tabOpSlip').classList.add('active'); renderOpSlips(); }
             else if (tabKey === 'op_total') { document.getElementById('viewOpTotal').style.display = 'block'; document.getElementById('tabOpTotal').classList.add('active'); renderOpTotalTable(); }
             else if (tabKey === 'fix_total') { document.getElementById('viewFixTotal').style.display = 'block'; document.getElementById('tabFixTotal').classList.add('active'); renderFixTotalTable(); }
             else if (tabKey === 'fix_slips') { document.getElementById('viewFixSlips').style.display = 'block'; document.getElementById('tabFixSlip').classList.add('active'); renderFixSlips(); }
+            else if (tabKey === 'pasarvano') { document.getElementById('viewPasarvano').style.display = 'block'; document.getElementById('tabPasarvano').classList.add('active'); phRender(); }
         }
 
         // ── VIEW 1: RATES TABLE ──
@@ -2415,6 +2634,178 @@
             });
             window.print();
             setTimeout(() => renderFixSlips(), 600);
+        }
+
+
+        // ── PASARVANO HISAB (imported from PASARVANO_HISAB.xlsx) ──
+        const PH_KEY = 'pasarvano_hisab_data';
+        const PH_DEFAULT = {
+            active: 0,
+            rates: [
+                { q: 'TPM', rate: 135 }, { q: '21 MONO BRT', rate: 160 }, { q: '21 MONO POLY', rate: 160 },
+                { q: '21 MONO NAYLON', rate: 160 }, { q: 'RID MONO', rate: 800 }, { q: 'RID TPM', rate: 400 }
+            ],
+            sheets: [
+                {
+                    label: 'april', name: 'Suresh & Anand', from: '01/04/26', to: '30/04/26',
+                    rows: [
+                        { q: '21 MONO BRT', tar: 10020, rid: 0, beam: 3 },
+                        { q: '21 MONO NAYLON', tar: 11088, rid: 0, beam: 34 },
+                        { q: 'TPM', tar: 5280, rid: 0, beam: 3 },
+                        { q: 'RID MONO', tar: 0, rid: 1, beam: 0 },
+                        { q: 'RID TPM', tar: 0, rid: 1, beam: 0 }
+                    ],
+                    upad: [{ date: '2026-04-18', amt: 5000 }, { date: '2026-04-25', amt: 20000 }, { date: '2026-04-29', amt: 5000 }]
+                },
+                {
+                    label: 'MAY', name: 'Suresh & Anand', from: '01/05/26', to: '31/05/26',
+                    rows: [
+                        { q: '21 MONO POLY', tar: 11088, rid: 0, beam: 61 },
+                        { q: '21 MONO NAYLON', tar: 0, rid: 0, beam: 0 },
+                        { q: 'TPM', tar: 0, rid: 0, beam: 0 },
+                        { q: 'RID MONO', tar: 0, rid: 0, beam: 0 },
+                        { q: 'RID TPM', tar: 0, rid: 0, beam: 0 }
+                    ],
+                    upad: [{ date: '2026-05-12', amt: 15000 }, { date: '2026-05-25', amt: 18000 }, { date: '2026-05-30', amt: 1500 }, { date: '2026-06-05', amt: 2000 }]
+                }
+            ]
+        };
+        let phData = null;
+
+        function phLoad() {
+            if (phData) return;
+            try {
+                const raw = userLocalGet(PH_KEY);
+                if (raw) phData = JSON.parse(raw);
+            } catch (e) { }
+            if (!phData || !Array.isArray(phData.sheets)) phData = JSON.parse(JSON.stringify(PH_DEFAULT));
+        }
+        function phSave() {
+            try {
+                const v = JSON.stringify(phData);
+                userLocalSet(PH_KEY, v);
+                if (window.AppAPI) AppAPI.set(PH_KEY, v);
+            } catch (e) { }
+        }
+        function phEsc(v) { return String(v == null ? '' : v).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;'); }
+        function phNum(v) { const n = parseFloat(v); return isNaN(n) ? 0 : n; }
+        function phInr(n) { return '₹ ' + Math.round(n).toLocaleString('en-IN'); }
+        function phRate(q) {
+            const r = phData.rates.find(x => x.q.trim().toLowerCase() === String(q || '').trim().toLowerCase());
+            return r ? phNum(r.rate) : 0;
+        }
+        function phCalc(row) {
+            // Same as the Excel sheet: kg = tar x beam / 1000 ; Rs = kg x bhav + rid x bhav
+            const base = row.tar ? phNum(row.tar) : phNum(row.rid);
+            const kg = (base * phNum(row.beam)) / 1000;
+            const bhav = phRate(row.q);
+            return { kg, bhav, amt: kg * bhav + phNum(row.rid) * bhav };
+        }
+        function phFmtDate(d) {
+            if (!d) return '';
+            const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(d);
+            return m ? `${m[3]}/${m[2]}/${m[1].slice(2)}` : d;
+        }
+        function phCur() { return phData.sheets[phData.active] || phData.sheets[0]; }
+
+        function phRender() {
+            phLoad();
+            if (!phData.sheets.length) phData.sheets.push({ label: 'new', name: '', from: '', to: '', rows: [], upad: [] });
+            if (phData.active >= phData.sheets.length) phData.active = 0;
+            const sh = phCur();
+
+            document.getElementById('phSheetTabs').innerHTML = phData.sheets.map((x, i) =>
+                `<button class="ph-sheet-tab ${i === phData.active ? 'active' : ''}" onclick="phSelect(${i})">${phEsc(x.label || 'Sheet ' + (i + 1))}</button>`).join('');
+            document.getElementById('phName').value = sh.name || '';
+            document.getElementById('phFrom').value = sh.from || '';
+            document.getElementById('phTo').value = sh.to || '';
+            document.getElementById('phLabel').value = sh.label || '';
+
+            const qOpts = sel => phData.rates.map(r => `<option value="${phEsc(r.q)}" ${r.q === sel ? 'selected' : ''}>${phEsc(r.q)}</option>`).join('')
+                + (sel && !phData.rates.some(r => r.q === sel) ? `<option value="${phEsc(sel)}" selected>${phEsc(sel)}</option>` : '');
+
+            document.getElementById('phRowsBody').innerHTML = sh.rows.map((r, i) => `
+                <tr>
+                    <td style="min-width:170px;"><select class="cell-edit" onchange="phSetRow(${i},'q',this.value)"><option value="">--</option>${qOpts(r.q)}</select></td>
+                    <td class="num"><input class="cell-edit" type="number" style="text-align:right;" value="${r.tar || ''}" onchange="phSetRow(${i},'tar',this.value)"></td>
+                    <td class="num"><input class="cell-edit" type="number" style="text-align:right;" value="${r.rid || ''}" onchange="phSetRow(${i},'rid',this.value)"></td>
+                    <td class="num"><input class="cell-edit" type="number" style="text-align:right;" value="${r.beam || ''}" onchange="phSetRow(${i},'beam',this.value)"></td>
+                    <td class="num" id="phKg${i}"></td>
+                    <td class="num" id="phBhav${i}"></td>
+                    <td class="num" id="phAmt${i}"></td>
+                    <td class="no-print"><button class="ph-del" onclick="phDelRow(${i})">✕</button></td>
+                </tr>`).join('');
+
+            document.getElementById('phUpadBody').innerHTML = sh.upad.map((u, i) => `
+                <tr>
+                    <td><input class="cell-edit" type="date" value="${phEsc(u.date)}" onchange="phSetUpad(${i},'date',this.value)"></td>
+                    <td class="num"><input class="cell-edit" type="number" style="text-align:right;" value="${u.amt || ''}" onchange="phSetUpad(${i},'amt',this.value)"></td>
+                    <td class="no-print"><button class="ph-del" onclick="phDelUpad(${i})">✕</button></td>
+                </tr>`).join('');
+
+            document.getElementById('phRatesBody').innerHTML = phData.rates.map((r, i) => `
+                <tr>
+                    <td><input class="cell-edit" value="${phEsc(r.q)}" onchange="phSetRateQ(${i},this.value)"></td>
+                    <td class="num"><input class="cell-edit" type="number" style="text-align:right;" value="${r.rate}" onchange="phSetRateV(${i},this.value)"></td>
+                    <td><button class="ph-del" onclick="phDelRate(${i})">✕</button></td>
+                </tr>`).join('');
+
+            phTotals();
+        }
+
+        function phTotals() {
+            const sh = phCur();
+            let rid = 0, beam = 0, total = 0;
+            sh.rows.forEach((r, i) => {
+                const c = phCalc(r);
+                rid += phNum(r.rid); beam += phNum(r.beam); total += c.amt;
+                const set = (id, t) => { const el = document.getElementById(id + i); if (el) el.textContent = t; };
+                set('phKg', c.kg.toFixed(2)); set('phBhav', c.bhav ? c.bhav : '0'); set('phAmt', phInr(c.amt));
+            });
+            const upad = sh.upad.reduce((a, u) => a + phNum(u.amt), 0);
+            document.getElementById('phRowsFoot').innerHTML = `<tr><td>TOTAL</td><td></td><td class="num">${rid}</td><td class="num">${beam}</td><td></td><td></td><td class="num">${phInr(total)}</td><td class="no-print"></td></tr>`;
+            document.getElementById('phUpadFoot').innerHTML = `<tr><td>KUL UPAD</td><td class="num">${phInr(upad)}</td><td class="no-print"></td></tr>`;
+            const baki = total - upad;
+            document.getElementById('phSummary').innerHTML = `
+                <tr><td>TOTAL</td><td class="num">${phInr(total)}</td></tr>
+                <tr><td>UPAD</td><td class="num" style="color:var(--rust);">${phInr(upad)}</td></tr>
+                <tr class="ph-baki"><td>BAKI HISAB</td><td class="num">${baki < 0 ? '-' : ''}${phInr(Math.abs(baki))}</td></tr>`;
+        }
+
+        function phSelect(i) { phData.active = i; phSave(); phRender(); }
+        function phSetMeta(k, v) {
+            phCur()[k] = v; phSave();
+            if (k === 'label') {
+                document.querySelectorAll('.ph-sheet-tab')[phData.active].textContent = v || 'Sheet ' + (phData.active + 1);
+            }
+        }
+        function phSetRow(i, k, v) { phCur().rows[i][k] = k === 'q' ? v : phNum(v); phSave(); phTotals(); }
+        function phAddRow() { phCur().rows.push({ q: '', tar: 0, rid: 0, beam: 0 }); phSave(); phRender(); }
+        function phDelRow(i) { phCur().rows.splice(i, 1); phSave(); phRender(); }
+        function phSetUpad(i, k, v) { phCur().upad[i][k] = k === 'amt' ? phNum(v) : v; phSave(); phTotals(); }
+        function phAddUpad() { phCur().upad.push({ date: new Date().toISOString().slice(0, 10), amt: 0 }); phSave(); phRender(); }
+        function phDelUpad(i) { phCur().upad.splice(i, 1); phSave(); phRender(); }
+        function phSetRateQ(i, v) {
+            const old = phData.rates[i].q;
+            phData.sheets.forEach(s => s.rows.forEach(r => { if (r.q === old) r.q = v; }));
+            phData.rates[i].q = v; phSave(); phRender();
+        }
+        function phSetRateV(i, v) { phData.rates[i].rate = phNum(v); phSave(); phTotals(); }
+        function phAddRate() { phData.rates.push({ q: 'NEW QUALITY', rate: 0 }); phSave(); phRender(); }
+        function phDelRate(i) { phData.rates.splice(i, 1); phSave(); phRender(); }
+        function phAddSheet() {
+            const label = prompt('New sheet name (e.g. JUNE):', '');
+            if (label === null) return;
+            const cur = phCur();
+            phData.sheets.push({
+                label: label.trim() || 'new', name: cur ? cur.name : '', from: '', to: '',
+                rows: phData.rates.slice(0, 5).map(r => ({ q: r.q, tar: 0, rid: 0, beam: 0 })), upad: []
+            });
+            phData.active = phData.sheets.length - 1; phSave(); phRender();
+        }
+        function phDeleteSheet() {
+            if (!confirm('Delete sheet "' + (phCur().label || '') + '"?')) return;
+            phData.sheets.splice(phData.active, 1); phData.active = 0; phSave(); phRender();
         }
 
         // ── INIT ──
