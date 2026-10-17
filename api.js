@@ -6,10 +6,14 @@
 (function (window) {
     'use strict';
 
-    // The backend origin (same origin when served by server.js, or fallback to port 5000)
-    const API_BASE = window.location.port === '5000' || !window.location.port
-        ? '' 
-        : (window.location.protocol + '//' + window.location.hostname + ':5000');
+    // API_BASE: use relative paths (same-origin) on Vercel / production.
+    // On local dev when the frontend is served from a different port (e.g. Live Server
+    // on 5500 while Express runs on 5000), fall back to explicit localhost:5000.
+    const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+        && window.location.port !== '5000'
+        && window.location.port !== ''
+        ? (window.location.protocol + '//' + window.location.hostname + ':5000')
+        : '';
 
     let isBackendActive = false;
 

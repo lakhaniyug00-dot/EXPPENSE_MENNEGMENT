@@ -7,6 +7,8 @@ const os = require('os');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+// IMPORTANT: Set MONGO_URI in Vercel Environment Variables dashboard.
+// The localhost fallback below only works for local development — NOT on Vercel.
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/expense_management';
 
 // Middleware
@@ -197,21 +199,28 @@ app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Start Server
-app.listen(PORT, '0.0.0.0', () => {
-    console.log(`====================================================`);
-    console.log(`🚀 Expense Management Dynamic Server Running!`);
-    console.log(`💻 Local PC Access:    http://localhost:${PORT}`);
+// ── LOCAL DEV: Start server only when run directly (not on Vercel) ──
+// Vercel calls the exported `app` directly as a serverless function.
+// Running app.listen() on Vercel would cause FUNCTION_INVOCATION_FAILED.
+if (process.env.VERCEL !== '1' && require.main === module) {
+    app.listen(PORT, '0.0.0.0', () => {
+        console.log(`====================================================`);
+        console.log(`🚀 Expense Management Dynamic Server Running!`);
+        console.log(`💻 Local PC Access:    http://localhost:${PORT}`);
 
-    // Print local network IP address for mobile access
-    const nets = os.networkInterfaces();
-    for (const name of Object.keys(nets)) {
-        for (const net of nets[name]) {
-            if (net.family === 'IPv4' && !net.internal) {
-                console.log(`📱 Mobile/Phone Access: http://${net.address}:${PORT}`);
+        // Print local network IP address for mobile access
+        const nets = os.networkInterfaces();
+        for (const name of Object.keys(nets)) {
+            for (const net of nets[name]) {
+                if (net.family === 'IPv4' && !net.internal) {
+                    console.log(`📱 Mobile/Phone Access: http://${net.address}:${PORT}`);
+                }
             }
         }
-    }
-    console.log(`📁 Database:          ${MONGO_URI}`);
-    console.log(`====================================================`);
-});
+        console.log(`📁 Database:          ${MONGO_URI}`);
+        console.log(`====================================================`);
+    });
+}
+
+// Export the Express app for Vercel serverless runtime
+module.exports = app;
