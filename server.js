@@ -66,11 +66,20 @@ app.get('/api/health', (req, res) => {
     });
 });
 
-// Accounts: Get all accounts
+// Accounts: Get all accounts (always includes Valam as default)
 app.get('/api/accounts', async (req, res) => {
     try {
-        const accounts = await Account.find({}).sort({ createdAt: 1 });
-        res.json({ success: true, accounts: accounts.map(a => ({ username: a.displayName || a.username })) });
+        let accounts = await Account.find({}).sort({ createdAt: 1 });
+        const accountList = accounts.map(a => ({ username: a.displayName || a.username }));
+
+        // Always ensure Valam exists in DB and response
+        const hasValam = accounts.some(a => (a.username || '').toLowerCase() === 'valam');
+        if (!hasValam) {
+            await Account.create({ username: 'valam', displayName: 'Valam' });
+            accountList.unshift({ username: 'Valam' });
+        }
+
+        res.json({ success: true, accounts: accountList });
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
     }

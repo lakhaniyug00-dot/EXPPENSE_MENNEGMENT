@@ -328,6 +328,10 @@
         const STORAGE_KEY = 'app_accounts';
         const AVATAR_COLORS = ['#0F172A','#D97706','#2563EB','#7C3AED','#059669','#DB2777','#DC2626','#0891B2'];
 
+        // DEFAULT_ACCOUNTS: pre-seeded accounts that always appear.
+        // 'Valam' is always the first / default account.
+        const DEFAULT_ACCOUNTS = [{ username: 'Valam' }];
+
         function loadAccounts() {
             try {
                 const raw = localStorage.getItem(STORAGE_KEY);
@@ -340,10 +344,20 @@
                     if (filtered.length !== parsed.length) {
                         saveAccounts(filtered);
                     }
+                    // Always ensure Valam exists
+                    const hasValam = filtered.some(function(a) {
+                        return ((a && a.username) || '').trim().toLowerCase() === 'valam';
+                    });
+                    if (!hasValam) {
+                        filtered.unshift({ username: 'Valam' });
+                        saveAccounts(filtered);
+                    }
                     return filtered;
                 }
             } catch(e) {}
-            return [];
+            // First load: seed Valam
+            saveAccounts(DEFAULT_ACCOUNTS);
+            return DEFAULT_ACCOUNTS;
         }
 
         function saveAccounts(list) {
@@ -366,9 +380,7 @@
             chips.innerHTML = '';
 
             if (!accounts.length) {
-                chips.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--ink-faint);font-size:12.5px;padding:12px 0;">No accounts yet. Click ＋ Add to create one.</div>';
-                // Automatically open add panel if no accounts
-                document.getElementById('addPanel').classList.add('open');
+                chips.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--ink-faint);font-size:12.5px;padding:12px 0;">Click ＋ Add to create an account.</div>';
                 return;
             }
 
@@ -398,6 +410,10 @@
                 delBtn.addEventListener('click', function(e) {
                     e.stopPropagation();
                     const uname = delBtn.getAttribute('data-del');
+                    if (uname.toLowerCase() === 'valam') {
+                        showError('Valam is the default account and cannot be deleted.');
+                        return;
+                    }
                     if (confirm('Delete account "' + uname + '"?\n\nTheir saved data stays safe in storage.')) {
                         const list = loadAccounts().filter(function(a) { return a.username !== uname; });
                         saveAccounts(list);
@@ -454,7 +470,11 @@
             if (uname === 'yug' || uname === 'vipul') { showError('That account is disabled.'); return; }
             var list = loadAccounts();
             if (list.find(function(a) { return (a.username || '').toLowerCase() === uname; })) {
-                showError('Account "' + rawUname + '" already exists.');
+                if (uname === 'valam') {
+                    showError('Valam account already exists. Click it to log in!');
+                } else {
+                    showError('Account "' + rawUname + '" already exists.');
+                }
                 return;
             }
             list.push({ username: rawUname });
