@@ -1,41 +1,5 @@
 {
-  "$schema": "https://openapi.vercel.sh/vercel.json",
-  "version": 2,
-  "builds": [
-    {
-      "src": "server.js",
-      "use": "@vercel/node"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "server.js"
-    },
-    {
-      "src": "/login.html",
-      "dest": "/login.html"
-    },
-    {
-      "src": "/dilyex.html",
-      "dest": "/dilyex.html"
-    },
-    {
-      "src": "/khata.html",
-      "dest": "/khata.html"
-    },
-    {
-      "src": "/pagar.html",
-      "dest": "/pagar.html"
-    },
-    {
-      "src": "/api.js",
-      "dest": "/api.js"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
-    }
+  "rewrites": [
+    { "source": "/api/:path*", "destination": "/api/index.js" }
   ]
 }
-
