@@ -1158,13 +1158,20 @@
         <div class="top-right" style="display:flex;align-items:center;gap:8px;">
             <button class="report-btn" id="reportBtn" title="Report">Report</button>
             <button class="icon-btn" id="searchBtn" title="Search">🔍</button>
-            <span id="backendStatusBadge" style="background:var(--card-bg, #fff);border:1px solid var(--line);border-radius:8px;padding:5px 9px;font-size:11.5px;font-weight:700;color:var(--ink-soft);display:inline-flex;align-items:center;">⚪ Local Storage</span>
-            <span style="background:var(--card-bg, #fff);border:1px solid var(--line);border-radius:8px;padding:5px 9px;font-size:12px;font-weight:700;color:var(--ink);display:inline-flex;align-items:center;gap:4px;">
-                👤 <span id="authUserName">...</span>
-            </span>
-            <button type="button" onclick="logout()" style="background:#FEE2E2;color:#DC2626;border:1px solid #FCA5A5;border-radius:8px;padding:5px 9px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;" title="Log Out">
-                🚪 Logout
-            </button>
+            <div id="cloud-account-bar" class="no-print" style="display:flex;align-items:center;gap:8px;">
+                <div id="cloud-sync-badge" class="cloud-sync-badge" style="display:inline-flex;align-items:center;background:rgba(26,58,138,0.06);border:1px solid rgba(26,58,138,0.15);padding:6px 14px;border-radius:999px;color:#1a3a8a;font-size:13.5px;font-weight:600;font-family:'Inter',sans-serif;">
+                    <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#10b981;margin-right:7px;"></span>
+                    <span>Cloud Synced</span>
+                </div>
+                <div id="account-actions" style="display:inline-flex;align-items:center;gap:8px;">
+                    <div id="account-user-chip" onclick="openAccountModal()" title="Click to switch account / ખાતું બદલો" style="display:inline-flex;align-items:center;gap:9px;background:#fff;border:1.5px solid #cbd5e1;border-radius:12px;padding:5px 14px;box-shadow:0 2px 6px rgba(0,0,0,0.05);cursor:pointer;user-select:none;transition:all 0.15s ease;">
+                        <div id="user-chip-avatar" style="width:26px;height:26px;border-radius:7px;background:#0F172A;color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Inter',sans-serif;font-size:13px;font-weight:800;flex-shrink:0;">V</div>
+                        <span id="user-chip-name" style="font-family:'Inter',-apple-system,sans-serif;font-size:14.5px;font-weight:700;color:#0F172A;letter-spacing:0.2px;">Valam</span>
+                    </div>
+                    <button id="account-switch-btn" type="button" onclick="openAccountModal()" title="Switch Account / ખાતું બદલો" style="background:#e3f3ff;border:1.5px solid #1a3a8a;border-radius:999px;padding:5px 14px;cursor:pointer;color:#1a3a8a;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;display:inline-flex;align-items:center;gap:5px;transition:all 0.15s ease;">👥 Switch</button>
+                    <button id="account-sync-btn" type="button" onclick="window.AppAPI && AppAPI.forceSync()" title="Force Sync Now" style="background:#fff;border:1.5px solid #1a3a8a;border-radius:999px;padding:5px 12px;cursor:pointer;color:#1a3a8a;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;display:inline-flex;align-items:center;gap:4px;transition:all 0.15s ease;">🔄 Sync</button>
+                </div>
+            </div>
         </div>
     </header>
 
@@ -1426,30 +1433,17 @@
 
         /* ── AUTH & USER SCOPING ── */
         function getAuthUser() {
-            const u = (localStorage.getItem('auth_user') || '').trim().toLowerCase();
-            if (!u || u === 'yug' || u === 'vipul') return null;
-            try {
-                const raw = localStorage.getItem('app_accounts');
-                if (raw) {
-                    const accs = JSON.parse(raw);
-                    if (Array.isArray(accs) && accs.find(function(a){ return ((a && a.username) || '').toLowerCase() === u; })) return u;
-                    return null;
-                }
-            } catch(e) {}
-            return u;
-        }
-
-        function checkAuth() {
-            const u = getAuthUser();
-            if (!u) {
-                window.location.replace('login.html');
-                return null;
+            let u = (localStorage.getItem('auth_user') || '').trim().toLowerCase();
+            if (!u || u === 'yug' || u === 'vipul') {
+                u = 'valam';
+                localStorage.setItem('auth_user', 'valam');
+                localStorage.setItem('auth_user_name', 'Valam');
             }
             return u;
         }
 
-        if (!checkAuth()) {
-            throw new Error('Unauthorized');
+        function checkAuth() {
+            return getAuthUser();
         }
 
         function getUserStorageKey(k) {
@@ -1461,7 +1455,7 @@
         function userLocalGet(k) {
             const uk = getUserStorageKey(k);
             let val = localStorage.getItem(uk);
-            if (val === null && getAuthUser() === 'yug') {
+            if (val === null && getAuthUser() === 'valam') {
                 val = localStorage.getItem(k);
                 if (val !== null) localStorage.setItem(uk, val);
             }
@@ -1477,11 +1471,7 @@
         }
 
         function logout() {
-            if (confirm('Are you sure you want to log out?')) {
-                localStorage.removeItem('auth_user');
-                localStorage.removeItem('auth_user_name');
-                window.location.replace('login.html');
-            }
+            if (window.openAccountModal) window.openAccountModal();
         }
 
         function renderAuthHeader() {

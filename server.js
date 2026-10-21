@@ -212,6 +212,69 @@ app.post('/api/auth/login', async (req, res) => {
     }
 });
 
+// 1-Click Multi-Account selection / instant passwordless authentication
+app.post('/api/auth/select', async (req, res) => {
+    try {
+        const rawUname = (req.body.username || '').trim();
+        if (!rawUname) return res.status(400).json({ success: false, error: 'Username is required' });
+        const lower = rawUname.toLowerCase();
+        let acc = await Account.findOne({ username: lower });
+        if (!acc) {
+            acc = await Account.create({
+                username: lower,
+                displayName: rawUname.charAt(0).toUpperCase() + rawUname.slice(1),
+                createdAt: new Date(),
+                lastLogin: new Date()
+            });
+        } else {
+            acc.lastLogin = new Date();
+            await acc.save();
+        }
+        const token = generateToken(acc.username);
+        res.json({
+            success: true,
+            token: token,
+            user: {
+                username: acc.username,
+                displayName: acc.displayName || acc.username
+            }
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+app.get('/api/auth/accounts', async (req, res) => {
+    try {
+        const hasValam = await Account.findOne({ username: 'valam' });
+        if (!hasValam) {
+            try { await Account.create({ username: 'valam', displayName: 'Valam' }); } catch (e) { }
+        }
+        const accounts = await Account.find({}).sort({ createdAt: 1 });
+        res.json({
+            success: true,
+            accounts: accounts.map(a => ({
+                username: a.displayName || a.username,
+                createdAt: a.createdAt
+            }))
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+app.delete('/api/auth/accounts/:username', async (req, res) => {
+    try {
+        const lower = (req.params.username || '').trim().toLowerCase();
+        if (lower === 'valam') return res.status(400).json({ success: false, error: 'Valam is default account and cannot be deleted.' });
+        await Account.deleteOne({ username: lower });
+        await UserData.deleteMany({ username: lower });
+        res.json({ success: true, message: `Account ${lower} deleted` });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
 // Accounts: Get all accounts
 app.get('/api/accounts', async (req, res) => {
     try {

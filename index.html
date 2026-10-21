@@ -5,15 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rojmel &amp; Khata Book</title>
     <script>
-        const user = (localStorage.getItem('auth_user') || '').trim().toLowerCase();
-        if (user && (user === 'yug' || user === 'vipul')) {
-            window.location.replace('dilyex.html');
-        } else {
-            window.location.replace('login.html');
+        // Ensure default account is Valam if none selected
+        const current = (localStorage.getItem('auth_user') || '').trim();
+        if (!current || current === 'yug' || current === 'vipul') {
+            localStorage.setItem('auth_user', 'valam');
+            localStorage.setItem('auth_user_name', 'Valam');
         }
+        window.location.replace('dilyex.html');
     </script>
 </head>
-<body style="font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;background:#F8FAFC;color:#64748B;">
-    <p>Redirecting to Rojmel &amp; Khata Book...</p>
+<body style="font-family:'Inter', sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;background:#F5F1E6;color:#22314F;">
+    <p>Opening Rojmel &amp; Khata Book...</p>
 </body>
 </html>

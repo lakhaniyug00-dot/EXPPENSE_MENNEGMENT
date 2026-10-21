@@ -75,9 +75,8 @@ http://YOUR_PC_IP:5000
 ├── package.json
 ├── .env             ← Your MongoDB URI (not committed to git)
 │
-├── index.html       ← App entry point (redirects to login)
-├── login.html       ← Account selection / login page
-├── dilyex.html      ← Rojmel daily expense book
+├── index.html       ← App entry point (opens Rojmel directly)
+├── dilyex.html      ← Rojmel daily expense book (with 1-Click Multi-Account & Cloud Sync)
 ├── khata.html       ← Khata ledger
 └── pagar.html       ← Pagar payroll system
 ```
