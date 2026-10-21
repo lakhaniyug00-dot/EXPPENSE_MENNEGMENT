@@ -1500,13 +1500,10 @@
                     if (r && r.value !== null && r.value !== undefined) return r.value;
                 }
                 const val = userLocalGet(k);
-                if (val !== null) return val;
-                if (getAuthUser() === 'yug' && window.storage) {
-                    const rLegacy = await window.storage.get(k, false);
-                    if (rLegacy && rLegacy.value !== null && rLegacy.value !== undefined) {
-                        await storageSet(k, rLegacy.value);
-                        return rLegacy.value;
-                    }
+                if (val !== null && val !== undefined) return val;
+                if (window.AppAPI && AppAPI.isAvailable()) {
+                    const apiVal = await AppAPI.get(k);
+                    if (apiVal !== null && apiVal !== undefined) return apiVal;
                 }
                 return null;
             } catch (e) {
@@ -1529,28 +1526,17 @@
         };
 
         const storageList = async () => {
+            if (window.AppAPI && typeof window.AppAPI.getAllKeys === 'function') {
+                return await window.AppAPI.getAllKeys();
+            }
             const u = getAuthUser();
             const prefix = `u:${u}:`;
             let rawKeys = [];
-            if (window.storage && window.storage.list) {
-                try {
-                    let r = await window.storage.list();
-                    if (r && r.keys) rawKeys = r.keys;
-                } catch (e) { }
-            } else {
-                for (let i = 0; i < localStorage.length; i++) rawKeys.push(localStorage.key(i));
-            }
+            for (let i = 0; i < localStorage.length; i++) rawKeys.push(localStorage.key(i));
             let userKeys = [];
             rawKeys.forEach(k => {
                 if (k && k.startsWith(prefix)) userKeys.push(k.slice(prefix.length));
             });
-            if (u === 'yug') {
-                rawKeys.forEach(k => {
-                    if (k && !k.startsWith('u:') && !k.startsWith('auth_') && !userKeys.includes(k)) {
-                        userKeys.push(k);
-                    }
-                });
-            }
             return Array.from(new Set(userKeys));
         };
 
@@ -2728,6 +2714,9 @@
 
         // ── INIT ──
         (async () => {
+            if (window.AppAPI && typeof window.AppAPI.ready === 'function') {
+                await window.AppAPI.ready();
+            }
             renderAuthHeader();
             await getActiveYear();
             updateHeaderYearBadge();
@@ -2737,6 +2726,19 @@
             await loadMasterEntries();
             await loadAccounts();
             await renderAccountsList();
+
+            if (window.AppAPI && typeof window.AppAPI.onSync === 'function') {
+                window.AppAPI.onSync(async () => {
+                    await loadMasterEntries();
+                    await loadWorkers();
+                    await loadAccounts();
+                    if (currentAccount) {
+                        await renderLedger();
+                    } else {
+                        await renderAccountsList();
+                    }
+                });
+            }
         })();
 
         // ── CROSS-TAB SYNC ──

@@ -2326,13 +2326,10 @@
                     if (r && r.value !== null && r.value !== undefined) return r.value;
                 }
                 const val = userLocalGet(k);
-                if (val !== null) return val;
-                if (getAuthUser() === 'yug' && window.storage) {
-                    const rLegacy = await window.storage.get(k, false);
-                    if (rLegacy && rLegacy.value !== null && rLegacy.value !== undefined) {
-                        await storageSet(k, rLegacy.value);
-                        return rLegacy.value;
-                    }
+                if (val !== null && val !== undefined) return val;
+                if (window.AppAPI && AppAPI.isAvailable()) {
+                    const apiVal = await AppAPI.get(k);
+                    if (apiVal !== null && apiVal !== undefined) return apiVal;
                 }
                 return null;
             } catch (e) {
@@ -4048,28 +4045,17 @@
         document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeModal(); closeSearchModal(); closeReportModal(); } });
 
         async function getAllKeys() {
+            if (window.AppAPI && typeof window.AppAPI.getAllKeys === 'function') {
+                return await window.AppAPI.getAllKeys();
+            }
             const u = getAuthUser();
             const prefix = `u:${u}:`;
             let rawKeys = [];
-            if (window.storage && window.storage.list) {
-                try {
-                    let r = await window.storage.list();
-                    if (r && r.keys) rawKeys = r.keys;
-                } catch (e) { }
-            } else {
-                for (let i = 0; i < localStorage.length; i++) rawKeys.push(localStorage.key(i));
-            }
+            for (let i = 0; i < localStorage.length; i++) rawKeys.push(localStorage.key(i));
             let userKeys = [];
             rawKeys.forEach(k => {
                 if (k && k.startsWith(prefix)) userKeys.push(k.slice(prefix.length));
             });
-            if (u === 'yug') {
-                rawKeys.forEach(k => {
-                    if (k && !k.startsWith('u:') && !k.startsWith('auth_') && !userKeys.includes(k)) {
-                        userKeys.push(k);
-                    }
-                });
-            }
             return Array.from(new Set(userKeys));
         }
         let searchTimeout;
@@ -4628,6 +4614,11 @@
 
         /* ── INIT ── */
         (async function init() {
+            if (window.AppAPI && typeof window.AppAPI.ready === 'function') {
+                setStatus('Connecting & syncing data...', false);
+                await window.AppAPI.ready();
+                setStatus('', false);
+            }
             renderAuthHeader();
             const yInfo = await getActiveYearInfo();
             if (yInfo && yInfo.startDate && yInfo.endDate) {
@@ -4647,6 +4638,24 @@
             await deleteWorkerOrAccountName('govind', true);
             renderDateBar(); await loadDay(); await loadPrevNet();
             renderIncome(); renderExpense(); renderTotals();
+
+            // Real-time synchronization listener for changes from other devices
+            if (window.AppAPI && typeof window.AppAPI.onSync === 'function') {
+                window.AppAPI.onSync(async (changedKeys) => {
+                    const curKey = 'khata:day:' + toKey(currentDate);
+                    if (!changedKeys || changedKeys.includes(curKey) || changedKeys.some(k => k.startsWith('khata:'))) {
+                        await loadCategories();
+                        await loadMasters();
+                        await loadWorkers();
+                        await loadMasterEntries();
+                        await loadDay();
+                        await loadPrevNet();
+                        renderIncome();
+                        renderExpense();
+                        renderTotals();
+                    }
+                });
+            }
         })();
     </script>
 </body>

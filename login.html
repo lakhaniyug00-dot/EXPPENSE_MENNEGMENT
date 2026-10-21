@@ -72,11 +72,11 @@
             background: var(--card-bg);
             border: 1px solid rgba(226,232,240,0.9);
             border-radius: 20px;
-            padding: 36px 32px;
+            padding: 34px 30px;
             box-shadow: var(--shadow-lg);
         }
 
-        .brand-header { text-align: center; margin-bottom: 28px; }
+        .brand-header { text-align: center; margin-bottom: 22px; }
 
         .brand-icon {
             width: 56px; height: 56px;
@@ -92,7 +92,36 @@
         .brand-title { font-size: 22px; font-weight: 800; color: var(--ink); letter-spacing: -0.5px; }
         .brand-subtitle { font-size: 13px; font-weight: 500; color: var(--ink-soft); margin-top: 4px; }
 
-        .form-group { margin-bottom: 18px; }
+        .auth-tabs {
+            display: flex;
+            background: #F1F5F9;
+            padding: 4px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            gap: 4px;
+        }
+
+        .auth-tab-btn {
+            flex: 1;
+            padding: 9px 12px;
+            border: none;
+            background: transparent;
+            border-radius: 9px;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--ink-soft);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .auth-tab-btn.active {
+            background: #fff;
+            color: var(--ink);
+            box-shadow: 0 2px 6px rgba(15,23,42,0.08);
+        }
+
+        .form-group { margin-bottom: 15px; }
 
         .form-label {
             display: block; font-size: 12.5px; font-weight: 700;
@@ -103,7 +132,7 @@
 
         .input-wrap input {
             width: 100%;
-            padding: 12px 14px 12px 40px;
+            padding: 12px 14px 12px 38px;
             background: #F8FAFC;
             border: 1.5px solid var(--line);
             border-radius: 10px;
@@ -118,7 +147,7 @@
             box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
         }
 
-        .input-icon { position: absolute; left: 13px; font-size: 16px; color: var(--ink-faint); pointer-events: none; }
+        .input-icon { position: absolute; left: 13px; font-size: 15px; color: var(--ink-faint); pointer-events: none; }
 
         .toggle-pwd {
             position: absolute; right: 12px;
@@ -127,10 +156,27 @@
         }
         .toggle-pwd:hover { color: var(--ink); }
 
-        .pr-40 { padding-right: 40px !important; }
+        .pr-40 { padding-right: 42px !important; }
+
+        .remember-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 12px;
+            color: var(--ink-soft);
+            margin-bottom: 18px;
+        }
+
+        .remember-label {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            cursor: pointer;
+            font-weight: 600;
+        }
 
         .alert-box {
-            padding: 10px 14px; border-radius: 10px;
+            padding: 11px 14px; border-radius: 10px;
             font-size: 13px; font-weight: 600;
             margin-bottom: 16px;
             display: none; align-items: center; gap: 8px;
@@ -158,16 +204,38 @@
         }
         .btn-submit:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(15,23,42,0.24); }
         .btn-submit:active { transform: translateY(0); }
+        .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 22px 0 16px;
+            color: var(--ink-faint);
+            font-size: 11.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+        .divider::before, .divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid var(--line);
+        }
+        .divider span { padding: 0 10px; }
 
         .quick-users-section {
-            margin-top: 4px; padding-top: 0;
-            border-top: none;
+            margin-top: 4px;
+        }
+
+        .manage-bar {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 10px;
         }
 
         .section-label {
-            text-align: center; font-size: 11px; font-weight: 700;
-            color: var(--ink-faint); text-transform: uppercase; letter-spacing: 0.6px;
-            margin-bottom: 10px;
+            font-size: 11.5px; font-weight: 700;
+            color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.6px;
         }
 
         .quick-chips { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
@@ -191,6 +259,7 @@
 
         .chip-info { line-height: 1.25; flex: 1; min-width: 0; }
         .chip-name { font-size: 13px; font-weight: 700; color: var(--ink); }
+        .chip-sub { font-size: 10.5px; color: var(--ink-faint); margin-top: 1px; }
 
         .chip-del {
             position: absolute; top: 4px; right: 4px;
@@ -204,63 +273,34 @@
         .quick-chips.manage-mode .user-chip { border-color: #FCA5A5 !important; background: #fff7f7 !important; }
         .quick-chips.manage-mode .user-chip:hover { transform: none; }
 
-        .no-accounts-msg {
-            text-align: center; color: var(--ink-faint); font-size: 12.5px;
-            padding: 12px 0; grid-column: 1 / -1;
-        }
-
-        .manage-bar {
-            display: flex; align-items: center; justify-content: space-between;
-            margin-bottom: 10px;
-        }
-
         .btn-manage {
             background: none; border: 1.5px solid var(--line);
-            border-radius: 8px; padding: 5px 12px;
-            font-size: 12px; font-weight: 700; color: var(--ink-soft);
+            border-radius: 8px; padding: 4px 10px;
+            font-size: 11.5px; font-weight: 700; color: var(--ink-soft);
             cursor: pointer; font-family: inherit; transition: all 0.15s;
         }
         .btn-manage:hover { background: #f1f5f9; color: var(--ink); }
         .btn-manage.active { background: var(--danger-bg); border-color: var(--danger); color: var(--danger); }
 
-        .btn-add-account {
-            background: #ECFDF5; border: 1.5px solid #10B981;
-            border-radius: 8px; padding: 5px 12px;
-            font-size: 12px; font-weight: 700; color: #10B981;
-            cursor: pointer; font-family: inherit; transition: all 0.15s;
-        }
-        .btn-add-account:hover { background: #d1fae5; }
+        .footer-note { text-align: center; margin-top: 20px; font-size: 12px; color: var(--ink-faint); font-weight: 500; }
 
-        .add-panel {
-            display: none;
-            background: #F8FAFC; border: 1.5px solid var(--line);
-            border-radius: 12px; padding: 14px;
-            margin-top: 10px; margin-bottom: 10px;
+        /* Sync Loading Overlay */
+        .loading-overlay {
+            position: fixed; inset: 0; background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(4px); z-index: 9999;
+            display: none; align-items: center; justify-content: center;
+            flex-direction: column; color: #fff;
         }
-        .add-panel.open { display: block; }
-        .add-panel .ap-label { font-size: 12px; font-weight: 700; color: var(--ink-soft); display: block; margin-bottom: 5px; }
-        .add-panel input {
-            width: 100%; padding: 9px 12px;
-            border: 1.5px solid var(--line); border-radius: 8px;
-            font-size: 13px; font-weight: 600; color: var(--ink);
-            background: #fff; font-family: inherit; outline: none;
-            transition: border-color 0.15s; margin-bottom: 8px;
-            box-sizing: border-box;
+        .loading-overlay.open { display: flex; }
+        .spinner {
+            width: 44px; height: 44px;
+            border: 4px solid rgba(255,255,255,0.25);
+            border-top-color: #38BDF8;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-bottom: 14px;
         }
-        .add-panel input:focus { border-color: var(--primary); }
-        .add-panel-btns { display: flex; gap: 8px; }
-        .btn-panel-save {
-            flex: 1; padding: 9px; background: var(--ink); color: #fff;
-            border: none; border-radius: 8px; font-size: 13px; font-weight: 700;
-            cursor: pointer; font-family: inherit;
-        }
-        .btn-panel-cancel {
-            padding: 9px 14px; background: none; border: 1.5px solid var(--line);
-            border-radius: 8px; font-size: 13px; font-weight: 700;
-            color: var(--ink-soft); cursor: pointer; font-family: inherit;
-        }
-
-        .footer-note { text-align: center; margin-top: 18px; font-size: 12px; color: var(--ink-faint); font-weight: 500; }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
         @media (max-width: 480px) {
             body { padding: 14px 10px; }
@@ -268,9 +308,6 @@
             .brand-icon { width: 48px; height: 48px; font-size: 22px; margin-bottom: 8px; }
             .brand-title { font-size: 19px; }
             .brand-subtitle { font-size: 12px; }
-            .manage-bar { flex-direction: column; align-items: stretch; gap: 8px; }
-            .manage-bar > div:last-child { display: flex; gap: 6px; }
-            .manage-bar .btn-add-account, .manage-bar .btn-manage { flex: 1; text-align: center; justify-content: center; padding: 7px 10px; }
             .quick-chips { grid-template-columns: 1fr; gap: 8px; }
             .user-chip { padding: 11px 12px; min-height: 48px; }
             .chip-avatar { width: 34px; height: 34px; font-size: 14px; }
@@ -287,8 +324,20 @@
                 <h1 class="brand-title">Rojmel &amp; Khata</h1>
                 <div class="brand-subtitle">Expense &amp; Payroll Management System</div>
                 <div style="margin-top:10px;">
-                    <span id="backendStatusBadge" style="display:inline-flex;align-items:center;padding:4px 12px;border-radius:20px;font-size:11.5px;font-weight:700;border:1px solid #E2E8F0;background:#F8FAFC;color:#64748B;">⚪ Local Storage</span>
+                    <span id="backendStatusBadge" style="display:inline-flex;align-items:center;padding:4px 12px;border-radius:20px;font-size:11.5px;font-weight:700;border:1px solid #E2E8F0;background:#F8FAFC;color:#64748B;">
+                        ⚪ Connecting...
+                    </span>
                 </div>
+            </div>
+
+            <!-- Tab Switcher -->
+            <div class="auth-tabs">
+                <button type="button" class="auth-tab-btn active" id="tabLoginBtn" onclick="switchAuthTab('login')">
+                    🔑 Sign In / લૉગિન
+                </button>
+                <button type="button" class="auth-tab-btn" id="tabRegisterBtn" onclick="switchAuthTab('register')">
+                    ＋ New Account / નવું ખાતું
+                </button>
             </div>
 
             <div id="errorAlert" class="alert-box error">
@@ -298,41 +347,138 @@
                 <span>✅</span><span id="successMsg">Account created!</span>
             </div>
 
-
-            <div class="quick-users-section">
-                <div class="manage-bar">
-                    <div class="section-label" style="margin-bottom:0;">&#x26A1; Select Account / &#x0A9D;&#x0AA1;&#x0AAA;&#x0AC0; &#x0AB2;&#x0AC9;&#x0A97;&#x0ABF;&#x0AA8;</div>
-                    <div style="display:flex;gap:6px;">
-                        <button class="btn-add-account" id="btnAddAccount">&#xFF0B; Add</button>
-                        <button class="btn-manage" id="btnManage">&#x270F;&#xFE0F; Manage</button>
+            <!-- LOGIN FORM -->
+            <form id="loginForm" onsubmit="handleLoginSubmit(event)">
+                <div class="form-group">
+                    <label class="form-label" for="loginUsername">Account / Username (ખાતાનું નામ)</label>
+                    <div class="input-wrap">
+                        <span class="input-icon">👤</span>
+                        <input type="text" id="loginUsername" placeholder="e.g. valam" autocomplete="username" autocapitalize="none" required>
                     </div>
                 </div>
 
-                <div class="add-panel" id="addPanel">
-                    <label class="ap-label">New Account Name / નામ</label>
-                    <input type="text" id="newUsername" placeholder="e.g. valam" autocomplete="off">
-                    <div class="add-panel-btns">
-                        <button class="btn-panel-save" id="btnSaveAccount">&#x1F4BE; Save &amp; Enter</button>
-                        <button class="btn-panel-cancel" id="btnCancelAdd">Cancel</button>
+                <div class="form-group">
+                    <label class="form-label" for="loginPassword">Password / પાસવર્ડ</label>
+                    <div class="input-wrap">
+                        <span class="input-icon">🔒</span>
+                        <input type="password" id="loginPassword" class="pr-40" placeholder="Enter password (if set)" autocomplete="current-password">
+                        <button type="button" class="toggle-pwd" onclick="togglePasswordVisibility('loginPassword', this)">👁️</button>
                     </div>
+                </div>
+
+                <div class="remember-row">
+                    <label class="remember-label">
+                        <input type="checkbox" id="rememberMe" checked>
+                        <span>Remember on this device</span>
+                    </label>
+                    <span style="color:var(--ink-faint);font-size:11.5px;">Cloud Synced</span>
+                </div>
+
+                <button type="submit" class="btn-submit" id="btnSubmitLogin">
+                    <span>Sign In &amp; Open Rojmel</span>
+                    <span>→</span>
+                </button>
+            </form>
+
+            <!-- REGISTER FORM -->
+            <form id="registerForm" style="display:none;" onsubmit="handleRegisterSubmit(event)">
+                <div class="form-group">
+                    <label class="form-label" for="regUsername">Choose Username / ખાતાનું નામ</label>
+                    <div class="input-wrap">
+                        <span class="input-icon">👤</span>
+                        <input type="text" id="regUsername" placeholder="e.g. rahul, shreeji" autocomplete="username" autocapitalize="none" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="regPassword">Create Password / પાસવર્ડ બનાવો</label>
+                    <div class="input-wrap">
+                        <span class="input-icon">🔒</span>
+                        <input type="password" id="regPassword" class="pr-40" placeholder="Min. 3 characters" autocomplete="new-password" required>
+                        <button type="button" class="toggle-pwd" onclick="togglePasswordVisibility('regPassword', this)">👁️</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="regPasswordConfirm">Confirm Password / પાસવર્ડ ફરી લખો</label>
+                    <div class="input-wrap">
+                        <span class="input-icon">✔️</span>
+                        <input type="password" id="regPasswordConfirm" class="pr-40" placeholder="Re-enter password" autocomplete="new-password" required>
+                        <button type="button" class="toggle-pwd" onclick="togglePasswordVisibility('regPasswordConfirm', this)">👁️</button>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-submit" id="btnSubmitRegister" style="background:linear-gradient(135deg, #059669 0%, #047857 100%);">
+                    <span>Create Account &amp; Sign In</span>
+                    <span>✓</span>
+                </button>
+            </form>
+
+            <!-- Quick Select Chips -->
+            <div class="divider">
+                <span>⚡ Quick Select Account / ઝડપી પસંદગી</span>
+            </div>
+
+            <div class="quick-users-section">
+                <div class="manage-bar">
+                    <div class="section-label">Existing Accounts</div>
+                    <button class="btn-manage" id="btnManage" type="button">✏️ Manage</button>
                 </div>
 
                 <div class="quick-chips" id="quickChips"></div>
             </div>
 
-            <div class="footer-note">🔒 Secure isolated workspace for each user</div>
+            <div class="footer-note">🔒 All user data isolated &amp; secured in MongoDB Cloud</div>
         </div>
+    </div>
+
+    <!-- Syncing & Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+        <div id="loadingText" style="font-weight:700;font-size:14.5px;">Connecting to Cloud Database...</div>
+        <div style="font-size:12px;opacity:0.8;margin-top:4px;">Syncing your expenses across devices</div>
     </div>
 
     <script>
         const STORAGE_KEY = 'app_accounts';
         const AVATAR_COLORS = ['#0F172A','#D97706','#2563EB','#7C3AED','#059669','#DB2777','#DC2626','#0891B2'];
+        let manageMode = false;
+        let accountsCache = [{ username: 'Valam' }];
 
-        // DEFAULT_ACCOUNTS: pre-seeded accounts that always appear.
-        // 'Valam' is always the first / default account.
-        const DEFAULT_ACCOUNTS = [{ username: 'Valam' }];
+        function switchAuthTab(mode) {
+            hideAlerts();
+            const tabLogin = document.getElementById('tabLoginBtn');
+            const tabReg = document.getElementById('tabRegisterBtn');
+            const loginForm = document.getElementById('loginForm');
+            const regForm = document.getElementById('registerForm');
 
-        function loadAccounts() {
+            if (mode === 'register') {
+                tabLogin.classList.remove('active');
+                tabReg.classList.add('active');
+                loginForm.style.display = 'none';
+                regForm.style.display = 'block';
+                document.getElementById('regUsername').focus();
+            } else {
+                tabReg.classList.remove('active');
+                tabLogin.classList.add('active');
+                regForm.style.display = 'none';
+                loginForm.style.display = 'block';
+                document.getElementById('loginUsername').focus();
+            }
+        }
+
+        function togglePasswordVisibility(inputId, btn) {
+            const input = document.getElementById(inputId);
+            if (input.type === 'password') {
+                input.type = 'text';
+                btn.textContent = '🙈';
+            } else {
+                input.type = 'password';
+                btn.textContent = '👁️';
+            }
+        }
+
+        function loadLocalAccounts() {
             try {
                 const raw = localStorage.getItem(STORAGE_KEY);
                 if (raw) {
@@ -341,26 +487,17 @@
                         const u = ((a && a.username) || '').trim().toLowerCase();
                         return u && u !== 'yug' && u !== 'vipul';
                     });
-                    if (filtered.length !== parsed.length) {
-                        saveAccounts(filtered);
-                    }
-                    // Always ensure Valam exists
                     const hasValam = filtered.some(function(a) {
                         return ((a && a.username) || '').trim().toLowerCase() === 'valam';
                     });
-                    if (!hasValam) {
-                        filtered.unshift({ username: 'Valam' });
-                        saveAccounts(filtered);
-                    }
+                    if (!hasValam) filtered.unshift({ username: 'Valam' });
                     return filtered;
                 }
             } catch(e) {}
-            // First load: seed Valam
-            saveAccounts(DEFAULT_ACCOUNTS);
-            return DEFAULT_ACCOUNTS;
+            return [{ username: 'Valam' }];
         }
 
-        function saveAccounts(list) {
+        function saveLocalAccounts(list) {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
         }
 
@@ -369,57 +506,58 @@
         }
 
         function capitalize(s) {
+            if (!s) return '';
             return s.charAt(0).toUpperCase() + s.slice(1);
         }
 
-        let manageMode = false;
-
         function renderChips() {
-            const accounts = loadAccounts();
+            const list = accountsCache;
             const chips = document.getElementById('quickChips');
             chips.innerHTML = '';
 
-            if (!accounts.length) {
-                chips.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--ink-faint);font-size:12.5px;padding:12px 0;">Click ＋ Add to create an account.</div>';
+            if (!list.length) {
+                chips.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--ink-faint);font-size:12.5px;padding:12px 0;">No accounts found. Create one above.</div>';
                 return;
             }
 
-            accounts.forEach((acc, idx) => {
+            list.forEach((acc, idx) => {
                 const chip = document.createElement('button');
                 chip.type = 'button';
                 chip.className = 'user-chip';
 
-                const initial = acc.username.charAt(0).toUpperCase();
+                const uname = acc.username || '';
+                const initial = uname.charAt(0).toUpperCase();
                 const color = AVATAR_COLORS[idx % AVATAR_COLORS.length];
+                const hasPwd = acc.hasPassword;
 
                 chip.innerHTML =
                     '<div class="chip-avatar" style="background:' + color + ';">' + escHtml(initial) + '</div>' +
                     '<div class="chip-info">' +
-                        '<div class="chip-name">' + escHtml(capitalize(acc.username)) + '</div>' +
+                        '<div class="chip-name">' + escHtml(capitalize(uname)) + '</div>' +
+                        '<div class="chip-sub">' + (hasPwd ? '🔒 Protected' : '⚡ 1-Click') + '</div>' +
                     '</div>' +
-                    '<button class="chip-del" type="button" data-del="' + escHtml(acc.username) + '">&#x2715;</button>';
+                    '<button class="chip-del" type="button" data-del="' + escHtml(uname) + '">&#x2715;</button>';
 
                 chip.addEventListener('click', function(e) {
                     if (e.target.closest && e.target.closest('.chip-del')) return;
                     if (manageMode) return;
-                    // 1-click instant login
-                    doLogin(acc.username);
+                    selectAccountChip(acc);
                 });
 
                 const delBtn = chip.querySelector('.chip-del');
                 delBtn.addEventListener('click', function(e) {
                     e.stopPropagation();
-                    const uname = delBtn.getAttribute('data-del');
-                    if (uname.toLowerCase() === 'valam') {
+                    const targetUname = delBtn.getAttribute('data-del');
+                    if (targetUname.toLowerCase() === 'valam') {
                         showError('Valam is the default account and cannot be deleted.');
                         return;
                     }
-                    if (confirm('Delete account "' + uname + '"?\n\nTheir saved data stays safe in storage.')) {
-                        const list = loadAccounts().filter(function(a) { return a.username !== uname; });
-                        saveAccounts(list);
-                        if (window.AppAPI) AppAPI.deleteAccount(uname);
+                    if (confirm('Delete account "' + targetUname + '" and its cloud data?')) {
+                        accountsCache = accountsCache.filter(function(a) { return a.username.toLowerCase() !== targetUname.toLowerCase(); });
+                        saveLocalAccounts(accountsCache);
+                        if (window.AppAPI) AppAPI.deleteAccount(targetUname);
                         renderChips();
-                        showSuccess('Account "' + uname + '" removed.');
+                        showSuccess('Account "' + targetUname + '" deleted.');
                     }
                 });
 
@@ -433,10 +571,161 @@
             }
         }
 
+        async function selectAccountChip(acc) {
+            switchAuthTab('login');
+            const uname = acc.username || '';
+            document.getElementById('loginUsername').value = uname;
+
+            // If account has no password, or user already has saved token on this device, log in immediately
+            const currentAuthUser = (localStorage.getItem('auth_user') || '').toLowerCase();
+            const currentToken = localStorage.getItem('auth_token');
+
+            if (!acc.hasPassword || (currentAuthUser === uname.toLowerCase() && currentToken)) {
+                await executeLogin(uname, '');
+            } else {
+                // Focus password input for secure entry
+                const pwdInput = document.getElementById('loginPassword');
+                pwdInput.focus();
+                showSuccess('Enter password for ' + capitalize(uname));
+            }
+        }
+
+        async function handleLoginSubmit(e) {
+            e.preventDefault();
+            hideAlerts();
+
+            const uname = (document.getElementById('loginUsername').value || '').trim();
+            const pwd = (document.getElementById('loginPassword').value || '').trim();
+
+            if (!uname) {
+                showError('Please enter an account name.');
+                return;
+            }
+
+            await executeLogin(uname, pwd);
+        }
+
+        async function handleRegisterSubmit(e) {
+            e.preventDefault();
+            hideAlerts();
+
+            const uname = (document.getElementById('regUsername').value || '').trim();
+            const pwd = (document.getElementById('regPassword').value || '').trim();
+            const pwdConfirm = (document.getElementById('regPasswordConfirm').value || '').trim();
+
+            if (!uname) {
+                showError('Please enter a username.');
+                return;
+            }
+            if (uname.toLowerCase() === 'yug' || uname.toLowerCase() === 'vipul') {
+                showError('That username is reserved.');
+                return;
+            }
+            if (!pwd || pwd.length < 3) {
+                showError('Password must be at least 3 characters.');
+                return;
+            }
+            if (pwd !== pwdConfirm) {
+                showError('Passwords do not match. Please re-enter.');
+                return;
+            }
+
+            showLoading('Creating your cloud account...');
+
+            if (window.AppAPI && AppAPI.isAvailable()) {
+                const res = await AppAPI.register(uname, pwd, uname);
+                if (!res.success) {
+                    hideLoading();
+                    showError(res.error || 'Failed to create account.');
+                    return;
+                }
+            } else {
+                // Fallback local mode
+                localStorage.setItem('auth_user', uname.toLowerCase());
+                localStorage.setItem('auth_user_name', capitalize(uname));
+            }
+
+            // Add to local accounts list
+            const list = loadLocalAccounts();
+            if (!list.some(a => a.username.toLowerCase() === uname.toLowerCase())) {
+                list.push({ username: uname, hasPassword: true });
+                saveLocalAccounts(list);
+            }
+
+            showLoading('Syncing data to cloud database...');
+            if (window.AppAPI) {
+                await AppAPI.syncUserDataFromBackend();
+            }
+
+            hideLoading();
+            showSuccess('Account created! Welcome, ' + capitalize(uname));
+            setTimeout(() => {
+                window.location.href = 'dilyex.html';
+            }, 600);
+        }
+
+        async function executeLogin(uname, pwd) {
+            showLoading('Logging in & syncing with cloud database...');
+
+            const cleanUname = uname.trim().toLowerCase();
+
+            if (window.AppAPI && AppAPI.isAvailable()) {
+                const res = await AppAPI.login(cleanUname, pwd);
+                if (!res.success) {
+                    hideLoading();
+                    showError(res.error || 'Login failed. Please check credentials.');
+                    return;
+                }
+            } else {
+                // Fallback local login
+                localStorage.setItem('auth_user', cleanUname);
+                localStorage.setItem('auth_user_name', capitalize(cleanUname));
+            }
+
+            // Sync user's cloud data down to local cache before entering
+            showLoading('Loading your expenses and khata from cloud...');
+            if (window.AppAPI) {
+                await AppAPI.syncUserDataFromBackend();
+            }
+
+            hideLoading();
+            window.location.href = 'dilyex.html';
+        }
+
+        function showLoading(text) {
+            const overlay = document.getElementById('loadingOverlay');
+            if (text) document.getElementById('loadingText').textContent = text;
+            overlay.classList.add('open');
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingOverlay').classList.remove('open');
+        }
+
+        function showError(msg) {
+            const el = document.getElementById('errorAlert');
+            document.getElementById('errorMsg').textContent = msg;
+            el.classList.add('show');
+            document.getElementById('successAlert').classList.remove('show');
+        }
+
+        function showSuccess(msg) {
+            const el = document.getElementById('successAlert');
+            document.getElementById('successMsg').textContent = msg;
+            el.classList.add('show');
+            document.getElementById('errorAlert').classList.remove('show');
+            setTimeout(function() { el.classList.remove('show'); }, 3500);
+        }
+
+        function hideAlerts() {
+            document.getElementById('errorAlert').classList.remove('show');
+            document.getElementById('successAlert').classList.remove('show');
+        }
+
         // Manage toggle
         document.getElementById('btnManage').addEventListener('click', function() {
             manageMode = !manageMode;
-            var btn = document.getElementById('btnManage');
+            const btn = document.getElementById('btnManage');
             if (manageMode) {
                 btn.textContent = '✓ Done';
                 btn.classList.add('active');
@@ -447,103 +736,31 @@
             renderChips();
         });
 
-        // Add button toggle
-        document.getElementById('btnAddAccount').addEventListener('click', function() {
-            var panel = document.getElementById('addPanel');
-            if (panel.classList.contains('open')) {
-                panel.classList.remove('open');
-            } else {
-                panel.classList.add('open');
-                document.getElementById('newUsername').focus();
-            }
-        });
-
-        document.getElementById('btnCancelAdd').addEventListener('click', function() {
-            document.getElementById('addPanel').classList.remove('open');
-            document.getElementById('newUsername').value = '';
-        });
-
-        function saveNewAccount() {
-            var rawUname = (document.getElementById('newUsername').value || '').trim();
-            if (!rawUname) { showError('Please enter an account name.'); return; }
-            var uname = rawUname.toLowerCase();
-            if (uname === 'yug' || uname === 'vipul') { showError('That account is disabled.'); return; }
-            var list = loadAccounts();
-            if (list.find(function(a) { return (a.username || '').toLowerCase() === uname; })) {
-                if (uname === 'valam') {
-                    showError('Valam account already exists. Click it to log in!');
-                } else {
-                    showError('Account "' + rawUname + '" already exists.');
-                }
-                return;
-            }
-            list.push({ username: rawUname });
-            saveAccounts(list);
-            if (window.AppAPI) AppAPI.saveAccount(rawUname);
-            document.getElementById('addPanel').classList.remove('open');
-            document.getElementById('newUsername').value = '';
+        // Initialize Accounts and Cloud Sync
+        async function initPage() {
+            accountsCache = loadLocalAccounts();
             renderChips();
-            showSuccess(capitalize(rawUname) + ' added!');
-            doLogin(rawUname);
-        }
 
-        document.getElementById('btnSaveAccount').addEventListener('click', saveNewAccount);
-        document.getElementById('newUsername').addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') { e.preventDefault(); saveNewAccount(); }
-        });
-
-        // Alerts
-        function showError(msg) {
-            var el = document.getElementById('errorAlert');
-            document.getElementById('errorMsg').textContent = msg;
-            el.classList.add('show');
-            document.getElementById('successAlert').classList.remove('show');
-        }
-
-        function showSuccess(msg) {
-            var el = document.getElementById('successAlert');
-            document.getElementById('successMsg').textContent = msg;
-            el.classList.add('show');
-            document.getElementById('errorAlert').classList.remove('show');
-            setTimeout(function() { el.classList.remove('show'); }, 3000);
-        }
-
-        function hideError() {
-            document.getElementById('errorAlert').classList.remove('show');
-        }
-
-        // Login
-        function doLogin(uname) {
-            hideError();
-            var cleanUser = (uname || '').trim().toLowerCase();
-            if (!cleanUser || cleanUser === 'yug' || cleanUser === 'vipul') {
-                showError('Please choose or create an account.');
-                return;
+            // Wait for AppAPI cloud connection
+            if (window.AppAPI) {
+                await AppAPI.ready();
+                const remote = await AppAPI.loadAccounts();
+                if (remote && Array.isArray(remote) && remote.length > 0) {
+                    accountsCache = remote;
+                    saveLocalAccounts(remote);
+                    renderChips();
+                }
             }
 
-            localStorage.setItem('auth_user', cleanUser);
-            localStorage.setItem('auth_user_name', capitalize(cleanUser));
-            window.location.href = 'dilyex.html';
-        }
-
-        // Auto-redirect if already logged in (ignore old yug/vipul)
-        var current = (localStorage.getItem('auth_user') || '').trim().toLowerCase();
-        if (current === 'yug' || current === 'vipul') {
-            localStorage.removeItem('auth_user');
-            localStorage.removeItem('auth_user_name');
-            current = '';
-        }
-        if (current) {
-            var accs = loadAccounts();
-            var found = false;
-            for (var i = 0; i < accs.length; i++) {
-                if ((accs[i].username || '').toLowerCase() === current) { found = true; break; }
+            // If already logged in, check if user exists in accounts
+            const current = (localStorage.getItem('auth_user') || '').trim().toLowerCase();
+            const token = localStorage.getItem('auth_token');
+            if (current && current !== 'yug' && current !== 'vipul') {
+                document.getElementById('loginUsername').value = current;
             }
-            if (found) window.location.href = 'dilyex.html';
         }
 
-        // Init
-        renderChips();
+        initPage();
     </script>
 </body>
 

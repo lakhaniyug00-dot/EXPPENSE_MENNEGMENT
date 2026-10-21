@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -907,6 +907,7 @@
                 style="padding:5px 10px;border-radius:8px;border:1.5px solid var(--line);background:var(--card-bg, #fff);font-size:13px;font-weight:800;color:var(--ink);cursor:pointer;outline:none;"
                 onchange="handlePagarYearChange(this.value)">
             </select>
+            <span id="backendStatusBadge" style="background:var(--card-bg, #fff);border:1.5px solid var(--line);border-radius:8px;padding:5px 9px;font-size:11.5px;font-weight:700;color:var(--ink-soft);display:inline-flex;align-items:center;">⚪ Local Storage</span>
             <span
                 style="background:var(--paper-card, #fff);border:1.5px solid var(--line);border-radius:8px;padding:5px 10px;font-size:12px;font-weight:700;color:var(--ink);display:inline-flex;align-items:center;gap:4px;">
                 👤 <span id="authUserName">...</span>
@@ -1316,13 +1317,10 @@
                     if (r && r.value !== null && r.value !== undefined) return r.value;
                 }
                 const val = userLocalGet(k);
-                if (val !== null) return val;
-                if (getAuthUser() === 'yug' && window.storage) {
-                    const rLeg = await window.storage.get(k, false);
-                    if (rLeg && rLeg.value !== null && rLeg.value !== undefined) {
-                        await storageSet(k, rLeg.value);
-                        return rLeg.value;
-                    }
+                if (val !== null && val !== undefined) return val;
+                if (window.AppAPI && AppAPI.isAvailable()) {
+                    const apiVal = await AppAPI.get(k);
+                    if (apiVal !== null && apiVal !== undefined) return apiVal;
                 }
                 return null;
             } catch (e) { return userLocalGet(k); }
@@ -1339,21 +1337,15 @@
         };
 
         const getAllKeys = async () => {
+            if (window.AppAPI && typeof window.AppAPI.getAllKeys === 'function') {
+                return await window.AppAPI.getAllKeys();
+            }
             const u = getAuthUser();
             const prefix = 'u:' + u + ':';
             let rawKeys = [];
-            if (window.storage && window.storage.list) {
-                try { let r = await window.storage.list(); if (r && r.keys) rawKeys = r.keys; } catch (e) { }
-            } else {
-                for (let i = 0; i < localStorage.length; i++) rawKeys.push(localStorage.key(i));
-            }
+            for (let i = 0; i < localStorage.length; i++) rawKeys.push(localStorage.key(i));
             let userKeys = [];
             rawKeys.forEach(k => { if (k && k.startsWith(prefix)) userKeys.push(k.slice(prefix.length)); });
-            if (u === 'yug') {
-                rawKeys.forEach(k => {
-                    if (k && !k.startsWith('u:') && !k.startsWith('auth_') && !k.startsWith('app_') && !userKeys.includes(k)) userKeys.push(k);
-                });
-            }
             return Array.from(new Set(userKeys));
         };
 
@@ -2810,11 +2802,21 @@
 
         // ── INIT ──
         (async function init() {
+            if (window.AppAPI && typeof window.AppAPI.ready === 'function') {
+                await window.AppAPI.ready();
+            }
             renderAuthHeader();
             await renderPagarYearSelect();
             loadLocalStorageState();
             await syncAllKhataData();
             switchTab('rates');
+
+            if (window.AppAPI && typeof window.AppAPI.onSync === 'function') {
+                window.AppAPI.onSync(async () => {
+                    loadLocalStorageState();
+                    await syncAllKhataData();
+                });
+            }
         })();
     </script>
 </body>
