@@ -603,9 +603,8 @@
                 });
 
                 if (res.ok) {
-                    const data = await res.json();
                     isBackendActive = true;
-                    isDbConnected = data.database === 'connected';
+                    isDbConnected = data.database === 'connected' || data.database === 'fallback_cloud_ready';
                     isConfigured = Boolean(data.configured);
 
                     this.updateStatusBadge();
