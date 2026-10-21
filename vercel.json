@@ -1,5 +1,13 @@
 {
-  "cleanUrls": true,
+  "version": 2,
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/index.js" },
+    { "source": "/api", "destination": "/api/index.js" },
+    { "source": "/", "destination": "/dilyex.html" },
+    { "source": "/dilyex", "destination": "/dilyex.html" },
+    { "source": "/khata", "destination": "/khata.html" },
+    { "source": "/pagar", "destination": "/pagar.html" }
+  ],
   "headers": [
     {
       "source": "/(.*)",
@@ -7,10 +15,5 @@
         { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }
       ]
     }
-  ],
-  "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api" },
-    { "source": "/api", "destination": "/api" },
-    { "source": "/", "destination": "/dilyex.html" }
   ]
 }

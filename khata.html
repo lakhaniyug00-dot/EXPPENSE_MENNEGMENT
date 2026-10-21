@@ -1535,18 +1535,23 @@
         };
 
         const storageList = async () => {
-            if (window.AppAPI && typeof window.AppAPI.getAllKeys === 'function') {
-                return await window.AppAPI.getAllKeys();
-            }
             const u = getAuthUser();
             const prefix = `u:${u}:`;
-            let rawKeys = [];
-            for (let i = 0; i < localStorage.length; i++) rawKeys.push(localStorage.key(i));
-            let userKeys = [];
-            rawKeys.forEach(k => {
-                if (k && k.startsWith(prefix)) userKeys.push(k.slice(prefix.length));
-            });
-            return Array.from(new Set(userKeys));
+            let keySet = new Set();
+            if (window.AppAPI && typeof window.AppAPI.getAllKeys === 'function') {
+                try {
+                    const apiKeys = await window.AppAPI.getAllKeys();
+                    (apiKeys || []).forEach(k => keySet.add(k));
+                } catch (e) { }
+            }
+            for (let i = 0; i < localStorage.length; i++) {
+                const lk = localStorage.key(i);
+                if (lk) {
+                    if (lk.startsWith(prefix)) keySet.add(lk.slice(prefix.length));
+                    else if (u === 'valam' && (lk.startsWith('khata:') || lk.startsWith('accounting_') || lk.startsWith('khata_pagar_data'))) keySet.add(lk);
+                }
+            }
+            return Array.from(keySet);
         };
 
         let accounts = [];
@@ -2762,7 +2767,7 @@
         const syncChannel = (() => { try { return new BroadcastChannel('khata_sync'); } catch (e) { return { postMessage: () => { }, addEventListener: () => { } }; } })();
         syncChannel.addEventListener('message', async (ev) => {
             if (!ev.data) return;
-            if (ev.data.type === 'year-changed' || ev.data.type === 'year-completed') {
+            if (ev.data.type === 'user-switched' || ev.data.type === 'year-changed' || ev.data.type === 'year-completed') {
                 location.reload();
                 return;
             }

@@ -428,8 +428,12 @@
 
             for (let i = 0; i < localStorage.length; i++) {
                 const lk = localStorage.key(i);
-                if (lk && lk.startsWith(prefix)) {
-                    keySet.add(lk.slice(prefix.length));
+                if (lk) {
+                    if (lk.startsWith(prefix)) {
+                        keySet.add(lk.slice(prefix.length));
+                    } else if (u === 'valam' && (lk.startsWith('khata:') || lk.startsWith('accounting_') || lk.startsWith('khata_pagar_data'))) {
+                        keySet.add(lk);
+                    }
                 }
             }
 
