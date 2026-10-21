@@ -2678,8 +2678,8 @@
         async function saveGlobalCompanyName(newComp) {
             const comp = (newComp || '').trim() || 'TAPU FAB';
             try {
-                // Save the company name (user-scoped)
                 await storageSet('khata:company_name', comp);
+                localStorage.setItem(getUserStorageKey('khata:company_name'), comp);
                 localStorage.setItem('khata:company_name', comp);
 
                 // Get active year to also update year-specific pagar key
@@ -2690,7 +2690,7 @@
                 const keysToUpdate = [`khata_pagar_data_${curY}`, 'khata_pagar_data'];
                 for (const pagarKey of keysToUpdate) {
                     let pagarData = {};
-                    const rawPagar = await storageGet(pagarKey) || null;
+                    const rawPagar = await storageGet(pagarKey) || localStorage.getItem(getUserStorageKey(pagarKey)) || localStorage.getItem(pagarKey);
                     if (!rawPagar && pagarKey !== 'khata_pagar_data') continue; // skip if year-key has no data yet
                     if (rawPagar) {
                         try { pagarData = JSON.parse(rawPagar); } catch (e) { }
@@ -2704,9 +2704,10 @@
                     }
                     await storageSet(pagarKey, JSON.stringify(pagarData));
                     localStorage.setItem(getUserStorageKey(pagarKey), JSON.stringify(pagarData));
+                    localStorage.setItem(pagarKey, JSON.stringify(pagarData));
                 }
 
-                try { syncChannel.postMessage({ type: 'company-updated' }); } catch (e) { }
+                try { syncChannel.postMessage({ type: 'company-updated', company: comp }); } catch (e) { }
                 setStatus(`✅ Company "${comp}" saved — all pagar slips updated!`, false);
             } catch (e) { console.error(e); }
         }

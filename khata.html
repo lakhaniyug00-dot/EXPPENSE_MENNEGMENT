@@ -1570,6 +1570,20 @@
         }
         async function saveAccounts() { await storageSet('khata:accounts', JSON.stringify(accounts)); }
 
+        async function getActiveDateRange() {
+            try {
+                const raw = await storageGet('khata:active_year_info') || localStorage.getItem('khata:active_year_info');
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    if (parsed && parsed.startDate && parsed.endDate) return { start: parsed.startDate, end: parsed.endDate };
+                }
+            } catch (e) { }
+            if (activeAccountingYear && /^\d{4}$/.test(activeAccountingYear)) {
+                return { start: `${activeAccountingYear}-01-01`, end: `${activeAccountingYear}-12-31` };
+            }
+            return null;
+        }
+
         async function loadManualEntries(accId, accName) {
             let entries = [];
             try { const v = await storageGet('khata:acc:' + accId); if (v) entries = entries.concat(JSON.parse(v) || []); } catch (e) { }
@@ -1589,8 +1603,9 @@
                     } catch (e) { }
                 }
             }
-            if (activeAccountingYear) {
-                entries = entries.filter(e => !e.date || e.date.startsWith(activeAccountingYear + '-'));
+            const range = await getActiveDateRange();
+            if (range) {
+                entries = entries.filter(e => !e.date || (e.date >= range.start && e.date <= range.end));
             }
             return entries;
         }
@@ -1598,12 +1613,13 @@
 
         async function getDailyEntries(accountName) {
             const keys = await storageList();
-            const yearPrefix = 'khata:day:' + (activeAccountingYear ? (activeAccountingYear + '-') : '');
-            const dayKeys = keys.filter(k => k && k.startsWith(yearPrefix));
+            const dayKeys = keys.filter(k => k && k.startsWith('khata:day:'));
+            const range = await getActiveDateRange();
             let entries = [];
             for (const key of dayKeys) {
                 try {
                     const dateStr = key.replace('khata:day:', '');
+                    if (range && (dateStr < range.start || dateStr > range.end)) continue;
                     const v = await storageGet(key);
                     if (!v) continue;
                     const p = JSON.parse(v);
@@ -1996,8 +2012,8 @@
             }
 
             const keys = await storageList();
-            const yearPrefix = 'khata:day:' + (activeAccountingYear ? (activeAccountingYear + '-') : '');
-            const dayKeys = keys.filter(k => k && k.startsWith(yearPrefix));
+            const dayKeys = keys.filter(k => k && k.startsWith('khata:day:'));
+            const range = await getActiveDateRange();
             const byName = new Map();
 
             function getRecord(rawName, entryCat) {
@@ -2322,9 +2338,10 @@
                     }
                     await storageSet(pagarKey, JSON.stringify(pagarData));
                     localStorage.setItem(getUserStorageKey(pagarKey), JSON.stringify(pagarData));
+                    localStorage.setItem(pagarKey, JSON.stringify(pagarData));
                 }
 
-                try { syncChannel.postMessage({ type: 'company-updated' }); } catch (e) { }
+                try { syncChannel.postMessage({ type: 'company-updated', company: comp }); } catch (e) { }
                 setStatus(`✅ Company "${comp}" saved — all pagar slips updated!`, false);
             } catch (e) { console.error(e); }
         }

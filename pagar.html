@@ -1449,14 +1449,14 @@
 
         function loadLocalStorageState() {
             try {
-                const compOverride = userLocalGet('khata:company_name');
+                const compOverride = userLocalGet('khata:company_name') || localStorage.getItem('khata:company_name');
                 const curY = getActiveYear();
                 const specificKey = `khata_pagar_data_${curY}`;
                 const s = userLocalGet(specificKey) || userLocalGet('khata_pagar_data');
+                if (compOverride && compOverride.trim()) globalCompanyName = compOverride.trim();
                 if (s) {
                     const parsed = JSON.parse(s);
-                    if (compOverride && compOverride.trim()) globalCompanyName = compOverride.trim();
-                    else if (parsed.globalCompanyName) globalCompanyName = parsed.globalCompanyName;
+                    if (!compOverride && parsed.globalCompanyName) globalCompanyName = parsed.globalCompanyName;
 
                     if (parsed.ratesData) ratesData = parsed.ratesData;
                     if (parsed.opWorkerDuties) opWorkerDuties = parsed.opWorkerDuties;
@@ -1527,6 +1527,12 @@
                 return;
             }
             if (ev.data.type === 'company-updated' || ev.data.type === 'day-updated') {
+                if (ev.data.company) {
+                    globalCompanyName = ev.data.company;
+                    opSlipsData.forEach(s => s.company = globalCompanyName);
+                    fixSlipsData.forEach(s => s.company = globalCompanyName);
+                    saveStorage();
+                }
                 loadLocalStorageState();
                 await syncAllKhataData();
                 if (currentTab === 'op_slips') renderOpSlips();
@@ -1564,7 +1570,20 @@
                         const type = String(m.pagarType || '').toLowerCase()
                             || (fl.includes('fix') ? 'fix' : fl.includes('daily') ? 'daily' : '');
                         if (type === 'fix') fixSet.add(nm);
-                        else if (type === 'daily') opSet.add(nm);
+                        else opSet.add(nm);
+                    });
+                }
+            } catch (e) { }
+
+            try {
+                const wRaw = await storageGet('khata:workers');
+                if (wRaw) {
+                    const wList = JSON.parse(wRaw) || [];
+                    wList.forEach(w => {
+                        if (w && w.trim()) {
+                            const nm = w.trim();
+                            if (!fixSet.has(nm)) opSet.add(nm);
+                        }
                     });
                 }
             } catch (e) { }
@@ -1593,9 +1612,9 @@
                 upadEntries.push({ ref: (ref && ref.trim()) ? ref.trim() : 'Kharchi', note: (ref && ref.trim()) ? ref.trim() : 'Kharchi', date: dt, amount: numAmt });
             };
             try {
-                const curY = getActiveYear();
                 const keys = await getAllKeys();
-                for (const key of (keys || []).filter(k => k && k.startsWith('khata:day:' + (curY ? (curY + '-') : '')))) {
+                const dayKeys = (keys || []).filter(k => k && k.startsWith('khata:day:'));
+                for (const key of dayKeys) {
                     const dateStr = key.replace('khata:day:', '');
                     try {
                         const raw = await storageGet(key);
@@ -1648,11 +1667,11 @@
                 const opSetLower = new Set(opWorkers.map(w => w.trim().toLowerCase()));
                 const fixSetLower = new Set(fixWorkers.map(w => w.trim().toLowerCase()));
 
-                // Remove workers from Fix Slips if they are now Daily/Op workers or not in fixWorkers
+                // Only remove from Fix Slips if explicitly in opWorkers
                 for (let i = 0; i < fixSlipsData.length; i++) {
                     if (fixSlipsData[i].name && !fixSlipsData[i].name.startsWith('Fix Worker #')) {
                         const nameNorm = fixSlipsData[i].name.trim().toLowerCase();
-                        if (!fixSetLower.has(nameNorm) || opSetLower.has(nameNorm)) {
+                        if (opSetLower.has(nameNorm)) {
                             fixSlipsData[i].name = '';
                             fixSlipsData[i].salary = 0;
                             fixSlipsData[i].upad = [];
@@ -1661,11 +1680,11 @@
                     }
                 }
 
-                // Remove workers from Op Slips if they are now Fix workers or not in opWorkers
+                // Only remove from Op Slips if explicitly in fixWorkers
                 for (let i = 0; i < opSlipsData.length; i++) {
                     if (opSlipsData[i].name && !opSlipsData[i].name.startsWith('Operator #')) {
                         const nameNorm = opSlipsData[i].name.trim().toLowerCase();
-                        if (!opSetLower.has(nameNorm) || fixSetLower.has(nameNorm)) {
+                        if (fixSetLower.has(nameNorm)) {
                             opSlipsData[i].name = '';
                             opSlipsData[i].upad = [];
                             opSlipsData[i].duties = [];
@@ -2024,7 +2043,7 @@
             card.innerHTML = `
                 <div style="border:2px solid #000;background:#fff;border-radius:4px;height:100%;display:flex;flex-direction:column;justify-content:space-between;">
                     <div style="padding:6px 10px;border-bottom:1.5px solid #000;background:#fff;">
-                        <div style="text-align:center;font-size:16px;font-weight:900;letter-spacing:1px;margin-bottom:3px;color:#000;"><span style="text-decoration:underline;">${slip.company || globalCompanyName}</span></div>
+                        <div style="text-align:center;font-size:16px;font-weight:900;letter-spacing:1px;margin-bottom:3px;color:#000;"><span style="text-decoration:underline;">${globalCompanyName || slip.company || 'TAPU FAB'}</span></div>
                         <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;">
                             <div style="font-size:13px;font-weight:800;color:#000;display:flex;align-items:center;gap:6px;flex:1;">
                                 <span>${slip.slipNo} Oprater</span>
@@ -2146,7 +2165,7 @@
             card.innerHTML = `
                 <div style="border:2px solid #000;background:#fff;border-radius:4px;height:100%;display:flex;flex-direction:column;justify-content:space-between;">
                     <div style="padding:6px 10px;border-bottom:1.5px solid #000;background:#fff;">
-                        <div style="text-align:center;font-size:16px;font-weight:900;letter-spacing:1px;margin-bottom:3px;color:#000;"><span style="text-decoration:underline;">${slip.company || globalCompanyName}</span></div>
+                        <div style="text-align:center;font-size:16px;font-weight:900;letter-spacing:1px;margin-bottom:3px;color:#000;"><span style="text-decoration:underline;">${globalCompanyName || slip.company || 'TAPU FAB'}</span></div>
                         <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;">
                             <div style="font-size:13px;font-weight:800;color:#000;display:flex;align-items:center;gap:6px;">
                                 <input class="cell-edit no-print" type="text" value="${slip.category || 'HELPAR :-'}" style="max-width:110px;font-weight:800;border:1px solid #000;" onchange="updateFixCategory(${sIdx}, this.value)">
@@ -2815,6 +2834,10 @@
                 window.AppAPI.onSync(async () => {
                     loadLocalStorageState();
                     await syncAllKhataData();
+                    if (currentTab === 'op_slips') renderOpSlips();
+                    if (currentTab === 'fix_slips') renderFixSlips();
+                    if (currentTab === 'op_total') renderOpTotalTable();
+                    if (currentTab === 'fix_total') renderFixTotalTable();
                 });
             }
         })();
