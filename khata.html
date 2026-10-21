@@ -1028,7 +1028,8 @@
                 padding: 10px 12px !important;
             }
 
-            .top-left, .top-right {
+            .top-left,
+            .top-right {
                 flex-wrap: wrap !important;
                 justify-content: space-between !important;
                 width: 100% !important;
@@ -1069,7 +1070,8 @@
                 padding: 18px 14px !important;
             }
 
-            .table-wrap, .table-container {
+            .table-wrap,
+            .table-container {
                 overflow-x: auto !important;
                 -webkit-overflow-scrolling: touch !important;
             }
@@ -1153,23 +1155,38 @@
                 style="background:var(--gold-bg);color:var(--gold);border-color:var(--gold);font-weight:700;">💼
                 Pagar</a>
             <div class="logo">Khata <span>Book</span></div>
-            <span id="headerYearBadge" style="cursor:pointer;background:var(--carry-bg, #FEF7EE);color:var(--carry, #C67D0A);border:1.5px solid var(--carry, #C67D0A);border-radius:6px;padding:3px 9px;font-size:11.5px;font-weight:800;margin-left:4px;" title="Accounting Year — Click to change in Master">📅 ...</span>
+            <span id="headerYearBadge"
+                style="cursor:pointer;background:var(--carry-bg, #FEF7EE);color:var(--carry, #C67D0A);border:1.5px solid var(--carry, #C67D0A);border-radius:6px;padding:3px 9px;font-size:11.5px;font-weight:800;margin-left:4px;"
+                title="Accounting Year — Click to change in Master">📅 ...</span>
         </div>
         <div class="top-right" style="display:flex;align-items:center;gap:8px;">
             <button class="report-btn" id="reportBtn" title="Report">Report</button>
             <button class="icon-btn" id="searchBtn" title="Search">🔍</button>
             <div id="cloud-account-bar" class="no-print" style="display:flex;align-items:center;gap:8px;">
-                <div id="cloud-sync-badge" class="cloud-sync-badge" style="display:inline-flex;align-items:center;background:rgba(26,58,138,0.06);border:1px solid rgba(26,58,138,0.15);padding:6px 14px;border-radius:999px;color:#1a3a8a;font-size:13.5px;font-weight:600;font-family:'Inter',sans-serif;">
-                    <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#10b981;margin-right:7px;"></span>
+                <div id="cloud-sync-badge" class="cloud-sync-badge"
+                    style="display:inline-flex;align-items:center;background:rgba(26,58,138,0.06);border:1px solid rgba(26,58,138,0.15);padding:6px 14px;border-radius:999px;color:#1a3a8a;font-size:13.5px;font-weight:600;font-family:'Inter',sans-serif;">
+                    <span
+                        style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#10b981;margin-right:7px;"></span>
                     <span>Cloud Synced</span>
                 </div>
                 <div id="account-actions" style="display:inline-flex;align-items:center;gap:8px;">
-                    <div id="account-user-chip" onclick="openAccountModal()" title="Click to switch account / ખાતું બદલો" style="display:inline-flex;align-items:center;gap:9px;background:#fff;border:1.5px solid #cbd5e1;border-radius:12px;padding:5px 14px;box-shadow:0 2px 6px rgba(0,0,0,0.05);cursor:pointer;user-select:none;transition:all 0.15s ease;">
-                        <div id="user-chip-avatar" style="width:26px;height:26px;border-radius:7px;background:#0F172A;color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Inter',sans-serif;font-size:13px;font-weight:800;flex-shrink:0;">V</div>
-                        <span id="user-chip-name" style="font-family:'Inter',-apple-system,sans-serif;font-size:14.5px;font-weight:700;color:#0F172A;letter-spacing:0.2px;">Valam</span>
+                    <div id="account-user-chip" onclick="openAccountModal()"
+                        title="Click to switch account / ખાતું બદલો"
+                        style="display:inline-flex;align-items:center;gap:9px;background:#fff;border:1.5px solid #cbd5e1;border-radius:12px;padding:5px 14px;box-shadow:0 2px 6px rgba(0,0,0,0.05);cursor:pointer;user-select:none;transition:all 0.15s ease;">
+                        <div id="user-chip-avatar"
+                            style="width:26px;height:26px;border-radius:7px;background:#0F172A;color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Inter',sans-serif;font-size:13px;font-weight:800;flex-shrink:0;">
+                            V</div>
+                        <span id="user-chip-name"
+                            style="font-family:'Inter',-apple-system,sans-serif;font-size:14.5px;font-weight:700;color:#0F172A;letter-spacing:0.2px;">Valam</span>
                     </div>
-                    <button id="account-switch-btn" type="button" onclick="openAccountModal()" title="Switch Account / ખાતું બદલો" style="background:#e3f3ff;border:1.5px solid #1a3a8a;border-radius:999px;padding:5px 14px;cursor:pointer;color:#1a3a8a;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;display:inline-flex;align-items:center;gap:5px;transition:all 0.15s ease;">👥 Switch</button>
-                    <button id="account-sync-btn" type="button" onclick="window.AppAPI && AppAPI.forceSync()" title="Force Sync Now" style="background:#fff;border:1.5px solid #1a3a8a;border-radius:999px;padding:5px 12px;cursor:pointer;color:#1a3a8a;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;display:inline-flex;align-items:center;gap:4px;transition:all 0.15s ease;">🔄 Sync</button>
+                    <button id="account-switch-btn" type="button" onclick="openAccountModal()"
+                        title="Switch Account / ખાતું બદલો"
+                        style="background:#e3f3ff;border:1.5px solid #1a3a8a;border-radius:999px;padding:5px 14px;cursor:pointer;color:#1a3a8a;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;display:inline-flex;align-items:center;gap:5px;transition:all 0.15s ease;">👥
+                        Switch</button>
+                    <button id="account-sync-btn" type="button" onclick="window.AppAPI && AppAPI.forceSync()"
+                        title="Force Sync Now"
+                        style="background:#fff;border:1.5px solid #1a3a8a;border-radius:999px;padding:5px 12px;cursor:pointer;color:#1a3a8a;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;display:inline-flex;align-items:center;gap:4px;transition:all 0.15s ease;">🔄
+                        Sync</button>
                 </div>
             </div>
         </div>
@@ -1334,22 +1351,24 @@
 
                 <!-- ACCOUNTING YEAR SELECT & COMPLETE YEAR -->
                 <div style="padding-bottom:10px;border-bottom:1px dashed var(--line);">
-                    <label
-                        style="display:block;font-size:12px;font-weight:700;color:var(--ink-soft);margin-bottom:4px;">
+                    <label style="display:block;font-size:12px;font-weight:700;color:var(--ink-soft);margin-bottom:4px;">
                         📅 Accounting Year (વર્ષ પસંદ કરો)
                     </label>
                     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
                         <select id="masterYearSelect" class="form-input"
                             style="flex:1;min-width:130px;font-size:13.5px;font-weight:700;">
                         </select>
-                        <button type="button" id="completeYearBtn"
-                            style="background:#D9534F;color:#fff;border:none;padding:8px 14px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;"
-                            title="Complete this year and start new year with blank Rojmel while keeping names">
-                            ✓ Complete Year
-                        </button>
                     </div>
-                    <div style="font-size:11px;color:var(--ink-soft);margin-top:4px;">
-                        વર્ષ બદલવાથી આખા સાઇટનો ડેટા એ વર્ષ મુજબ દેખાશે. Complete Year કરવાથી ચાલુ વર્ષ સેવ રહેશે અને નવું વર્ષ ખાલી રોજમેળ સાથે શરૂ થશે.
+                    <div style="font-size:11px;color:var(--ink-soft);margin-top:6px;margin-bottom:8px;">
+                        વર્ષ બદલવાથી આખા સાઇટનો ડેટા એ વર્ષ મુજબ દેખાશે.
+                    </div>
+                    <button type="button" id="completeYearBtn"
+                        style="width:100%;padding:10px 14px;background:linear-gradient(135deg,#D9534F,#b03a37);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:800;cursor:pointer;letter-spacing:0.3px;box-shadow:0 3px 10px rgba(183,59,56,0.3);"
+                        title="Save this year's data and start a completely fresh new year">
+                        🎆 Diwali End — Start New Year (ખાલી સ્લિપ + ખાલી ખાતા)
+                    </button>
+                    <div style="font-size:11px;color:#b03a37;margin-top:5px;font-weight:600;">
+                        ⚠️ ચાલુ વર્ષનો ડેટા સુરક્ષિત સેવ રહેશે. નવા વર્ષમાં બધી સ્લિપ ও ખાતા ખાલી (Blank) શરૂ થશે.
                     </div>
                 </div>
                 <div>
@@ -2277,20 +2296,18 @@
             const comp = (newComp || '').trim() || 'TAPU FAB';
             try {
                 await storageSet('khata:company_name', comp);
+                localStorage.setItem(getUserStorageKey('khata:company_name'), comp);
                 localStorage.setItem('khata:company_name', comp);
 
-                // Get active year to update year-specific key
                 const curY = localStorage.getItem('khata:active_year') || String(new Date().getFullYear());
-
-                // Update both the generic and year-specific pagar data keys
-                const keysToUpdate = ['khata_pagar_data', `khata_pagar_data_${curY}`];
+                const keysToUpdate = [`khata_pagar_data_${curY}`, 'khata_pagar_data'];
                 for (const pagarKey of keysToUpdate) {
                     let pagarData = {};
-                    const rawPagar = await storageGet(pagarKey) || null;
+                    const rawPagar = await storageGet(pagarKey) || localStorage.getItem(getUserStorageKey(pagarKey)) || localStorage.getItem(pagarKey);
+                    if (!rawPagar && pagarKey !== 'khata_pagar_data') continue;
                     if (rawPagar) {
                         try { pagarData = JSON.parse(rawPagar); } catch (e) { }
                     }
-                    if (!rawPagar && pagarKey !== 'khata_pagar_data') continue; // skip year-key if no data yet
                     pagarData.globalCompanyName = comp;
                     if (pagarData.opSlipsData && Array.isArray(pagarData.opSlipsData)) {
                         pagarData.opSlipsData.forEach(s => s.company = comp);
@@ -2299,10 +2316,11 @@
                         pagarData.fixSlipsData.forEach(s => s.company = comp);
                     }
                     await storageSet(pagarKey, JSON.stringify(pagarData));
+                    localStorage.setItem(getUserStorageKey(pagarKey), JSON.stringify(pagarData));
                 }
 
                 try { syncChannel.postMessage({ type: 'company-updated' }); } catch (e) { }
-                setStatus(`Company name updated to "${comp}".`, false);
+                setStatus(`✅ Company "${comp}" saved — all pagar slips updated!`, false);
             } catch (e) { console.error(e); }
         }
 
@@ -2407,51 +2425,51 @@
             const curYNum = parseInt(activeY, 10) || new Date().getFullYear();
             const nextY = String(curYNum + 1);
 
-            const msg = `વર્ષ ${activeY} પૂર્ણ (Complete) કરવું છે?\n\n` +
-                `• વર્ષ ${activeY} નો તમામ ડેટા (રોજમેળ, ખાતા, પગાર) સેવ રહેશે.\n` +
-                `• નવું વર્ષ ${nextY} શરૂ થશે.\n` +
-                `• નવા વર્ષમાં રોજમેળ (Rojmel) ખાલી (Blank) રહેશે.\n` +
-                `• તમામ વર્કર અને એકાઉન્ટના નામ યથાવત (Safe) રહેશે.\n` +
-                `• તમે ગમે ત્યારે જૂનું વર્ષ (${activeY}) સિલેક્ટ કરીને જૂનો ડેટા જોઈ શકશો.`;
+            const msg = `🎆 DIWALI YEAR END — Year ${activeY}\n\n` +
+                `✅ WHAT WILL BE SAVED (Safe):\n` +
+                `  • Year ${activeY} નો તમામ ડેટા Cloud + Local માં સુરક્ષિત.\n` +
+                `  • Company name, Rate list — carried forward.\n` +
+                `  • Worker names in Master — safe.\n\n` +
+                `🗑️ WHAT WILL BE RESET (Year ${nextY}):\n` +
+                `  • તમામ Oprater + Fix Pagar Slip ખાલી (Blank) — names cleared.\n` +
+                `  • Daily Rojmel entries — start fresh.\n\n` +
+                `⬅️ OLD DATA: Year ${activeY} select કરીને જૂનો ડેટા જોઈ શકો.\n\nContinue?`;
 
             if (!confirm(msg)) return;
 
             try {
                 let pagarData = {};
                 const rawPagar = await storageGet(`khata_pagar_data_${activeY}`) ||
-                                 await storageGet('khata_pagar_data') ||
-                                 localStorage.getItem(`khata_pagar_data_${activeY}`) ||
-                                 localStorage.getItem('khata_pagar_data');
+                    await storageGet('khata_pagar_data') || null;
                 if (rawPagar) {
                     try { pagarData = JSON.parse(rawPagar); } catch (e) { }
                 }
 
+                // Archive current year pagar data
                 await storageSet(`khata_pagar_data_${activeY}`, JSON.stringify(pagarData));
-                localStorage.setItem(`khata_pagar_data_${activeY}`, JSON.stringify(pagarData));
+                localStorage.setItem(getUserStorageKey(`khata_pagar_data_${activeY}`), JSON.stringify(pagarData));
 
+                // Create FULLY BLANK pagar for new year (no names, no duties)
+                const compName = pagarData.globalCompanyName || 'TAPU FAB';
+                const blankOpSlips = [];
+                const blankFixSlips = [];
+                for (let i = 1; i <= 36; i++) {
+                    blankOpSlips.push({ slipNo: i, name: '', company: compName, month: '', duties: [], upad: [] });
+                    blankFixSlips.push({ slipNo: i, category: 'HELPAR :-', name: '', company: compName, month: '', salary: 0, days: 30, upad: [], duties: [] });
+                }
                 const nextPagar = {
-                    globalCompanyName: pagarData.globalCompanyName || 'TAPU FAB',
+                    globalCompanyName: compName,
                     ratesData: pagarData.ratesData || [],
-                    opSlipsData: (pagarData.opSlipsData || []).map(s => ({
-                        ...s,
-                        duties: [],
-                        upad: [],
-                        days: 0,
-                        extraHours: 0
-                    })),
-                    fixSlipsData: (pagarData.fixSlipsData || []).map(s => ({
-                        ...s,
-                        duties: [],
-                        upad: [],
-                        days: 0,
-                        extraHours: 0
-                    })),
+                    opSlipsData: blankOpSlips,
+                    fixSlipsData: blankFixSlips,
                     opWorkerDuties: {},
                     fixWorkerDuties: {}
                 };
                 await storageSet(`khata_pagar_data_${nextY}`, JSON.stringify(nextPagar));
-                localStorage.setItem(`khata_pagar_data_${nextY}`, JSON.stringify(nextPagar));
-            } catch (e) { }
+                await storageSet('khata_pagar_data', JSON.stringify(nextPagar));
+                localStorage.setItem(getUserStorageKey(`khata_pagar_data_${nextY}`), JSON.stringify(nextPagar));
+                localStorage.setItem(getUserStorageKey('khata_pagar_data'), JSON.stringify(nextPagar));
+            } catch (e) { console.error(e); }
 
             await ensureYearInList(nextY);
             await setActiveYear(nextY);
@@ -2460,7 +2478,7 @@
                 syncChannel.postMessage({ type: 'year-completed', oldYear: activeY, newYear: nextY });
             } catch (e) { }
 
-            alert(`વર્ષ ${activeY} સફળતાપૂર્વક પૂર્ણ થયું!\nહવે નવું વર્ષ ${nextY} શરૂ થયું છે. રોજમેળ ખાલી છે અને તમામ નામ હાજર છે.`);
+            alert(`🎆 Year ${activeY} સફળતાપૂર્વક પૂર્ણ થયું!\nનવું વર્ષ ${nextY} શરૂ થયું. રોજમેળ ખાલી અને તમામ નામ હાજર છે.`);
             location.reload();
         }
 

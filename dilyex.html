@@ -1792,18 +1792,32 @@
                         <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                     </svg>
                 </button>
-                <div id="cloud-account-bar" class="no-print" style="display:flex;align-items:center;gap:8px;margin-left:8px;">
-                    <div id="cloud-sync-badge" class="cloud-sync-badge" style="display:inline-flex;align-items:center;background:rgba(26,58,138,0.06);border:1px solid rgba(26,58,138,0.15);padding:6px 14px;border-radius:999px;color:#1a3a8a;font-size:13.5px;font-weight:600;font-family:'Inter',sans-serif;">
-                        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#10b981;margin-right:7px;"></span>
+                <div id="cloud-account-bar" class="no-print"
+                    style="display:flex;align-items:center;gap:8px;margin-left:8px;">
+                    <div id="cloud-sync-badge" class="cloud-sync-badge"
+                        style="display:inline-flex;align-items:center;background:rgba(26,58,138,0.06);border:1px solid rgba(26,58,138,0.15);padding:6px 14px;border-radius:999px;color:#1a3a8a;font-size:13.5px;font-weight:600;font-family:'Inter',sans-serif;">
+                        <span
+                            style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#10b981;margin-right:7px;"></span>
                         <span>Cloud Synced</span>
                     </div>
                     <div id="account-actions" style="display:inline-flex;align-items:center;gap:8px;">
-                        <div id="account-user-chip" onclick="openAccountModal()" title="Click to switch account / ખાતું બદલો" style="display:inline-flex;align-items:center;gap:9px;background:#fff;border:1.5px solid #cbd5e1;border-radius:12px;padding:5px 14px;box-shadow:0 2px 6px rgba(0,0,0,0.05);cursor:pointer;user-select:none;transition:all 0.15s ease;">
-                            <div id="user-chip-avatar" style="width:26px;height:26px;border-radius:7px;background:#0F172A;color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Inter',sans-serif;font-size:13px;font-weight:800;flex-shrink:0;">V</div>
-                            <span id="user-chip-name" style="font-family:'Inter',-apple-system,sans-serif;font-size:14.5px;font-weight:700;color:#0F172A;letter-spacing:0.2px;">Valam</span>
+                        <div id="account-user-chip" onclick="openAccountModal()"
+                            title="Click to switch account / ખાતું બદલો"
+                            style="display:inline-flex;align-items:center;gap:9px;background:#fff;border:1.5px solid #cbd5e1;border-radius:12px;padding:5px 14px;box-shadow:0 2px 6px rgba(0,0,0,0.05);cursor:pointer;user-select:none;transition:all 0.15s ease;">
+                            <div id="user-chip-avatar"
+                                style="width:26px;height:26px;border-radius:7px;background:#0F172A;color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Inter',sans-serif;font-size:13px;font-weight:800;flex-shrink:0;">
+                                V</div>
+                            <span id="user-chip-name"
+                                style="font-family:'Inter',-apple-system,sans-serif;font-size:14.5px;font-weight:700;color:#0F172A;letter-spacing:0.2px;">Valam</span>
                         </div>
-                        <button id="account-switch-btn" type="button" onclick="openAccountModal()" title="Switch Account / ખાતું બદલો" style="background:#e3f3ff;border:1.5px solid #1a3a8a;border-radius:999px;padding:5px 14px;cursor:pointer;color:#1a3a8a;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;display:inline-flex;align-items:center;gap:5px;transition:all 0.15s ease;">👥 Switch</button>
-                        <button id="account-sync-btn" type="button" onclick="window.AppAPI && AppAPI.forceSync()" title="Force Sync Now" style="background:#fff;border:1.5px solid #1a3a8a;border-radius:999px;padding:5px 12px;cursor:pointer;color:#1a3a8a;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;display:inline-flex;align-items:center;gap:4px;transition:all 0.15s ease;">🔄 Sync</button>
+                        <button id="account-switch-btn" type="button" onclick="openAccountModal()"
+                            title="Switch Account / ખાતું બદલો"
+                            style="background:#e3f3ff;border:1.5px solid #1a3a8a;border-radius:999px;padding:5px 14px;cursor:pointer;color:#1a3a8a;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;display:inline-flex;align-items:center;gap:5px;transition:all 0.15s ease;">👥
+                            Switch</button>
+                        <button id="account-sync-btn" type="button" onclick="window.AppAPI && AppAPI.forceSync()"
+                            title="Force Sync Now"
+                            style="background:#fff;border:1.5px solid #1a3a8a;border-radius:999px;padding:5px 12px;cursor:pointer;color:#1a3a8a;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;display:inline-flex;align-items:center;gap:4px;transition:all 0.15s ease;">🔄
+                            Sync</button>
                     </div>
                 </div>
 
@@ -2092,18 +2106,23 @@
     </div>
 
     <!-- ── FINANCIAL YEAR DATE RANGE POPUP MODAL (Diwali to Diwali / Custom Range) ── -->
-    <div id="yearModalOverlay" style="position:fixed;inset:0;background:rgba(15,23,42,0.65);backdrop-filter:blur(4px);z-index:99998;display:none;align-items:center;justify-content:center;padding:16px;box-sizing:border-box;">
-        <div style="background:#FFFDF7;border:1.5px solid #E1D8BE;border-radius:20px;width:100%;max-width:440px;padding:26px 22px;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);position:relative;max-height:92vh;overflow-y:auto;font-family:'Inter',sans-serif;color:var(--ink);box-sizing:border-box;">
-            <button id="closeYearModalBtn" type="button" style="position:absolute;top:14px;right:16px;background:none;border:none;font-size:22px;cursor:pointer;color:var(--ink-soft);line-height:1;">✕</button>
+    <div id="yearModalOverlay"
+        style="position:fixed;inset:0;background:rgba(15,23,42,0.65);backdrop-filter:blur(4px);z-index:99998;display:none;align-items:center;justify-content:center;padding:16px;box-sizing:border-box;">
+        <div
+            style="background:#FFFDF7;border:1.5px solid #E1D8BE;border-radius:20px;width:100%;max-width:440px;padding:26px 22px;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);position:relative;max-height:92vh;overflow-y:auto;font-family:'Inter',sans-serif;color:var(--ink);box-sizing:border-box;">
+            <button id="closeYearModalBtn" type="button"
+                style="position:absolute;top:14px;right:16px;background:none;border:none;font-size:22px;cursor:pointer;color:var(--ink-soft);line-height:1;">✕</button>
             <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
                 <span style="font-size:30px;line-height:1;">📅</span>
                 <div>
-                    <h2 style="margin:0;font-size:18px;font-weight:800;color:var(--ink);letter-spacing:-0.3px;">નાણાકીય વર્ષ (Financial Year)</h2>
+                    <h2 style="margin:0;font-size:18px;font-weight:800;color:var(--ink);letter-spacing:-0.3px;">નાણાકીય
+                        વર્ષ (Financial Year)</h2>
                     <div style="font-size:12.5px;color:var(--ink-soft);">તારીખ પસંદ કરો (દા.ત. દિવાળી થી દિવાળી)</div>
                 </div>
             </div>
 
-            <div style="background:#F5F1E6;border-radius:12px;padding:12px 14px;margin-bottom:16px;font-size:12px;color:var(--ink-soft);line-height:1.45;">
+            <div
+                style="background:#F5F1E6;border-radius:12px;padding:12px 14px;margin-bottom:16px;font-size:12px;color:var(--ink-soft);line-height:1.45;">
                 ℹ️ આ પસંદ કરેલી તારીખો વચ્ચેનો તમામ રોજમેળ, ખાતા અને પગાર આ વર્ષમાં સ્ટોર થશે.
             </div>
 
@@ -2111,33 +2130,40 @@
                 <label style="display:block;font-size:12.5px;font-weight:700;color:var(--ink-soft);margin-bottom:6px;">
                     📅 શરૂઆત તારીખ (Start Date)
                 </label>
-                <input type="date" id="yearStartDateInput" style="width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;font-size:14px;font-weight:700;background:#fff;color:var(--ink);outline:none;font-family:inherit;box-sizing:border-box;">
+                <input type="date" id="yearStartDateInput"
+                    style="width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;font-size:14px;font-weight:700;background:#fff;color:var(--ink);outline:none;font-family:inherit;box-sizing:border-box;">
             </div>
 
             <div style="margin-bottom:14px;">
                 <label style="display:block;font-size:12.5px;font-weight:700;color:var(--ink-soft);margin-bottom:6px;">
                     📅 અંતિમ તારીખ (End Date)
                 </label>
-                <input type="date" id="yearEndDateInput" style="width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;font-size:14px;font-weight:700;background:#fff;color:var(--ink);outline:none;font-family:inherit;box-sizing:border-box;">
+                <input type="date" id="yearEndDateInput"
+                    style="width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;font-size:14px;font-weight:700;background:#fff;color:var(--ink);outline:none;font-family:inherit;box-sizing:border-box;">
             </div>
 
             <div style="margin-bottom:18px;">
                 <label style="display:block;font-size:12.5px;font-weight:700;color:var(--ink-soft);margin-bottom:6px;">
                     🏷️ વર્ષનું નામ / શીર્ષક (Year Title)
                 </label>
-                <input type="text" id="yearTitleInput" placeholder="દા.ત. 2024 - 2025 (દિવાળી)" style="width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;font-size:13.5px;font-weight:700;background:#fff;color:var(--ink);outline:none;font-family:inherit;box-sizing:border-box;">
+                <input type="text" id="yearTitleInput" placeholder="દા.ત. 2024 - 2025 (દિવાળી)"
+                    style="width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;font-size:13.5px;font-weight:700;background:#fff;color:var(--ink);outline:none;font-family:inherit;box-sizing:border-box;">
                 <div style="font-size:11.5px;color:var(--ink-faint);margin-top:4px;">
                     તારીખો પસંદ કરતાં ઓટોમેટિક નામ બની જશે અથવા તમે બદલી શકો છો.
                 </div>
             </div>
 
-            <div id="yearModalError" style="display:none;padding:9px 12px;border-radius:8px;background:var(--rust-bg);border:1px solid rgba(156,74,56,0.3);color:var(--rust);font-size:12.5px;font-weight:700;margin-bottom:14px;"></div>
+            <div id="yearModalError"
+                style="display:none;padding:9px 12px;border-radius:8px;background:var(--rust-bg);border:1px solid rgba(156,74,56,0.3);color:var(--rust);font-size:12.5px;font-weight:700;margin-bottom:14px;">
+            </div>
 
             <div style="display:flex;gap:10px;">
-                <button type="button" id="btnSaveYearDates" style="flex:1;padding:12px;background:var(--ink);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;box-shadow:0 4px 12px rgba(15,23,42,0.15);">
+                <button type="button" id="btnSaveYearDates"
+                    style="flex:1;padding:12px;background:var(--ink);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;box-shadow:0 4px 12px rgba(15,23,42,0.15);">
                     💾 સેવ કરો અને શરૂ કરો
                 </button>
-                <button type="button" id="btnCancelYearModal" style="padding:12px 16px;background:none;border:1.5px solid var(--line);border-radius:10px;font-size:13px;font-weight:700;color:var(--ink-soft);cursor:pointer;font-family:inherit;">
+                <button type="button" id="btnCancelYearModal"
+                    style="padding:12px 16px;background:none;border:1.5px solid var(--line);border-radius:10px;font-size:13px;font-weight:700;color:var(--ink-soft);cursor:pointer;font-family:inherit;">
                     Cancel
                 </button>
             </div>
@@ -2652,21 +2678,23 @@
         async function saveGlobalCompanyName(newComp) {
             const comp = (newComp || '').trim() || 'TAPU FAB';
             try {
+                // Save the company name (user-scoped)
                 await storageSet('khata:company_name', comp);
                 localStorage.setItem('khata:company_name', comp);
 
-                // Get active year to update year-specific key
+                // Get active year to also update year-specific pagar key
                 const curY = localStorage.getItem('khata:active_year') || String(new Date().getFullYear());
 
-                // Update both the generic and year-specific pagar data keys
-                const keysToUpdate = ['khata_pagar_data', `khata_pagar_data_${curY}`];
+                // Update BOTH the generic and year-specific pagar data keys
+                // pagar.html reads from khata_pagar_data_YEAR (year-specific) first
+                const keysToUpdate = [`khata_pagar_data_${curY}`, 'khata_pagar_data'];
                 for (const pagarKey of keysToUpdate) {
                     let pagarData = {};
                     const rawPagar = await storageGet(pagarKey) || null;
+                    if (!rawPagar && pagarKey !== 'khata_pagar_data') continue; // skip if year-key has no data yet
                     if (rawPagar) {
                         try { pagarData = JSON.parse(rawPagar); } catch (e) { }
                     }
-                    if (!rawPagar && pagarKey !== 'khata_pagar_data') continue; // skip year-key if no data yet
                     pagarData.globalCompanyName = comp;
                     if (pagarData.opSlipsData && Array.isArray(pagarData.opSlipsData)) {
                         pagarData.opSlipsData.forEach(s => s.company = comp);
@@ -2675,10 +2703,11 @@
                         pagarData.fixSlipsData.forEach(s => s.company = comp);
                     }
                     await storageSet(pagarKey, JSON.stringify(pagarData));
+                    localStorage.setItem(getUserStorageKey(pagarKey), JSON.stringify(pagarData));
                 }
 
                 try { syncChannel.postMessage({ type: 'company-updated' }); } catch (e) { }
-                setStatus(`Company name updated to "${comp}" on all slips!`, false);
+                setStatus(`✅ Company "${comp}" saved — all pagar slips updated!`, false);
             } catch (e) { console.error(e); }
         }
 
