@@ -2655,20 +2655,27 @@
                 await storageSet('khata:company_name', comp);
                 localStorage.setItem('khata:company_name', comp);
 
-                let pagarData = {};
-                const rawPagar = await storageGet('khata_pagar_data') || localStorage.getItem('khata_pagar_data');
-                if (rawPagar) {
-                    try { pagarData = JSON.parse(rawPagar); } catch (e) { }
+                // Get active year to update year-specific key
+                const curY = localStorage.getItem('khata:active_year') || String(new Date().getFullYear());
+
+                // Update both the generic and year-specific pagar data keys
+                const keysToUpdate = ['khata_pagar_data', `khata_pagar_data_${curY}`];
+                for (const pagarKey of keysToUpdate) {
+                    let pagarData = {};
+                    const rawPagar = await storageGet(pagarKey) || null;
+                    if (rawPagar) {
+                        try { pagarData = JSON.parse(rawPagar); } catch (e) { }
+                    }
+                    if (!rawPagar && pagarKey !== 'khata_pagar_data') continue; // skip year-key if no data yet
+                    pagarData.globalCompanyName = comp;
+                    if (pagarData.opSlipsData && Array.isArray(pagarData.opSlipsData)) {
+                        pagarData.opSlipsData.forEach(s => s.company = comp);
+                    }
+                    if (pagarData.fixSlipsData && Array.isArray(pagarData.fixSlipsData)) {
+                        pagarData.fixSlipsData.forEach(s => s.company = comp);
+                    }
+                    await storageSet(pagarKey, JSON.stringify(pagarData));
                 }
-                pagarData.globalCompanyName = comp;
-                if (pagarData.opSlipsData && Array.isArray(pagarData.opSlipsData)) {
-                    pagarData.opSlipsData.forEach(s => s.company = comp);
-                }
-                if (pagarData.fixSlipsData && Array.isArray(pagarData.fixSlipsData)) {
-                    pagarData.fixSlipsData.forEach(s => s.company = comp);
-                }
-                await storageSet('khata_pagar_data', JSON.stringify(pagarData));
-                localStorage.setItem('khata_pagar_data', JSON.stringify(pagarData));
 
                 try { syncChannel.postMessage({ type: 'company-updated' }); } catch (e) { }
                 setStatus(`Company name updated to "${comp}" on all slips!`, false);
