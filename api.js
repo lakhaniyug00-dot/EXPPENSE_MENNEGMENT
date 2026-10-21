@@ -583,7 +583,9 @@
             const authNameEl = document.getElementById('authUserName');
             if (authNameEl) authNameEl.textContent = displayName;
 
-            this.updateStatusBadge(isBackendActive && isDbConnected ? 'synced' : 'offline');
+            if (isBackendActive) {
+                this.updateStatusBadge(isDbConnected ? 'synced' : 'offline');
+            }
         },
 
         init: async function () {
@@ -603,11 +605,12 @@
                 });
 
                 if (res.ok) {
+                    const data = await res.json().catch(() => ({}));
                     isBackendActive = true;
                     isDbConnected = data.database === 'connected' || data.database === 'fallback_cloud_ready';
                     isConfigured = Boolean(data.configured);
 
-                    this.updateStatusBadge();
+                    this.updateStatusBadge(isDbConnected ? 'synced' : 'offline', isDbConnected ? 'Cloud Synced' : 'Offline (Local Only)');
 
                     if (isDbConnected) {
                         await this.syncUserDataFromBackend();
@@ -616,12 +619,13 @@
                 } else {
                     isBackendActive = false;
                     isDbConnected = false;
-                    this.updateStatusBadge('offline');
+                    this.updateStatusBadge('offline', 'Offline (Local Only)');
                 }
             } catch (err) {
+                console.warn('[AppAPI] Health check error:', err);
                 isBackendActive = false;
                 isDbConnected = false;
-                this.updateStatusBadge('offline');
+                this.updateStatusBadge('offline', 'Offline (Local Only)');
             } finally {
                 if (initPromiseResolve) {
                     initPromiseResolve(true);
