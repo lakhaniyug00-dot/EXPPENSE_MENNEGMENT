@@ -2373,6 +2373,43 @@
             }
         };
 
+        function isAnyInputFocused() {
+            const active = document.activeElement;
+            if (!active) return false;
+            const tag = (active.tagName || '').toLowerCase();
+            return tag === 'input' || tag === 'textarea' || tag === 'select' || Boolean(active.isContentEditable);
+        }
+
+        let isSyncPending = false;
+        async function applyBackgroundSync() {
+            if (isAnyInputFocused()) {
+                isSyncPending = true;
+                return;
+            }
+            isSyncPending = false;
+            await loadCategories();
+            await loadMasters();
+            await loadMasterEntries();
+            await loadWorkers();
+            rebuildCatSelect();
+            rebuildMasterSelect();
+            rebuildWorkerDatalist();
+            await loadDay();
+            await loadPrevNet();
+            renderIncome();
+            renderExpense();
+            renderTotals();
+        }
+
+        // When user finishes typing and blurs, apply any sync that arrived while typing
+        document.addEventListener('focusout', () => {
+            setTimeout(() => {
+                if (!isAnyInputFocused() && isSyncPending) {
+                    applyBackgroundSync();
+                }
+            }, 300);
+        });
+
         const syncChannel = (() => { try { return new BroadcastChannel('khata_sync'); } catch (e) { return { postMessage: () => { }, addEventListener: () => { } }; } })();
         syncChannel.addEventListener('message', async (ev) => {
             if (!ev.data) return;
@@ -2381,17 +2418,7 @@
                 return;
             }
             if (ev.data.type === 'day-updated') {
-                await loadCategories();
-                await loadMasters();
-                await loadMasterEntries();
-                await loadWorkers();
-                rebuildCatSelect();
-                rebuildMasterSelect();
-                rebuildWorkerDatalist();
-                await loadDay();
-                renderIncome();
-                renderExpense();
-                renderTotals();
+                applyBackgroundSync();
             }
         });
 
@@ -2539,19 +2566,26 @@
             noteBoxDiv.appendChild(inp);
             inp.focus();
             try {
-                // Place cursor at the END so subsequent typing (e.g. ji -> jitu -> jitubhai) doesn't overwrite
+                // Place cursor at the END so subsequent typing doesn't overwrite
                 const len = inp.value.length;
                 inp.setSelectionRange(len, len);
             } catch (e) { }
 
+            let saveTimeout = null;
             // Dynamic width expansion and real-time object sync as user types
             inp.addEventListener('input', () => {
                 inp.style.width = Math.max(90, Math.min(300, (inp.value.length + 3) * 8.5)) + 'px';
                 item.note = inp.value;
+                // Auto-save debounced in background while user is typing so data is never lost
+                clearTimeout(saveTimeout);
+                saveTimeout = setTimeout(async () => {
+                    await storageSet('khata:day:' + toKey(currentDate), JSON.stringify(dayData));
+                }, 350);
             });
 
             let isCommitted = false;
             const commit = async () => {
+                clearTimeout(saveTimeout);
                 if (isCommitted) return;
                 isCommitted = true;
                 item.note = inp.value.trim();
@@ -2560,7 +2594,56 @@
             inp.addEventListener('blur', commit);
             inp.addEventListener('keydown', e => {
                 if (e.key === 'Enter') { e.preventDefault(); inp.blur(); }
-                if (e.key === 'Escape') { item.note = orig; afterRender(); }
+                if (e.key === 'Escape') { clearTimeout(saveTimeout); item.note = orig; afterRender(); }
+            });
+        }
+
+        /* ── INLINE EDIT FOR NAME ── */
+        function makeNameInlineEdit(item, nameDiv, afterRender) {
+            if (nameDiv.querySelector('input')) return;
+            const orig = item.name || '';
+            const subCatSpan = nameDiv.querySelector('.subcat-tag');
+            const subCatHtml = subCatSpan ? subCatSpan.outerHTML : '';
+            nameDiv.innerHTML = '';
+            const inp = document.createElement('input');
+            inp.type = 'text'; inp.placeholder = 'Name…';
+            inp.value = orig;
+            const calcWidth = Math.max(90, Math.min(260, (orig.length + 2) * 9));
+            inp.style.cssText = 'width:' + calcWidth + 'px;min-width:85px;max-width:280px;border:none;background:transparent;outline:none;font-size:14.5px;font-weight:700;color:inherit;padding:0;margin:0;font-family:inherit;';
+            nameDiv.appendChild(inp);
+            if (subCatHtml) {
+                const temp = document.createElement('span');
+                temp.innerHTML = subCatHtml;
+                nameDiv.appendChild(temp.firstChild);
+            }
+            inp.focus();
+            try {
+                const len = inp.value.length;
+                inp.setSelectionRange(len, len);
+            } catch (e) { }
+
+            let saveTimeout = null;
+            inp.addEventListener('input', () => {
+                inp.style.width = Math.max(90, Math.min(280, (inp.value.length + 2) * 9)) + 'px';
+                item.name = inp.value;
+                clearTimeout(saveTimeout);
+                saveTimeout = setTimeout(async () => {
+                    await storageSet('khata:day:' + toKey(currentDate), JSON.stringify(dayData));
+                }, 350);
+            });
+
+            let isCommitted = false;
+            const commit = async () => {
+                clearTimeout(saveTimeout);
+                if (isCommitted) return;
+                isCommitted = true;
+                item.name = inp.value.trim() || orig;
+                afterRender(); renderTotals(); await saveDay();
+            };
+            inp.addEventListener('blur', commit);
+            inp.addEventListener('keydown', e => {
+                if (e.key === 'Enter') { e.preventDefault(); inp.blur(); }
+                if (e.key === 'Escape') { clearTimeout(saveTimeout); item.name = orig; afterRender(); }
             });
         }
 
@@ -2582,7 +2665,7 @@
                 const row = document.createElement('div'); row.className = 'row';
                 row.innerHTML = `
                     <div class="who">
-                        <div class="name">
+                        <div class="name name-box" data-id="${e.id}" title="Click to edit name" style="cursor:pointer;">
                             ${escHtml(e.name)}
                             ${subCat ? `<span class="subcat-tag">${escHtml(subCat)}</span>` : ''}
                         </div>
@@ -2595,6 +2678,14 @@
                     </div>
                     <button class="del" data-id="${e.id}" aria-label="Delete">✕</button>`;
                 w.appendChild(row);
+            });
+            w.querySelectorAll('.name-box').forEach(box => {
+                box.addEventListener('click', (ev) => {
+                    if (ev.target.classList.contains('subcat-tag')) return;
+                    ev.stopPropagation();
+                    const item = dayData.income.find(e => e.id === box.dataset.id); if (!item) return;
+                    makeNameInlineEdit(item, box, renderIncome);
+                });
             });
             w.querySelectorAll('.note-box').forEach(box => {
                 box.addEventListener('click', (ev) => {
@@ -2633,7 +2724,7 @@
                 const row = document.createElement('div'); row.className = 'row';
                 row.innerHTML = `
                     <div class="who">
-                        <div class="name">
+                        <div class="name name-box" data-id="${e.id}" title="Click to edit name" style="cursor:pointer;">
                             ${escHtml(e.name)}
                             ${subCat ? `<span class="subcat-tag">${escHtml(subCat)}</span>` : ''}
                         </div>
@@ -2646,6 +2737,14 @@
                     </div>
                     <button class="del" data-id="${e.id}" aria-label="Delete">✕</button>`;
                 w.appendChild(row);
+            });
+            w.querySelectorAll('.name-box').forEach(box => {
+                box.addEventListener('click', (ev) => {
+                    if (ev.target.classList.contains('subcat-tag')) return;
+                    ev.stopPropagation();
+                    const item = dayData.expense.find(e => e.id === box.dataset.id); if (!item) return;
+                    makeNameInlineEdit(item, box, renderExpense);
+                });
             });
             w.querySelectorAll('.note-box').forEach(box => {
                 box.addEventListener('click', (ev) => {
@@ -4689,15 +4788,7 @@
                 window.AppAPI.onSync(async (changedKeys) => {
                     const curKey = 'khata:day:' + toKey(currentDate);
                     if (!changedKeys || changedKeys.includes(curKey) || changedKeys.some(k => k.startsWith('khata:'))) {
-                        await loadCategories();
-                        await loadMasters();
-                        await loadWorkers();
-                        await loadMasterEntries();
-                        await loadDay();
-                        await loadPrevNet();
-                        renderIncome();
-                        renderExpense();
-                        renderTotals();
+                        await applyBackgroundSync();
                     }
                 });
             }

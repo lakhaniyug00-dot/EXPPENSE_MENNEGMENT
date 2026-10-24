@@ -2767,6 +2767,11 @@
 
             if (window.AppAPI && typeof window.AppAPI.onSync === 'function') {
                 window.AppAPI.onSync(async () => {
+                    const active = document.activeElement;
+                    const tag = (active && active.tagName) ? active.tagName.toLowerCase() : '';
+                    if (tag === 'input' || tag === 'textarea' || tag === 'select' || (active && active.isContentEditable)) {
+                        return; // Defer refresh so active typing is not destroyed
+                    }
                     await loadMasterEntries();
                     await loadWorkers();
                     await loadAccounts();
@@ -2789,6 +2794,11 @@
                 return;
             }
             if (ev.data.type === 'day-updated') {
+                const active = document.activeElement;
+                const tag = (active && active.tagName) ? active.tagName.toLowerCase() : '';
+                if (tag === 'input' || tag === 'textarea' || tag === 'select' || (active && active.isContentEditable)) {
+                    return;
+                }
                 await loadMasterEntries();
                 await loadWorkers();
                 await loadAccounts();
