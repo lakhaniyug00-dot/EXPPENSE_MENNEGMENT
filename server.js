@@ -432,12 +432,13 @@ app.post('/api/data/:username/:key', requireUserAccess, async (req, res) => {
         const k = req.params.key;
         const val = req.body.value !== undefined ? req.body.value : null;
 
+        const now = new Date();
         await UserData.findOneAndUpdate(
             { username: u, key: k },
-            { username: u, key: k, value: val, updatedAt: new Date() },
+            { $set: { username: u, key: k, value: val, updatedAt: now } },
             { upsert: true, new: true }
         );
-        res.json({ success: true });
+        res.json({ success: true, serverTime: now.toISOString() });
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
     }

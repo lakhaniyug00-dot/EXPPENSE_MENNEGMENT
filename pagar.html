@@ -7,7 +7,7 @@
     <title>Pagar Book · Monthly Payroll System</title>
     <link href="https://fonts.googleapis.com" rel="preconnect" />
     <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
-    <script src="api.js?v=2.4"></script>
+    <script src="api.js?v=2.5"></script>
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700;800&family=Outfit:wght@400;600;700;800&display=swap"
         rel="stylesheet" />
@@ -1543,6 +1543,10 @@
         });
 
         window.addEventListener('focus', async () => {
+            // Skip re-render if user is currently typing in an input / textarea
+            // (prevents the slip from being destroyed mid-note like "ji" -> "jitu" -> "jitubhai")
+            const active = document.activeElement;
+            if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.tagName === 'SELECT')) return;
             loadLocalStorageState();
             await syncAllKhataData();
             if (currentTab === 'op_slips') renderOpSlips();
@@ -2029,7 +2033,7 @@
                 return `<div style="display:flex;align-items:center;justify-content:space-between;gap:4px;padding:2px 0;border-bottom:1px solid #f8d0d0;color:#c00;">
                     <span class="no-print" style="display:flex;align-items:center;justify-content:space-between;width:100%;gap:4px;">
                         <input class="cell-edit" type="text" style="width:52px;font-size:10.5px;font-weight:700;color:#c00;border:none;background:transparent;padding:0;outline:none;" value="${formatUpadDate(u.date)}" onchange="updateOpUpadDate(${sIdx}, ${realIdx}, this.value)">
-                        <input class="cell-edit" type="text" style="flex:1;font-size:11.5px;font-weight:700;color:#c00;border:none;background:transparent;padding:1px 3px;" value="${u.ref || u.note || ''}" placeholder="Kharchi note" onchange="updateOpUpadRef(${sIdx}, ${realIdx}, this.value)">
+                        <input class="cell-edit" type="text" style="flex:1;font-size:11.5px;font-weight:700;color:#c00;border:none;background:transparent;padding:1px 3px;" value="${u.ref || u.note || ''}" placeholder="Kharchi note" oninput="updateOpUpadRef(${sIdx}, ${realIdx}, this.value)">
                         <div style="font-weight:800;font-size:11.5px;font-family:'JetBrains Mono',monospace;color:#c00;">₹ -<input class="cell-edit" type="number" style="width:42px;text-align:right;color:#c00;font-weight:800;font-size:11.5px;font-family:'JetBrains Mono',monospace;padding:0;border:none;background:transparent;" value="${Math.abs(u.amount)}" onchange="updateOpUpadAmt(${sIdx}, ${realIdx}, this.value)"></div>
                     </span>
                     <span class="only-print" style="display:none;align-items:center;justify-content:space-between;width:100%;font-size:10.5px;font-weight:700;color:#c00;">
@@ -2133,7 +2137,7 @@
                 return `<div style="display:flex;align-items:center;justify-content:space-between;gap:4px;padding:2px 0;border-bottom:1px solid #f8d0d0;color:#c00;">
                     <span class="no-print" style="display:flex;align-items:center;justify-content:space-between;width:100%;gap:4px;">
                         <input class="cell-edit" type="text" style="width:52px;font-size:10.5px;font-weight:700;color:#c00;border:none;background:transparent;padding:0;outline:none;" value="${formatUpadDate(u.date)}" onchange="updateFixUpadDate(${sIdx}, ${realIdx}, this.value)">
-                        <input class="cell-edit" type="text" style="flex:1;font-size:11.5px;font-weight:700;color:#c00;border:none;background:transparent;padding:1px 3px;" value="${u.ref || u.note || ''}" placeholder="Kharchi note" onchange="updateFixUpadRef(${sIdx}, ${realIdx}, this.value)">
+                        <input class="cell-edit" type="text" style="flex:1;font-size:11.5px;font-weight:700;color:#c00;border:none;background:transparent;padding:1px 3px;" value="${u.ref || u.note || ''}" placeholder="Kharchi note" oninput="updateFixUpadRef(${sIdx}, ${realIdx}, this.value)">
                         <div style="font-weight:800;font-size:11.5px;font-family:'JetBrains Mono',monospace;color:#c00;">₹ -<input class="cell-edit" type="number" style="width:42px;text-align:right;color:#c00;font-weight:800;font-size:11.5px;font-family:'JetBrains Mono',monospace;padding:0;border:none;background:transparent;" value="${Math.abs(u.amount)}" onchange="updateFixUpadAmt(${sIdx}, ${realIdx}, this.value)"></div>
                     </span>
                     <span class="only-print" style="display:none;align-items:center;justify-content:space-between;width:100%;font-size:10.5px;font-weight:700;color:#c00;">
@@ -2311,7 +2315,7 @@
             if (slip.name && !slip.name.startsWith('Operator #')) opWorkerDuties[slip.name] = slip.duties;
             saveStorage(); renderOpSlips();
         }
-        function updateOpUpadRef(sIdx, uIdx, val) { opSlipsData[sIdx].upad[uIdx].ref = val; saveStorage(); }
+        function updateOpUpadRef(sIdx, uIdx, val) { opSlipsData[sIdx].upad[uIdx].ref = val; opSlipsData[sIdx].upad[uIdx].note = val; saveStorage(); }
         function updateOpUpadDate(sIdx, uIdx, val) { opSlipsData[sIdx].upad[uIdx].date = val; saveStorage(); }
         function updateOpUpadAmt(sIdx, uIdx, val) { opSlipsData[sIdx].upad[uIdx].amount = parseFloat(val) || 0; saveStorage(); renderOpSlips(); }
         function addOpDutyRow(sIdx) {
@@ -2324,7 +2328,7 @@
         function updateFixCategory(idx, val) { fixSlipsData[idx].category = val; saveStorage(); }
         function updateFixSalary(idx, val) { fixSlipsData[idx].salary = parseFloat(val) || 0; saveStorage(); renderFixSlips(); }
         function updateFixDays(idx, val) { fixSlipsData[idx].days = parseFloat(val) || 30; saveStorage(); renderFixSlips(); }
-        function updateFixUpadRef(sIdx, uIdx, val) { fixSlipsData[sIdx].upad[uIdx].ref = val; saveStorage(); }
+        function updateFixUpadRef(sIdx, uIdx, val) { fixSlipsData[sIdx].upad[uIdx].ref = val; fixSlipsData[sIdx].upad[uIdx].note = val; saveStorage(); }
         function updateFixUpadDate(sIdx, uIdx, val) { fixSlipsData[sIdx].upad[uIdx].date = val; saveStorage(); }
         function updateFixUpadAmt(sIdx, uIdx, val) { fixSlipsData[sIdx].upad[uIdx].amount = parseFloat(val) || 0; saveStorage(); renderFixSlips(); }
         function addFixDutyRow(sIdx) {

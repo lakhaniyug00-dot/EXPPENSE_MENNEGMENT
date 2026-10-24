@@ -10,7 +10,7 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@500;600&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap"
         rel="stylesheet">
-    <script src="api.js?v=2.4"></script>
+    <script src="api.js?v=2.5"></script>
     <style>
         :root {
             --paper: #F5F1E6;
@@ -2507,10 +2507,13 @@
                 const inp = document.createElement('input');
                 inp.type = 'number'; inp.min = '0'; inp.step = '1';
                 inp.value = orig;
-                inp.style.cssText = 'width:65px;border:none;background:transparent;outline:none;font-size:14.5px;font-weight:700;color:inherit;text-align:center;padding:0;margin:0;';
+                inp.style.cssText = 'width:65px;border:none;background:transparent;outline:none;font-size:14.5px;font-weight:700;color:inherit;text-align:center;padding:0;margin:0;font-family:inherit;';
                 amtBoxDiv.appendChild(inp);
                 inp.focus(); inp.select();
+                let isCommitted = false;
                 const commit = async () => {
+                    if (isCommitted) return;
+                    isCommitted = true;
                     const v = parseFloat(inp.value);
                     item.amount = (!isNaN(v) && v >= 0) ? v : orig;
                     afterRender(); renderTotals(); await saveDay();
@@ -2531,17 +2534,33 @@
             const inp = document.createElement('input');
             inp.type = 'text'; inp.placeholder = 'Type note…';
             inp.value = orig;
-            inp.style.cssText = 'width:100px;border:none;background:transparent;outline:none;font-size:12px;font-weight:600;color:inherit;padding:0;margin:0;';
+            const calcWidth = Math.max(90, Math.min(280, (orig.length + 3) * 8.5));
+            inp.style.cssText = 'width:' + calcWidth + 'px;min-width:85px;max-width:300px;border:none;background:transparent;outline:none;font-size:12px;font-weight:600;color:inherit;padding:0;margin:0;font-family:inherit;';
             noteBoxDiv.appendChild(inp);
-            inp.focus(); inp.select();
+            inp.focus();
+            try {
+                // Place cursor at the END so subsequent typing (e.g. ji -> jitu -> jitubhai) doesn't overwrite
+                const len = inp.value.length;
+                inp.setSelectionRange(len, len);
+            } catch (e) { }
+
+            // Dynamic width expansion and real-time object sync as user types
+            inp.addEventListener('input', () => {
+                inp.style.width = Math.max(90, Math.min(300, (inp.value.length + 3) * 8.5)) + 'px';
+                item.note = inp.value;
+            });
+
+            let isCommitted = false;
             const commit = async () => {
+                if (isCommitted) return;
+                isCommitted = true;
                 item.note = inp.value.trim();
                 afterRender(); renderTotals(); await saveDay();
             };
             inp.addEventListener('blur', commit);
             inp.addEventListener('keydown', e => {
                 if (e.key === 'Enter') { e.preventDefault(); inp.blur(); }
-                if (e.key === 'Escape') { afterRender(); }
+                if (e.key === 'Escape') { item.note = orig; afterRender(); }
             });
         }
 

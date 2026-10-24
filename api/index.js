@@ -501,17 +501,18 @@ router.post('/data/:username/:key', ensureDbAttempt, requireUserAccess, async (r
         const mem = getMemoryDataForUser(u);
         mem[k] = val;
 
+        const now = new Date();
         if (isDbOnline()) {
             try {
                 await UserData.findOneAndUpdate(
                     { username: u, key: k },
-                    { username: u, key: k, value: val, updatedAt: new Date() },
+                    { $set: { username: u, key: k, value: val, updatedAt: now } },
                     { upsert: true, new: true }
                 );
             } catch (e) { }
         }
 
-        res.json({ success: true });
+        res.json({ success: true, serverTime: now.toISOString() });
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
     }

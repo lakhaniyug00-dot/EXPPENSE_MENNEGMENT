@@ -40,10 +40,40 @@
     let manageMode = false;
 
     const syncListeners = [];
+    const pendingSaveQueue = {}; // key -> { val, inFlight: boolean }
     let initPromiseResolve = null;
     const initPromise = new Promise(resolve => {
         initPromiseResolve = resolve;
     });
+
+    async function processSaveQueue(u, key) {
+        if (!isBackendActive || !isDbConnected || !u) return;
+        const item = pendingSaveQueue[key];
+        if (!item || item.inFlight) return;
+        item.inFlight = true;
+        const valToSend = item.val;
+        try {
+            const res = await fetch(API_BASE + '/api/data/' + encodeURIComponent(u) + '/' + encodeURIComponent(key), {
+                method: 'POST',
+                headers: getHeaders(),
+                body: JSON.stringify({ value: valToSend })
+            });
+            if (res.ok) {
+                const data = await res.json().catch(() => ({}));
+                if (data && data.serverTime) lastSyncTime = data.serverTime;
+            }
+        } catch (e) {
+        } finally {
+            if (pendingSaveQueue[key]) {
+                pendingSaveQueue[key].inFlight = false;
+                if (pendingSaveQueue[key].val !== valToSend) {
+                    processSaveQueue(u, key);
+                } else {
+                    delete pendingSaveQueue[key];
+                }
+            }
+        }
+    }
 
     function capitalize(s) {
         if (!s) return '';
@@ -392,17 +422,18 @@
 
             if (!isBackendActive || !isDbConnected) return;
 
-            try {
-                let parsedVal = value;
-                if (typeof value === 'string') {
-                    try { parsedVal = JSON.parse(value); } catch (e) { parsedVal = value; }
-                }
-                await fetch(API_BASE + '/api/data/' + encodeURIComponent(u) + '/' + encodeURIComponent(key), {
-                    method: 'POST',
-                    headers: getHeaders(),
-                    body: JSON.stringify({ value: parsedVal })
-                });
-            } catch (e) { }
+            let parsedVal = value;
+            if (typeof value === 'string') {
+                try { parsedVal = JSON.parse(value); } catch (e) { parsedVal = value; }
+            }
+
+            if (!pendingSaveQueue[key]) {
+                pendingSaveQueue[key] = { val: parsedVal, inFlight: false };
+            } else {
+                pendingSaveQueue[key].val = parsedVal;
+            }
+
+            processSaveQueue(u, key);
         },
 
         remove: async function (key) {
@@ -556,6 +587,8 @@
                         if (keys.length > 0) {
                             const prefix = `u:${u}:`;
                             keys.forEach(k => {
+                                // Do not overwrite if there is a pending local save for this key
+                                if (pendingSaveQueue[k]) return;
                                 const val = json.data[k];
                                 const strVal = typeof val === 'object' ? JSON.stringify(val) : String(val);
                                 localStorage.setItem(prefix + k, strVal);
