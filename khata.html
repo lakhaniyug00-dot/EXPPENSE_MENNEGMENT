@@ -1616,11 +1616,31 @@
         }
         async function saveManualEntries(accId, entries) { await storageSet('khata:acc:' + accId, JSON.stringify(entries)); }
 
-        async function getDailyEntries(accountName) {
+        async function getDailyEntries(accountName, cachedDayMap = null) {
+            const range = await getActiveDateRange();
+            const target = (accountName || '').trim().toLowerCase();
+            let entries = [];
+
+            if (cachedDayMap) {
+                cachedDayMap.forEach((p, key) => {
+                    const dateStr = key.replace('khata:day:', '');
+                    if (range && (dateStr < range.start || dateStr > range.end)) return;
+                    (p.income || []).forEach(e => {
+                        const nm = (e.name || '').trim().toLowerCase();
+                        if (nm === target)
+                            entries.push({ id: e.id, date: dateStr, aavak: e.amount || 0, javak: 0, note: e.note || '', category: e.category || '', master: e.master || '', fixedLabel: e.fixedLabel || '', pagarAmount: e.pagarAmount || '', _source: 'daily' });
+                    });
+                    (p.expense || []).forEach(e => {
+                        const nm = (e.name || '').trim().toLowerCase();
+                        if (nm === target)
+                            entries.push({ id: e.id, date: dateStr, aavak: 0, javak: e.amount || 0, note: e.note || '', category: e.category || '', master: e.master || '', fixedLabel: e.fixedLabel || '', pagarAmount: e.pagarAmount || '', _source: 'daily' });
+                    });
+                });
+                return entries;
+            }
+
             const keys = await storageList();
             const dayKeys = keys.filter(k => k && k.startsWith('khata:day:'));
-            const range = await getActiveDateRange();
-            let entries = [];
             for (const key of dayKeys) {
                 try {
                     const dateStr = key.replace('khata:day:', '');
@@ -1629,14 +1649,12 @@
                     if (!v) continue;
                     const p = JSON.parse(v);
                     (p.income || []).forEach(e => {
-                        const nm = (e.name || '').toLowerCase();
-                        const target = accountName.toLowerCase();
+                        const nm = (e.name || '').trim().toLowerCase();
                         if (nm === target)
                             entries.push({ id: e.id, date: dateStr, aavak: e.amount || 0, javak: 0, note: e.note || '', category: e.category || '', master: e.master || '', fixedLabel: e.fixedLabel || '', pagarAmount: e.pagarAmount || '', _source: 'daily' });
                     });
                     (p.expense || []).forEach(e => {
-                        const nm = (e.name || '').toLowerCase();
-                        const target = accountName.toLowerCase();
+                        const nm = (e.name || '').trim().toLowerCase();
                         if (nm === target)
                             entries.push({ id: e.id, date: dateStr, aavak: 0, javak: e.amount || 0, note: e.note || '', category: e.category || '', master: e.master || '', fixedLabel: e.fixedLabel || '', pagarAmount: e.pagarAmount || '', _source: 'daily' });
                     });
@@ -1645,9 +1663,9 @@
             return entries;
         }
 
-        async function getAccountSummary(acc, fromVal, toVal) {
+        async function getAccountSummary(acc, fromVal, toVal, cachedDayMap = null) {
             const manual = await loadManualEntries(acc.id, acc.name);
-            const daily = await getDailyEntries(acc.name);
+            const daily = await getDailyEntries(acc.name, cachedDayMap);
             let all = [...daily, ...manual];
             if (fromVal || toVal) {
                 all = all.filter(e => {
@@ -1662,34 +1680,43 @@
             return { aavak, javak, net: aavak - javak };
         }
 
-        async function getAllKhataNames() {
-            const keys = await storageList();
-            const dayKeys = keys.filter(k => k && k.startsWith('khata:day:'));
+        async function getAllKhataNames(cachedDayMap = null) {
             const seen = new Map();
-            accounts.forEach(a => seen.set(a.name.toLowerCase(), { name: a.name, id: a.id }));
+            accounts.forEach(a => { if (a && a.name) seen.set(a.name.trim().toLowerCase(), { name: a.name.trim(), id: a.id }); });
 
             // Include master entries names as well so they show in Khata Book accounts list
             masterEntries.forEach(e => {
-                if (e.name && !seen.has(e.name.toLowerCase())) {
-                    seen.set(e.name.toLowerCase(), { name: e.name, id: 'auto:' + e.name.toLowerCase() });
+                const n = (e.name || '').trim();
+                if (n && !seen.has(n.toLowerCase())) {
+                    seen.set(n.toLowerCase(), { name: n, id: 'auto:' + n.toLowerCase() });
                 }
             });
 
-            for (const key of dayKeys) {
-                try {
-                    const v = await storageGet(key);
-                    if (!v) continue;
-                    const p = JSON.parse(v);
-                    (p.income || []).forEach(e => { if (e.name && !seen.has(e.name.toLowerCase())) seen.set(e.name.toLowerCase(), { name: e.name, id: 'auto:' + e.name.toLowerCase() }); });
-                    (p.expense || []).forEach(e => { if (e.name && !seen.has(e.name.toLowerCase())) seen.set(e.name.toLowerCase(), { name: e.name, id: 'auto:' + e.name.toLowerCase() }); });
-                } catch (e) { }
+            if (cachedDayMap) {
+                cachedDayMap.forEach(p => {
+                    (p.income || []).forEach(e => { const n = (e.name || '').trim(); if (n && !seen.has(n.toLowerCase())) seen.set(n.toLowerCase(), { name: n, id: 'auto:' + n.toLowerCase() }); });
+                    (p.expense || []).forEach(e => { const n = (e.name || '').trim(); if (n && !seen.has(n.toLowerCase())) seen.set(n.toLowerCase(), { name: n, id: 'auto:' + n.toLowerCase() }); });
+                });
+            } else {
+                const keys = await storageList();
+                const dayKeys = keys.filter(k => k && k.startsWith('khata:day:'));
+                for (const key of dayKeys) {
+                    try {
+                        const v = await storageGet(key);
+                        if (!v) continue;
+                        const p = JSON.parse(v);
+                        (p.income || []).forEach(e => { const n = (e.name || '').trim(); if (n && !seen.has(n.toLowerCase())) seen.set(n.toLowerCase(), { name: n, id: 'auto:' + n.toLowerCase() }); });
+                        (p.expense || []).forEach(e => { const n = (e.name || '').trim(); if (n && !seen.has(n.toLowerCase())) seen.set(n.toLowerCase(), { name: n, id: 'auto:' + n.toLowerCase() }); });
+                    } catch (e) { }
+                }
             }
             return Array.from(seen.values()).sort((a, b) => a.name.localeCompare(b.name));
         }
 
         async function getAccountTags(accName) {
             let category = '', master = '', fixedLabel = '', pagarAmount = '';
-            const me = masterEntries.find(m => m.name && m.name.toLowerCase() === accName.toLowerCase());
+            const targetLower = (accName || '').trim().toLowerCase();
+            const me = masterEntries.find(m => m.name && m.name.trim().toLowerCase() === targetLower);
             if (me) {
                 if (me.category) category = me.category;
                 if (me.master) master = me.master;
@@ -1717,17 +1744,31 @@
         async function renderAccountsList() {
             const grid = $('accountsGrid');
             grid.innerHTML = '<div style="text-align:center;color:var(--ink-faint);padding:40px;font-style:italic">Loading…</div>';
-            const allAccounts = await getAllKhataNames();
+
+            // Preload daily entries map once in parallel for fast rendering
+            const dayMap = new Map();
+            try {
+                const keys = await storageList();
+                const dayKeys = keys.filter(k => k && k.startsWith('khata:day:'));
+                await Promise.all(dayKeys.map(async k => {
+                    try {
+                        const v = await storageGet(k);
+                        if (v) dayMap.set(k, JSON.parse(v));
+                    } catch (err) { }
+                }));
+            } catch (err) { }
+
+            const allAccounts = await getAllKhataNames(dayMap);
             grid.innerHTML = '';
             if (!allAccounts.length) {
                 grid.innerHTML = '<div style="text-align:center;color:var(--ink-faint);padding:50px;font-style:italic">No entries yet in Rojmel.<br>Add income or expense entries first.</div>';
                 return;
             }
 
-            // Load summaries for all accounts
+            // Load summaries for all accounts using the preloaded dayMap
             const summaries = [];
             for (const acc of allAccounts) {
-                const sum = await getAccountSummary(acc);
+                const sum = await getAccountSummary(acc, null, null, dayMap);
                 summaries.push({ acc, ...sum });
             }
 
@@ -2281,22 +2322,18 @@
             if (found) {
                 if (found.category && $('expCat')) $('expCat').value = found.category;
                 if (found.master && $('expMaster')) $('expMaster').value = found.master;
-                if (found.note && $('entryNote')) $('entryNote').value = found.note;
+                if (found.note && $('entryNote') && !$('entryNote').value.trim()) $('entryNote').value = found.note;
                 const amt = found.amount || found.pagarAmount;
-                if (amt && $('expAmount')) $('expAmount').value = amt;
+                if (amt && $('expAmount') && !$('expAmount').value.trim()) $('expAmount').value = amt;
                 // understand entries saved from Rojmel (fixedLabel) as well
                 const fl = String(found.fixedLabel || '').toLowerCase();
                 const type = found.pagarType || (fl.includes('fix') ? 'fix' : fl.includes('daily') ? 'daily' : '');
-                if ($('expPagarType')) $('expPagarType').value = type;
+                if ($('expPagarType') && type) $('expPagarType').value = type;
+                if (saveChangeBtn) saveChangeBtn.style.display = 'block';
             } else {
-                if ($('expCat')) $('expCat').value = '';
-                if ($('expMaster')) $('expMaster').value = '';
-                if ($('entryNote')) $('entryNote').value = '';
-                if ($('expAmount')) $('expAmount').value = '';
-                if ($('expPagarType')) $('expPagarType').value = '';
+                if (saveChangeBtn) saveChangeBtn.style.display = 'none';
             }
             if ($('masterSave')) $('masterSave').textContent = 'Add Master';
-            if (saveChangeBtn) saveChangeBtn.style.display = 'block';
         }
 
         /* ── COMPANY NAME & YEAR MANAGEMENT ── */
@@ -2346,7 +2383,7 @@
                     localStorage.setItem(pagarKey, JSON.stringify(pagarData));
                 }
 
-                try { syncChannel.postMessage({ type: 'company-updated', company: comp }); } catch (e) { }
+                try { syncChannel.postMessage({ type: 'company-updated', company: comp, senderTab: window.TAB_ID }); } catch (e) { }
                 setStatus(`✅ Company "${comp}" saved — all pagar slips updated!`, false);
             } catch (e) { console.error(e); }
         }
@@ -2372,7 +2409,7 @@
             localStorage.setItem('khata:active_year', yStr);
             await ensureYearInList(yStr);
             updateHeaderYearBadge();
-            try { syncChannel.postMessage({ type: 'year-changed', year: yStr }); } catch (e) { }
+            try { syncChannel.postMessage({ type: 'year-changed', year: yStr, senderTab: window.TAB_ID }); } catch (e) { }
         }
 
         async function getAvailableYears() {
@@ -2502,7 +2539,7 @@
             await setActiveYear(nextY);
 
             try {
-                syncChannel.postMessage({ type: 'year-completed', oldYear: activeY, newYear: nextY });
+                syncChannel.postMessage({ type: 'year-completed', oldYear: activeY, newYear: nextY, senderTab: window.TAB_ID });
             } catch (e) { }
 
             alert(`🎆 Year ${activeY} સફળતાપૂર્વક પૂર્ણ થયું!\nનવું વર્ષ ${nextY} શરૂ થયું. રોજમેળ ખાલી અને તમામ નામ હાજર છે.`);
@@ -2589,9 +2626,32 @@
             await addWorkerIfNew(name);
 
             // Register in Khata Book accounts list so it appears immediately
-            if (!accounts.some(a => a && a.name && a.name.toLowerCase() === name.toLowerCase())) {
-                accounts.push({ id: uid(), name });
+            let targetAcc = accounts.find(a => a && a.name && a.name.toLowerCase() === name.toLowerCase());
+            if (!targetAcc) {
+                targetAcc = { id: uid(), name };
+                accounts.push(targetAcc);
                 await saveAccounts();
+            }
+
+            // If an amount was provided with note, ensure it is recorded in the account's ledger
+            if (amount > 0 && targetAcc) {
+                try {
+                    const manual = await loadManualEntries(targetAcc.id, targetAcc.name);
+                    const todayStr = toKey(new Date());
+                    const isExpense = (note && (note.toLowerCase().includes('upad') || note.toLowerCase().includes('kharch') || note.toLowerCase().includes('debit')));
+                    const hasRecentMatch = manual.some(m => m.date === todayStr && (m.aavak === amount || m.javak === amount) && m.note === (note || category || 'Aavak'));
+                    if (!hasRecentMatch) {
+                        manual.push({
+                            id: uid(),
+                            date: todayStr,
+                            aavak: isExpense ? 0 : amount,
+                            javak: isExpense ? amount : 0,
+                            note: note || (category ? category : 'Aavak'),
+                            master: master || ''
+                        });
+                        await saveManualEntries(targetAcc.id, manual);
+                    }
+                } catch (e) { }
             }
 
             // Un-hide from suggestions list if previously hidden
@@ -2607,7 +2667,7 @@
                 }
             } catch (e) { }
 
-            try { syncChannel.postMessage({ type: 'day-updated' }); } catch (e) { }
+            try { syncChannel.postMessage({ type: 'day-updated', senderTab: window.TAB_ID }); } catch (e) { }
 
             closeMasterModal();
             await renderAccountsList();
@@ -2770,13 +2830,20 @@
             await loadAccounts();
             await renderAccountsList();
 
+            function isUserActivelyInteracting() {
+                const active = document.activeElement;
+                const tag = (active && active.tagName) ? active.tagName.toLowerCase() : '';
+                if (tag === 'input' || tag === 'textarea' || tag === 'select' || (active && active.isContentEditable)) return true;
+                if ($('masterOverlay') && $('masterOverlay').classList.contains('open')) return true;
+                if ($('searchOverlay') && $('searchOverlay').classList.contains('open')) return true;
+                if ($('kpOverlay') && $('kpOverlay').classList.contains('open')) return true;
+                if ($('reportOverlay') && $('reportOverlay').classList.contains('open')) return true;
+                return false;
+            }
+
             if (window.AppAPI && typeof window.AppAPI.onSync === 'function') {
                 window.AppAPI.onSync(async () => {
-                    const active = document.activeElement;
-                    const tag = (active && active.tagName) ? active.tagName.toLowerCase() : '';
-                    if (tag === 'input' || tag === 'textarea' || tag === 'select' || (active && active.isContentEditable)) {
-                        return; // Defer refresh so active typing is not destroyed
-                    }
+                    if (isUserActivelyInteracting()) return;
                     await loadMasterEntries();
                     await loadWorkers();
                     await loadAccounts();
@@ -2795,7 +2862,8 @@
         syncChannel.addEventListener('message', async (ev) => {
             if (!ev.data) return;
             // Ignore messages this tab sent itself
-            if (ev.data.senderTab && window.TAB_ID && ev.data.senderTab === window.TAB_ID) return;
+            const myTabId = window.TAB_ID;
+            if (ev.data.senderTab && myTabId && ev.data.senderTab === myTabId) return;
             if (ev.data.type === 'user-switched' || ev.data.type === 'year-changed' || ev.data.type === 'year-completed') {
                 location.reload();
                 return;
@@ -2803,9 +2871,12 @@
             if (ev.data.type === 'day-updated') {
                 const active = document.activeElement;
                 const tag = (active && active.tagName) ? active.tagName.toLowerCase() : '';
-                if (tag === 'input' || tag === 'textarea' || tag === 'select' || (active && active.isContentEditable)) {
-                    return;
-                }
+                if (tag === 'input' || tag === 'textarea' || tag === 'select' || (active && active.isContentEditable)) return;
+                if ($('masterOverlay') && $('masterOverlay').classList.contains('open')) return;
+                if ($('searchOverlay') && $('searchOverlay').classList.contains('open')) return;
+                if ($('kpOverlay') && $('kpOverlay').classList.contains('open')) return;
+                if ($('reportOverlay') && $('reportOverlay').classList.contains('open')) return;
+
                 await loadMasterEntries();
                 await loadWorkers();
                 await loadAccounts();
@@ -2823,6 +2894,10 @@
                 return;
             }
             if (ev.key && ev.key.startsWith('khata:day:')) {
+                const active = document.activeElement;
+                const tag = (active && active.tagName) ? active.tagName.toLowerCase() : '';
+                if (tag === 'input' || tag === 'textarea' || tag === 'select' || (active && active.isContentEditable)) return;
+                if ($('masterOverlay') && $('masterOverlay').classList.contains('open')) return;
                 await loadAccounts();
                 if (currentAccount) {
                     await renderLedger();

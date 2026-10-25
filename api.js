@@ -533,12 +533,12 @@
                     });
                     return Array.from(set);
                 }
-                // Array of objects with name or id (e.g. master_entries, accounts)
-                if (key.includes('master_entries') || key.includes('accounts')) {
+                // Array of objects with name or id (e.g. master_entries, accounts, khata:acc:*)
+                if (key.includes('master_entries') || key.includes('accounts') || key.startsWith('khata:acc:')) {
                     const map = new Map();
                     rParsed.forEach(item => {
                         if (!item) return;
-                        const k = (item.name || item.id || '').trim().toLowerCase();
+                        const k = (item.id || item.name || '').trim().toLowerCase();
                         if (k) map.set(k, item);
                     });
                     lParsed.forEach(item => {
@@ -752,7 +752,12 @@
                                 const lastWrite = recentLocalWrites.get(k);
                                 if (lastWrite && (now - lastWrite) < LOCAL_WRITE_GRACE_MS) return;
                                 const val = json.data[k];
-                                const strVal = typeof val === 'object' ? JSON.stringify(val) : String(val);
+                                const localRaw = localStorage.getItem(prefix + k) || (u === 'valam' ? localStorage.getItem(k) : null);
+                                let finalVal = val;
+                                if (localRaw !== null && localRaw !== undefined) {
+                                    finalVal = this.smartMergeValue(k, localRaw, val);
+                                }
+                                const strVal = typeof finalVal === 'object' ? JSON.stringify(finalVal) : String(finalVal);
                                 localStorage.setItem(prefix + k, strVal);
                                 if (u === 'valam') {
                                     localStorage.setItem(k, strVal);
