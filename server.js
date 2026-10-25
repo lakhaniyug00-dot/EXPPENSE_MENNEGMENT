@@ -5,6 +5,7 @@ const mongoose = require('mongoose');
 const path = require('path');
 const os = require('os');
 const crypto = require('crypto');
+const excelSync = require('./excelSync');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -78,6 +79,8 @@ mongoose.connect(MONGO_URI)
     .then(() => {
         isDbConnected = true;
         console.log(`[Database] MongoDB connected successfully to: ${MONGO_URI}`);
+        // Auto-generate Excel file on local drive on server startup
+        excelSync.generateExcel(UserData, 'valam').catch(() => {});
     })
     .catch((err) => {
         isDbConnected = false;
@@ -421,6 +424,7 @@ app.post('/api/data/:username/batch', requireUserAccess, async (req, res) => {
         if (ops.length > 0) {
             await UserData.bulkWrite(ops);
         }
+        excelSync.scheduleSync(UserData, u);
         res.json({ success: true, count: ops.length, serverTime: now.toISOString() });
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
@@ -440,6 +444,7 @@ app.post('/api/data/:username/:key', requireUserAccess, async (req, res) => {
             { $set: { username: u, key: k, value: val, updatedAt: now } },
             { upsert: true, new: true }
         );
+        excelSync.scheduleSync(UserData, u);
         res.json({ success: true, serverTime: now.toISOString() });
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
@@ -452,7 +457,35 @@ app.delete('/api/data/:username/:key', requireUserAccess, async (req, res) => {
         const u = (req.params.username || '').trim().toLowerCase();
         const k = req.params.key;
         await UserData.deleteOne({ username: u, key: k });
+        excelSync.scheduleSync(UserData, u);
         res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// ── EXCEL DIRECT MANAGEMENT APIS ──
+app.get('/api/excel/status', (req, res) => {
+    res.json({ success: true, ...excelSync.getStatus() });
+});
+
+app.post('/api/excel/open-folder', (req, res) => {
+    excelSync.openExcelFolder()
+        .then(() => res.json({ success: true, message: 'Opened folder C:\\Expense_Data' }))
+        .catch(err => res.status(500).json({ success: false, error: err.message }));
+});
+
+app.post('/api/excel/open-file', (req, res) => {
+    excelSync.openExcelFile()
+        .then(() => res.json({ success: true, message: 'Opening Excel spreadsheet' }))
+        .catch(err => res.status(500).json({ success: false, error: err.message }));
+});
+
+app.post('/api/excel/sync-now', async (req, res) => {
+    try {
+        const u = (req.body && req.body.username) ? req.body.username : 'valam';
+        const result = await excelSync.generateExcel(UserData, u);
+        res.json(result);
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
     }

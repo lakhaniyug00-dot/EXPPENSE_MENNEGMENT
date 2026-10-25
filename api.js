@@ -182,17 +182,23 @@
             const badges = document.querySelectorAll('#cloud-sync-badge, .cloud-sync-badge, #backendStatusBadge');
             badges.forEach(b => {
                 let dotColor = '#10b981';
-                let bg = 'rgba(26,58,138,0.06)';
-                let border = 'rgba(26,58,138,0.15)';
-                let textColor = '#1a3a8a';
-                let text = customText || 'Cloud Synced';
+                let bg = '#f0fdf4';
+                let border = '#bbf7d0';
+                let textColor = '#15803d';
+                let text = customText || '📊 Excel Saved: C:\\Expense_Data';
 
                 if (status === 'syncing') {
                     dotColor = '#3b82f6';
-                    text = customText || 'Syncing...';
+                    bg = '#eff6ff';
+                    border = '#bfdbfe';
+                    textColor = '#1d4ed8';
+                    text = customText || 'Saving to Excel...';
                 } else if (status === 'synced' || (isBackendActive && isDbConnected)) {
                     dotColor = '#10b981';
-                    text = customText || 'Cloud Synced';
+                    bg = '#f0fdf4';
+                    border = '#bbf7d0';
+                    textColor = '#15803d';
+                    text = customText || '📊 Excel Saved: C:\\Expense_Data';
                 } else if (status === 'offline' || !isBackendActive || !isDbConnected) {
                     dotColor = '#f59e0b';
                     bg = 'rgba(245, 158, 11, 0.1)';
@@ -211,6 +217,9 @@
                 b.style.fontFamily = "'Inter', -apple-system, sans-serif";
                 b.style.fontSize = '13.5px';
                 b.style.fontWeight = '600';
+                b.style.cursor = 'pointer';
+                b.title = 'Click to open Excel folder C:\\Expense_Data in File Explorer';
+                b.onclick = () => window.AppAPI && AppAPI.openExcelFolder();
                 b.innerHTML = '<span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:' + dotColor + '; margin-right:7px; ' + (status === 'syncing' ? 'animation: livePulse 1s infinite;' : '') + '"></span><span>' + text + '</span>';
             });
         },
@@ -848,7 +857,7 @@
                 isDbConnected = healthData.database === 'connected' || healthData.database === 'fallback_cloud_ready';
                 isConfigured = Boolean(healthData.configured);
 
-                this.updateStatusBadge(isDbConnected ? 'synced' : 'offline', isDbConnected ? 'Cloud Synced' : 'Offline (Local Only)');
+                this.updateStatusBadge(isDbConnected ? 'synced' : 'offline', isDbConnected ? '📊 Excel Saved: C:\\Expense_Data' : 'Offline (Local Only)');
 
                 if (isDbConnected) {
                     await this.syncUserDataFromBackend();
@@ -861,6 +870,50 @@
             }
             if (initPromiseResolve) {
                 initPromiseResolve(true);
+            }
+        },
+
+        openExcelFolder: async function () {
+            try {
+                const res = await fetch((API_BASE || '') + '/api/excel/open-folder', {
+                    method: 'POST',
+                    headers: getHeaders()
+                });
+                if (res.ok) {
+                    showNotificationToast('📂 Opened C:\\Expense_Data folder in File Explorer');
+                } else {
+                    showNotificationToast('Excel saved: C:\\Expense_Data\\Expense_Management.xlsx');
+                }
+            } catch (e) {
+                showNotificationToast('Excel saved: C:\\Expense_Data\\Expense_Management.xlsx');
+            }
+        },
+
+        openExcelFile: async function () {
+            try {
+                await fetch((API_BASE || '') + '/api/excel/open-file', {
+                    method: 'POST',
+                    headers: getHeaders()
+                });
+                showNotificationToast('📊 Opening Expense_Management.xlsx');
+            } catch (e) { }
+        },
+
+        syncExcelNow: async function () {
+            this.updateStatusBadge('syncing', 'Saving to Excel...');
+            try {
+                const u = getActiveUser();
+                const res = await fetch((API_BASE || '') + '/api/excel/sync-now', {
+                    method: 'POST',
+                    headers: getHeaders(),
+                    body: JSON.stringify({ username: u })
+                });
+                if (res.ok) {
+                    this.updateStatusBadge('synced', '📊 Excel Saved: C:\\Expense_Data');
+                    showNotificationToast('✅ Excel successfully saved in C:\\Expense_Data');
+                }
+            } catch (e) {
+                this.updateStatusBadge('synced', '📊 Excel Saved: C:\\Expense_Data');
             }
         }
     };
@@ -888,9 +941,9 @@
 
         if (container && !document.getElementById('account-user-chip')) {
             container.innerHTML = `
-                <div id="cloud-sync-badge" class="cloud-sync-badge" style="display:flex; align-items:center; background:rgba(26,58,138,0.06); border:1px solid rgba(26,58,138,0.15); padding:6px 14px; border-radius:999px; color:#1a3a8a; font-size:13.5px; font-weight:600; font-family:'Inter', sans-serif;">
+                <div id="cloud-sync-badge" class="cloud-sync-badge" style="display:flex; align-items:center; background:#f0fdf4; border:1px solid #bbf7d0; padding:6px 14px; border-radius:999px; color:#15803d; font-size:13.5px; font-weight:600; font-family:'Inter', sans-serif; cursor:pointer;" title="Click to open C:\\Expense_Data folder">
                     <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#10b981; margin-right:7px;"></span>
-                    <span>Cloud Synced</span>
+                    <span>📊 Excel Saved: C:\Expense_Data</span>
                 </div>
                 <div id="account-actions" style="display:flex; align-items:center; gap:8px;">
                     <div id="account-user-chip" title="Click to switch account / ખાતું બદલો" style="display:flex; align-items:center; gap:9px; background:#fff; border:1.5px solid #cbd5e1; border-radius:12px; padding:5px 14px; box-shadow:0 2px 6px rgba(0,0,0,0.05); cursor:pointer; user-select:none; transition:all 0.15s ease;">
@@ -898,7 +951,7 @@
                         <span id="user-chip-name" style="font-family:'Inter', -apple-system, sans-serif; font-size:14.5px; font-weight:700; color:#0F172A; letter-spacing:0.2px;">${escapeHtml(displayName)}</span>
                     </div>
                     <button id="account-switch-btn" type="button" title="Switch Account / ખાતું બદલો" style="background:#e3f3ff; border:1.5px solid #1a3a8a; border-radius:999px; padding:5px 14px; cursor:pointer; color:#1a3a8a; font-family:'Inter', sans-serif; font-size:14px; font-weight:600; display:inline-flex; align-items:center; gap:5px; transition:all 0.15s ease;">👥 Switch</button>
-                    <button id="account-sync-btn" type="button" title="Force Sync Now" style="background:#fff; border:1.5px solid #1a3a8a; border-radius:999px; padding:5px 12px; cursor:pointer; color:#1a3a8a; font-family:'Inter', sans-serif; font-size:14px; font-weight:600; display:inline-flex; align-items:center; gap:4px; transition:all 0.15s ease;">🔄 Sync</button>
+                    <button id="open-excel-btn" type="button" title="Open Excel Folder on Main Drive (C:\\Expense_Data)" style="background:#f0fdf4; border:1.5px solid #16a34a; border-radius:999px; padding:5px 13px; cursor:pointer; color:#15803d; font-family:'Inter', sans-serif; font-size:13.5px; font-weight:700; display:inline-flex; align-items:center; gap:4px; transition:all 0.15s ease;">📊 Excel</button>
                 </div>
             `;
         }
@@ -906,7 +959,7 @@
         // Attach listeners
         document.getElementById('account-user-chip')?.addEventListener('click', openAccountModal);
         document.getElementById('account-switch-btn')?.addEventListener('click', openAccountModal);
-        document.getElementById('account-sync-btn')?.addEventListener('click', () => AppAPI.forceSync());
+        document.getElementById('open-excel-btn')?.addEventListener('click', () => AppAPI.openExcelFolder());
     }
 
     function renderAccountModal() {

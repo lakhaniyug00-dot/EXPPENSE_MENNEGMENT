@@ -908,9 +908,9 @@
                 onchange="handlePagarYearChange(this.value)">
             </select>
             <div id="cloud-account-bar" class="no-print" style="display:flex;align-items:center;gap:8px;">
-                <div id="cloud-sync-badge" class="cloud-sync-badge" style="display:inline-flex;align-items:center;background:rgba(26,58,138,0.06);border:1px solid rgba(26,58,138,0.15);padding:6px 14px;border-radius:999px;color:#1a3a8a;font-size:13.5px;font-weight:600;font-family:'Inter',sans-serif;">
+                <div id="cloud-sync-badge" class="cloud-sync-badge" onclick="window.AppAPI && AppAPI.openExcelFolder()" title="Click to open Excel folder (C:\Expense_Data)" style="display:inline-flex;align-items:center;background:#f0fdf4;border:1px solid #bbf7d0;padding:6px 14px;border-radius:999px;color:#15803d;font-size:13.5px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;">
                     <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#10b981;margin-right:7px;"></span>
-                    <span>Cloud Synced</span>
+                    <span>📊 Excel Saved: C:\Expense_Data</span>
                 </div>
                 <div id="account-actions" style="display:inline-flex;align-items:center;gap:8px;">
                     <div id="account-user-chip" onclick="openAccountModal()" title="Click to switch account / ખાતું બદલો" style="display:inline-flex;align-items:center;gap:9px;background:#fff;border:1.5px solid #cbd5e1;border-radius:12px;padding:5px 14px;box-shadow:0 2px 6px rgba(0,0,0,0.05);cursor:pointer;user-select:none;transition:all 0.15s ease;">
@@ -918,7 +918,7 @@
                         <span id="user-chip-name" style="font-family:'Inter',-apple-system,sans-serif;font-size:14.5px;font-weight:700;color:#0F172A;letter-spacing:0.2px;">Valam</span>
                     </div>
                     <button id="account-switch-btn" type="button" onclick="openAccountModal()" title="Switch Account / ખાતું બદલો" style="background:#e3f3ff;border:1.5px solid #1a3a8a;border-radius:999px;padding:5px 14px;cursor:pointer;color:#1a3a8a;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;display:inline-flex;align-items:center;gap:5px;transition:all 0.15s ease;">👥 Switch</button>
-                    <button id="account-sync-btn" type="button" onclick="window.AppAPI && AppAPI.forceSync()" title="Force Sync Now" style="background:#fff;border:1.5px solid #1a3a8a;border-radius:999px;padding:5px 12px;cursor:pointer;color:#1a3a8a;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;display:inline-flex;align-items:center;gap:4px;transition:all 0.15s ease;">🔄 Sync</button>
+                    <button id="open-excel-btn" type="button" onclick="window.AppAPI && AppAPI.openExcelFolder()" title="Open Excel Folder on Main Drive (C:\Expense_Data)" style="background:#f0fdf4;border:1.5px solid #16a34a;border-radius:999px;padding:5px 13px;cursor:pointer;color:#15803d;font-family:'Inter',sans-serif;font-size:13.5px;font-weight:700;display:inline-flex;align-items:center;gap:4px;transition:all 0.15s ease;">📊 Excel</button>
                 </div>
             </div>
         </div>
