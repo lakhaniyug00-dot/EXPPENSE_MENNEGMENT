@@ -1508,24 +1508,33 @@
             } catch (e) { }
         }
 
-        async function saveStorage() {
-            try {
-                const curY = getActiveYear();
-                const dataObj = { globalCompanyName, ratesData, opSlipsData, fixSlipsData, opWorkerDuties, fixWorkerDuties };
-                const str = JSON.stringify(dataObj);
-                userLocalSet(`khata_pagar_data_${curY}`, str);
-                userLocalSet('khata_pagar_data', str);
-                userLocalSet('khata:company_name', globalCompanyName);
-                await storageSet(`khata_pagar_data_${curY}`, str);
-                await storageSet('khata_pagar_data', str);
-                await storageSet('khata:company_name', globalCompanyName);
-            } catch (e) { }
+
+
+        // Debounced save — prevents a network + broadcast call on every single keystroke
+        let _saveStorageTimer = null;
+        function saveStorage() {
+            clearTimeout(_saveStorageTimer);
+            _saveStorageTimer = setTimeout(async () => {
+                try {
+                    const curY = getActiveYear();
+                    const dataObj = { globalCompanyName, ratesData, opSlipsData, fixSlipsData, opWorkerDuties, fixWorkerDuties };
+                    const str = JSON.stringify(dataObj);
+                    userLocalSet(`khata_pagar_data_${curY}`, str);
+                    userLocalSet('khata_pagar_data', str);
+                    userLocalSet('khata:company_name', globalCompanyName);
+                    await storageSet(`khata_pagar_data_${curY}`, str);
+                    await storageSet('khata_pagar_data', str);
+                    await storageSet('khata:company_name', globalCompanyName);
+                } catch (e) { }
+            }, 400);
         }
 
         // ── CROSS-TAB SYNC ──
         const syncChannel = (() => { try { return new BroadcastChannel('khata_sync'); } catch (e) { return { postMessage: () => { }, addEventListener: () => { } }; } })();
         syncChannel.addEventListener('message', async (ev) => {
             if (!ev.data) return;
+            // Ignore messages this tab sent itself (prevents broadcast feedback loop)
+            if (ev.data.senderTab && window.TAB_ID && ev.data.senderTab === window.TAB_ID) return;
             if (ev.data.type === 'user-switched' || ev.data.type === 'year-changed' || ev.data.type === 'year-completed') {
                 location.reload();
                 return;
@@ -1535,7 +1544,6 @@
                     globalCompanyName = ev.data.company;
                     opSlipsData.forEach(s => s.company = globalCompanyName);
                     fixSlipsData.forEach(s => s.company = globalCompanyName);
-                    await saveStorage();
                 }
                 await loadLocalStorageState();
                 await syncAllKhataData();
@@ -1719,13 +1727,16 @@
                         const mInfo = await fetchWorkerMasterFromKhata(fixSlipsData[i].name);
                         if (mInfo) {
                             if (mInfo.category) fixSlipsData[i].category = mInfo.category;
-                            if (mInfo.pagarAmount) fixSlipsData[i].salary = parseFloat(mInfo.pagarAmount) || fixSlipsData[i].salary;
+                            // Only set salary from master if the user has NOT entered a salary yet (i.e., salary is 0 or missing)
+                            if (mInfo.pagarAmount && !(parseFloat(fixSlipsData[i].salary) > 0)) {
+                                fixSlipsData[i].salary = parseFloat(mInfo.pagarAmount) || 0;
+                            }
                         }
                         const khataUpad = await fetchWorkerUpadFromKhata(fixSlipsData[i].name);
                         fixSlipsData[i].upad = mergeUpadLists(fixSlipsData[i].upad, khataUpad);
                     }
                 }
-                await saveStorage();
+                // NOTE: do NOT call saveStorage() here — that would broadcast back to this tab and cause an infinite loop
             } catch (e) { }
         }
 

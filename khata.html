@@ -2794,6 +2794,8 @@
         const syncChannel = (() => { try { return new BroadcastChannel('khata_sync'); } catch (e) { return { postMessage: () => { }, addEventListener: () => { } }; } })();
         syncChannel.addEventListener('message', async (ev) => {
             if (!ev.data) return;
+            // Ignore messages this tab sent itself
+            if (ev.data.senderTab && window.TAB_ID && ev.data.senderTab === window.TAB_ID) return;
             if (ev.data.type === 'user-switched' || ev.data.type === 'year-changed' || ev.data.type === 'year-completed') {
                 location.reload();
                 return;

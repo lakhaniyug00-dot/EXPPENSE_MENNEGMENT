@@ -2413,6 +2413,8 @@
         const syncChannel = (() => { try { return new BroadcastChannel('khata_sync'); } catch (e) { return { postMessage: () => { }, addEventListener: () => { } }; } })();
         syncChannel.addEventListener('message', async (ev) => {
             if (!ev.data) return;
+            // Ignore messages this tab sent itself
+            if (ev.data.senderTab && window.TAB_ID && ev.data.senderTab === window.TAB_ID) return;
             if (ev.data.type === 'user-switched' || ev.data.type === 'year-changed' || ev.data.type === 'year-completed') {
                 location.reload();
                 return;
@@ -2537,8 +2539,21 @@
                 inp.style.cssText = 'width:65px;border:none;background:transparent;outline:none;font-size:14.5px;font-weight:700;color:inherit;text-align:center;padding:0;margin:0;font-family:inherit;';
                 amtBoxDiv.appendChild(inp);
                 inp.focus(); inp.select();
+                let saveTimeout = null;
+                // Real-time: write amount to item on EVERY keystroke so pollSync cannot revert it
+                inp.addEventListener('input', () => {
+                    const v = parseFloat(inp.value);
+                    item.amount = (!isNaN(v) && v >= 0) ? v : 0;
+                    renderTotals();
+                    // Debounced background save (350ms)
+                    clearTimeout(saveTimeout);
+                    saveTimeout = setTimeout(async () => {
+                        await storageSet('khata:day:' + toKey(currentDate), JSON.stringify(dayData));
+                    }, 350);
+                });
                 let isCommitted = false;
                 const commit = async () => {
+                    clearTimeout(saveTimeout);
                     if (isCommitted) return;
                     isCommitted = true;
                     const v = parseFloat(inp.value);
@@ -2548,7 +2563,7 @@
                 inp.addEventListener('blur', commit);
                 inp.addEventListener('keydown', e => {
                     if (e.key === 'Enter') { e.preventDefault(); inp.blur(); }
-                    if (e.key === 'Escape') { item.amount = orig; afterRender(); renderTotals(); }
+                    if (e.key === 'Escape') { clearTimeout(saveTimeout); item.amount = orig; afterRender(); renderTotals(); }
                 });
             };
         }

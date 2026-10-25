@@ -42,6 +42,10 @@
         try { localStorage.setItem(DEVICE_ID_KEY, deviceId); } catch (e) { }
     }
 
+    const TAB_ID = 'tab_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8);
+    window.TAB_ID = TAB_ID;
+    const recentLocalWrites = new Map();
+
     let isBackendActive = false;
     let isDbConnected = false;
     let isConfigured = false;
@@ -428,6 +432,7 @@
             if (!u) return;
 
             const prefix = `u:${u}:`;
+            recentLocalWrites.set(key, Date.now());
             const strVal = typeof value === 'object' ? JSON.stringify(value) : String(value);
             localStorage.setItem(prefix + key, strVal);
             if (u === 'valam') {
@@ -437,7 +442,7 @@
             // Immediately broadcast to other tabs on this machine
             try {
                 const bc = new BroadcastChannel('khata_sync');
-                bc.postMessage({ type: 'day-updated', key: key });
+                bc.postMessage({ type: 'day-updated', key: key, senderTab: TAB_ID });
             } catch (e) { }
 
             if (!isBackendActive || !isDbConnected) return;
@@ -734,24 +739,37 @@
                     const json = await res.json();
                     if (json.success && json.data) {
                         const keys = Object.keys(json.data);
+                        // LOCAL_WRITE_GRACE_MS: ignore remote echo for keys we wrote locally recently
+                        const LOCAL_WRITE_GRACE_MS = 8000;
+                        const now = Date.now();
+                        const appliedKeys = [];
                         if (keys.length > 0) {
                             const prefix = `u:${u}:`;
                             keys.forEach(k => {
+                                // Skip keys still being saved
                                 if (pendingSaveQueue[k]) return;
+                                // Skip keys written locally within grace period (prevents overwriting active user edits)
+                                const lastWrite = recentLocalWrites.get(k);
+                                if (lastWrite && (now - lastWrite) < LOCAL_WRITE_GRACE_MS) return;
                                 const val = json.data[k];
                                 const strVal = typeof val === 'object' ? JSON.stringify(val) : String(val);
                                 localStorage.setItem(prefix + k, strVal);
                                 if (u === 'valam') {
                                     localStorage.setItem(k, strVal);
                                 }
+                                appliedKeys.push(k);
                             });
-                            this.notifySyncListeners(keys);
-                            try {
-                                const bc = new BroadcastChannel('khata_sync');
-                                bc.postMessage({ type: 'day-updated', keys: keys });
-                            } catch (e) { }
-                            this.updateStatusBadge('synced', 'Synced across devices');
+                            if (appliedKeys.length > 0) {
+                                this.notifySyncListeners(appliedKeys);
+                                try {
+                                    const bc = new BroadcastChannel('khata_sync');
+                                    bc.postMessage({ type: 'day-updated', keys: appliedKeys, senderTab: TAB_ID });
+                                } catch (e) { }
+                                this.updateStatusBadge('synced', 'Synced across devices');
+                            }
                         }
+                        // Clean stale entries from recentLocalWrites
+                        recentLocalWrites.forEach((ts, k) => { if (now - ts > LOCAL_WRITE_GRACE_MS * 2) recentLocalWrites.delete(k); });
                         if (json.serverTime) lastSyncTime = json.serverTime;
                     }
                 }
