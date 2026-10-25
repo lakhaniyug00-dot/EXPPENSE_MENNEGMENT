@@ -5,6 +5,7 @@ const mongoose = require('mongoose');
 const path = require('path');
 const os = require('os');
 const crypto = require('crypto');
+const XLSX = require('xlsx');
 const excelSync = require('./excelSync');
 
 const app = express();
@@ -487,6 +488,48 @@ app.post('/api/excel/sync-now', async (req, res) => {
         const result = await excelSync.generateExcel(UserData, u);
         res.json(result);
     } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// Direct browser download of .xlsx file
+app.all('/api/excel/download', async (req, res) => {
+    try {
+        let u = (req.query.username || (req.body && req.body.username) || '').trim().toLowerCase();
+        if (!u) {
+            const authH = req.headers.authorization || '';
+            const token = authH.replace('Bearer ', '') || req.query.token;
+            if (token) {
+                const verified = verifyToken(token);
+                if (verified) u = verified;
+            }
+        }
+        if (!u) u = 'valam';
+
+        let dataMap = {};
+        if (isDbOnline()) {
+            try {
+                const records = await UserData.find({ username: u }).lean();
+                if (records && records.length) {
+                    records.forEach(r => { dataMap[r.key] = r.value; });
+                }
+            } catch (e) { }
+        }
+
+        if (Object.keys(dataMap).length === 0) {
+            dataMap = getMemoryDataForUser(u) || {};
+        }
+
+        const wb = excelSync.buildWorkbookFromDataMap(dataMap);
+        const buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+
+        const filename = `Expense_Management_${u}.xlsx`;
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+        res.send(buffer);
+    } catch (err) {
+        console.error('[Excel Download Error]', err);
         res.status(500).json({ success: false, error: err.message });
     }
 });

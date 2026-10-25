@@ -179,32 +179,34 @@
 
         // Update status pill badge across headers
         updateStatusBadge: function (status, customText) {
+            const isVercelHost = window.location.hostname.includes('vercel.app');
             const badges = document.querySelectorAll('#cloud-sync-badge, .cloud-sync-badge, #backendStatusBadge');
             badges.forEach(b => {
                 let dotColor = '#10b981';
                 let bg = '#f0fdf4';
                 let border = '#bbf7d0';
                 let textColor = '#15803d';
-                let text = customText || '📊 Excel Saved: C:\\Expense_Data';
+                let defaultSynced = isVercelHost ? '📊 Download Excel (.xlsx)' : '📊 Excel Saved: C:\\Expense_Data';
+                let text = customText || defaultSynced;
 
                 if (status === 'syncing') {
                     dotColor = '#3b82f6';
                     bg = '#eff6ff';
                     border = '#bfdbfe';
                     textColor = '#1d4ed8';
-                    text = customText || 'Saving to Excel...';
+                    text = customText || 'Preparing Excel...';
                 } else if (status === 'synced' || (isBackendActive && isDbConnected)) {
                     dotColor = '#10b981';
                     bg = '#f0fdf4';
                     border = '#bbf7d0';
                     textColor = '#15803d';
-                    text = customText || '📊 Excel Saved: C:\\Expense_Data';
+                    text = customText || defaultSynced;
                 } else if (status === 'offline' || !isBackendActive || !isDbConnected) {
                     dotColor = '#f59e0b';
                     bg = 'rgba(245, 158, 11, 0.1)';
                     border = '#fcd34d';
                     textColor = '#92400e';
-                    text = customText || 'Offline (Local Only)';
+                    text = customText || (isVercelHost ? '📊 Download Excel (Offline)' : 'Offline (Local Only)');
                 }
 
                 b.style.background = bg;
@@ -218,8 +220,8 @@
                 b.style.fontSize = '13.5px';
                 b.style.fontWeight = '600';
                 b.style.cursor = 'pointer';
-                b.title = 'Click to open Excel folder C:\\Expense_Data in File Explorer';
-                b.onclick = () => window.AppAPI && AppAPI.openExcelFolder();
+                b.title = isVercelHost ? 'Click to download Excel spreadsheet (.xlsx)' : 'Click to open Excel / folder (C:\\Expense_Data)';
+                b.onclick = () => window.AppAPI && AppAPI.handleExcelClick();
                 b.innerHTML = '<span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:' + dotColor + '; margin-right:7px; ' + (status === 'syncing' ? 'animation: livePulse 1s infinite;' : '') + '"></span><span>' + text + '</span>';
             });
         },
@@ -881,30 +883,93 @@
             }
         },
 
+        // Download Excel file directly (.xlsx) to browser Downloads folder
+        downloadExcel: async function (targetUser) {
+            const u = (targetUser || getActiveUser() || 'valam').trim().toLowerCase();
+            this.updateStatusBadge('syncing', 'Preparing Excel...');
+            showNotificationToast('⏳ Generating Excel: ' + capitalize(u) + '...');
+
+            let downloaded = false;
+
+            // 1. Try server download endpoint
+            try {
+                const token = getToken();
+                const url = (API_BASE || '') + '/api/excel/download?username=' + encodeURIComponent(u) + (token ? '&token=' + encodeURIComponent(token) : '');
+                const res = await fetch(url, { headers: getHeaders() });
+                if (res.ok) {
+                    const blob = await res.blob();
+                    const dlUrl = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = dlUrl;
+                    a.download = `Expense_Management_${u}.xlsx`;
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                    setTimeout(() => window.URL.revokeObjectURL(dlUrl), 2000);
+                    downloaded = true;
+                    this.updateStatusBadge('synced');
+                    showNotificationToast('✅ Excel Downloaded! (Expense_Management_' + u + '.xlsx)');
+                    return true;
+                }
+            } catch (err) {
+                console.warn('[Server Excel download error, trying client-side export]', err);
+            }
+
+            // 2. Client-side export fallback using SheetJS (window.XLSX)
+            if (window.XLSX) {
+                try {
+                    const dataMap = collectUserDataMap(u);
+                    const wb = buildClientSideWorkbook(dataMap);
+                    window.XLSX.writeFile(wb, `Expense_Management_${u}.xlsx`);
+                    downloaded = true;
+                    this.updateStatusBadge('synced');
+                    showNotificationToast('✅ Excel Generated & Downloaded from Browser!');
+                    return true;
+                } catch (e2) {
+                    console.error('[Client-side Excel export failed]', e2);
+                }
+            }
+
+            if (!downloaded) {
+                this.updateStatusBadge('synced');
+                showNotificationToast('❌ Could not generate Excel. Please try again.');
+            }
+            return false;
+        },
+
         openExcelFolder: async function () {
             try {
                 const res = await fetch((API_BASE || '') + '/api/excel/open-folder', {
                     method: 'POST',
                     headers: getHeaders()
                 });
-                if (res.ok) {
+                const data = await res.json().catch(() => ({}));
+                if (res.ok && data.success) {
                     showNotificationToast('📂 Opened C:\\Expense_Data folder in File Explorer');
                 } else {
-                    showNotificationToast('Excel saved: C:\\Expense_Data\\Expense_Management.xlsx');
+                    // On Vercel / non-Windows: automatically trigger direct download!
+                    await this.downloadExcel();
                 }
             } catch (e) {
-                showNotificationToast('Excel saved: C:\\Expense_Data\\Expense_Management.xlsx');
+                await this.downloadExcel();
             }
         },
 
         openExcelFile: async function () {
             try {
-                await fetch((API_BASE || '') + '/api/excel/open-file', {
+                const res = await fetch((API_BASE || '') + '/api/excel/open-file', {
                     method: 'POST',
                     headers: getHeaders()
                 });
-                showNotificationToast('📊 Opening Expense_Management.xlsx');
-            } catch (e) { }
+                const data = await res.json().catch(() => ({}));
+                if (res.ok && data.success) {
+                    showNotificationToast('📊 Opening Expense_Management.xlsx');
+                } else {
+                    await this.downloadExcel();
+                }
+            } catch (e) {
+                await this.downloadExcel();
+            }
         },
 
         syncExcelNow: async function () {
@@ -916,18 +981,292 @@
                     headers: getHeaders(),
                     body: JSON.stringify({ username: u })
                 });
-                if (res.ok) {
-                    this.updateStatusBadge('synced', '📊 Excel Saved: C:\\Expense_Data');
-                    showNotificationToast('✅ Excel successfully saved in C:\\Expense_Data');
+                const data = await res.json().catch(() => ({}));
+                if (res.ok && data.success) {
+                    if (data.isVercel) {
+                        this.updateStatusBadge('synced', '📊 Download Excel (.xlsx)');
+                        showNotificationToast('✅ Data synced with Cloud! Click Excel to download.');
+                    } else {
+                        this.updateStatusBadge('synced', '📊 Excel Saved: C:\\Expense_Data');
+                        showNotificationToast('✅ Excel saved in C:\\Expense_Data');
+                    }
+                } else {
+                    this.updateStatusBadge('synced');
                 }
             } catch (e) {
-                this.updateStatusBadge('synced', '📊 Excel Saved: C:\\Expense_Data');
+                this.updateStatusBadge('synced');
             }
+        },
+
+        handleExcelClick: function () {
+            openExcelHubModal();
+        },
+
+        openExcelHubModal: function () {
+            openExcelHubModal();
         }
     };
 
+    // ── CLIENT-SIDE EXCEL COMPILATION (Fallback) ──
+    function collectUserDataMap(username) {
+        const u = (username || getActiveUser() || 'valam').trim().toLowerCase();
+        const dataMap = {};
+        const prefix = `${u}:`;
+
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (!key) continue;
+
+            let cleanKey = null;
+            if (key.startsWith(prefix)) {
+                cleanKey = key.slice(prefix.length);
+            } else if (u === 'valam' && (key.startsWith('khata:') || key.startsWith('khata_'))) {
+                cleanKey = key;
+            }
+
+            if (cleanKey) {
+                try {
+                    dataMap[cleanKey] = JSON.parse(localStorage.getItem(key));
+                } catch (e) {
+                    dataMap[cleanKey] = localStorage.getItem(key);
+                }
+            }
+        }
+        return dataMap;
+    }
+
+    function buildClientSideWorkbook(dataMap = {}) {
+        if (!window.XLSX) throw new Error('XLSX library not loaded');
+        const XLSX = window.XLSX;
+        const wb = XLSX.utils.book_new();
+
+        // 1. Rojmel
+        const rojmelRows = [];
+        const dayKeys = Object.keys(dataMap).filter(k => k.startsWith('khata:day:')).sort((a, b) => b.localeCompare(a));
+        dayKeys.forEach(k => {
+            const dateStr = k.replace('khata:day:', '');
+            const day = dataMap[k] || {};
+            (day.income || []).forEach(e => {
+                rojmelRows.push({
+                    'Date': dateStr, 'Type': 'Aavak (Income)', 'Name': (e.name || '').trim(),
+                    'Category': (e.category || '').trim(), 'Sub Category (Master)': (e.master || '').trim(),
+                    'Amount (₹)': Number(e.amount) || 0, 'Note': (e.note || '').trim(),
+                    'Pagar Type': (e.fixedLabel || e.pagarType || '').trim()
+                });
+            });
+            (day.expense || []).forEach(e => {
+                rojmelRows.push({
+                    'Date': dateStr, 'Type': 'Javak (Expense)', 'Name': (e.name || '').trim(),
+                    'Category': (e.category || '').trim(), 'Sub Category (Master)': (e.master || '').trim(),
+                    'Amount (₹)': Number(e.amount) || 0, 'Note': (e.note || '').trim(),
+                    'Pagar Type': (e.fixedLabel || e.pagarType || '').trim()
+                });
+            });
+        });
+        const wsRojmel = XLSX.utils.json_to_sheet(rojmelRows.length ? rojmelRows : [{ 'Info': 'No Rojmel entries' }]);
+        XLSX.utils.book_append_sheet(wb, wsRojmel, 'Rojmel (Daily)');
+
+        // 2. Khata Book
+        const khataRows = [];
+        const accounts = Array.isArray(dataMap['khata:accounts']) ? dataMap['khata:accounts'] : [];
+        const accountNames = new Set();
+        accounts.forEach(a => { if (a && a.name && a.name.trim()) accountNames.add(a.name.trim()); });
+        if (Array.isArray(dataMap['khata:master_entries'])) {
+            dataMap['khata:master_entries'].forEach(m => { if (m && m.name && m.name.trim()) accountNames.add(m.name.trim()); });
+        }
+        Object.keys(dataMap).forEach(k => {
+            if (k.startsWith('khata:acc:')) {
+                const accId = k.replace('khata:acc:', '');
+                const acc = accounts.find(a => a.id === accId);
+                if (acc && acc.name) accountNames.add(acc.name.trim());
+            }
+        });
+        Array.from(accountNames).sort((a, b) => a.localeCompare(b)).forEach(accName => {
+            const lower = accName.toLowerCase();
+            dayKeys.forEach(k => {
+                const dateStr = k.replace('khata:day:', '');
+                const day = dataMap[k] || {};
+                (day.income || []).forEach(e => {
+                    if ((e.name || '').trim().toLowerCase() === lower) {
+                        khataRows.push({
+                            'Account Name': accName, 'Date': dateStr, 'Type': 'Aavak (Income)',
+                            'Aavak (₹)': Number(e.amount) || 0, 'Javak (₹)': 0,
+                            'Note': (e.note || '').trim(), 'Sub Category': (e.master || e.category || '').trim(), 'Source': 'Rojmel Daily'
+                        });
+                    }
+                });
+                (day.expense || []).forEach(e => {
+                    if ((e.name || '').trim().toLowerCase() === lower) {
+                        khataRows.push({
+                            'Account Name': accName, 'Date': dateStr, 'Type': 'Javak (Expense)',
+                            'Aavak (₹)': 0, 'Javak (₹)': Number(e.amount) || 0,
+                            'Note': (e.note || '').trim(), 'Sub Category': (e.master || e.category || '').trim(), 'Source': 'Rojmel Daily'
+                        });
+                    }
+                });
+            });
+            const accObj = accounts.find(a => (a.name || '').trim().toLowerCase() === lower);
+            const accId = accObj ? accObj.id : ('auto:' + lower);
+            const manualEntries = dataMap['khata:acc:' + accId] || dataMap['khata:acc:auto:' + lower];
+            if (Array.isArray(manualEntries)) {
+                manualEntries.forEach(m => {
+                    if (!m) return;
+                    khataRows.push({
+                        'Account Name': accName, 'Date': m.date || '', 'Type': (m.aavak > 0) ? 'Aavak (Income)' : 'Javak (Expense)',
+                        'Aavak (₹)': Number(m.aavak) || 0, 'Javak (₹)': Number(m.javak) || 0,
+                        'Note': (m.note || '').trim(), 'Sub Category': (m.master || '').trim(), 'Source': 'Khata Manual'
+                    });
+                });
+            }
+        });
+        const wsKhata = XLSX.utils.json_to_sheet(khataRows.length ? khataRows : [{ 'Info': 'No Khata Book entries' }]);
+        XLSX.utils.book_append_sheet(wb, wsKhata, 'Khata Book');
+
+        // 3. Fix Workers
+        const fixPagarRows = [];
+        const pagar = dataMap['khata_pagar_data'] || dataMap['khata_pagar_data_2026'] || {};
+        const fixSlips = Array.isArray(pagar.fixSlipsData) ? pagar.fixSlipsData : [];
+        fixSlips.forEach((slip, idx) => {
+            if (!slip || !slip.name || slip.name.startsWith('Fix Worker #')) return;
+            const salary = Number(slip.salary) || 0;
+            const days = Number(slip.days) || 30;
+            let dutiesTotal = 0;
+            (slip.duties || []).forEach(d => { dutiesTotal += Number(d.val) || 0; });
+            const earned = days > 0 ? Math.round((salary / days) * dutiesTotal) : 0;
+            let upadTotal = 0;
+            (slip.upad || []).forEach(u => { upadTotal += Number(u.amt) || 0; });
+            fixPagarRows.push({
+                'Slip No': slip.slipNo || (idx + 1), 'Worker Name': slip.name.trim(), 'Month': slip.month || '',
+                'Monthly Salary (₹)': salary, 'Present Duties': dutiesTotal, 'Gross Salary (₹)': earned,
+                'Upad Taken (₹)': upadTotal, 'Net Payable (₹)': earned - upadTotal
+            });
+        });
+        const wsFixPagar = XLSX.utils.json_to_sheet(fixPagarRows.length ? fixPagarRows : [{ 'Info': 'No Fix Worker slips' }]);
+        XLSX.utils.book_append_sheet(wb, wsFixPagar, 'Pagar - Fix Workers');
+
+        // 4. Daily Operators
+        const opPagarRows = [];
+        const opSlips = Array.isArray(pagar.opSlipsData) ? pagar.opSlipsData : [];
+        opSlips.forEach((slip, idx) => {
+            if (!slip || !slip.name || slip.name.startsWith('Operator #')) return;
+            let dutiesTotal = 0;
+            (slip.duties || []).forEach(d => { dutiesTotal += Number(d.val) || 0; });
+            let rate = (Array.isArray(pagar.ratesData) && pagar.ratesData[idx]) ? (Number(pagar.ratesData[idx].rate) || 0) : 0;
+            const earned = Math.round(dutiesTotal * rate);
+            let upadTotal = 0;
+            (slip.upad || []).forEach(u => { upadTotal += Number(u.amt) || 0; });
+            opPagarRows.push({
+                'Slip No': slip.slipNo || (idx + 1), 'Operator Name': slip.name.trim(), 'Month': slip.month || '',
+                'Rate (₹)': rate, 'Total Duties': dutiesTotal, 'Gross Earned (₹)': earned,
+                'Upad Taken (₹)': upadTotal, 'Net Payable (₹)': earned - upadTotal
+            });
+        });
+        const wsOpPagar = XLSX.utils.json_to_sheet(opPagarRows.length ? opPagarRows : [{ 'Info': 'No Operator slips' }]);
+        XLSX.utils.book_append_sheet(wb, wsOpPagar, 'Pagar - Daily Operators');
+
+        // 5. Master List
+        const masterRows = [];
+        const masters = Array.isArray(dataMap['khata:master_entries']) ? dataMap['khata:master_entries'] : [];
+        masters.forEach(m => {
+            if (!m || !m.name) return;
+            masterRows.push({
+                'Name': (m.name || '').trim(), 'Category': (m.category || '').trim(),
+                'Sub Category / Master': (m.master || '').trim(), 'Pagar Type': (m.pagarType || m.fixedLabel || '').trim(),
+                'Salary / Rate (₹)': Number(m.amount || m.pagarAmount) || 0, 'Note': (m.note || '').trim()
+            });
+        });
+        const wsMasters = XLSX.utils.json_to_sheet(masterRows.length ? masterRows : [{ 'Info': 'No Master entries' }]);
+        XLSX.utils.book_append_sheet(wb, wsMasters, 'Master List');
+
+        return wb;
+    }
+
+    // ── EXCEL HUB MODAL ──
+    function openExcelHubModal() {
+        let overlay = document.getElementById('excel-hub-modal-overlay');
+        const isVercelHost = window.location.hostname.includes('vercel.app');
+        const activeUname = getActiveUser();
+        const displayName = capitalize(activeUname);
+
+        if (!overlay) {
+            overlay = document.createElement('div');
+            overlay.id = 'excel-hub-modal-overlay';
+            overlay.style.cssText = 'position:fixed; inset:0; background:rgba(15, 23, 42, 0.65); backdrop-filter:blur(4px); z-index:100000; display:flex; align-items:center; justify-content:center; padding:16px;';
+            document.body.appendChild(overlay);
+        }
+
+        overlay.innerHTML = `
+            <div style="background:#FFFDF5; border:2px solid #16a34a; border-radius:20px; box-shadow:0 16px 40px rgba(0,0,0,0.25); width:100%; max-width:440px; padding:24px 22px; position:relative; font-family:'Inter', -apple-system, sans-serif;">
+                <button id="excel-modal-close-btn" style="position:absolute; top:14px; right:18px; background:none; border:none; font-size:24px; cursor:pointer; color:#15803d; line-height:1;">✕</button>
+                <div style="display:flex; align-items:center; gap:12px; margin-bottom:14px;">
+                    <div style="width:44px; height:44px; border-radius:12px; background:#dcfce7; color:#15803d; display:flex; align-items:center; justify-content:center; font-size:24px;">📊</div>
+                    <div>
+                        <div style="font-size:22px; font-weight:800; color:#14532d; line-height:1.1;">Excel Management</div>
+                        <div style="font-size:13px; color:#166534; font-weight:600; margin-top:2px;">Account: <span style="text-decoration:underline;">${escapeHtml(displayName)}</span> ${isVercelHost ? '(Cloud Mode)' : '(Local Mode)'}</div>
+                    </div>
+                </div>
+
+                <div style="background:#f0fdf4; border:1.5px solid #bbf7d0; border-radius:12px; padding:12px 14px; margin-bottom:16px; font-size:13px; color:#166534; line-height:1.45;">
+                    ${isVercelHost
+                        ? '☁️ <strong>Vercel Cloud Active:</strong> Click below to download the latest multi-sheet Excel file (.xlsx) directly to your device.'
+                        : '💻 <strong>Local PC Active:</strong> Excel is auto-synced to <code>C:\\Expense_Data\\Expense_Management.xlsx</code>.'}
+                </div>
+
+                <div style="display:flex; flex-direction:column; gap:10px;">
+                    <button id="excel-btn-download" type="button" style="background:#16a34a; color:#fff; border:none; border-radius:12px; padding:12px 16px; font-size:14.5px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow:0 4px 12px rgba(22,163,74,0.25); transition:all 0.15s ease;">
+                        📥 Download Excel File (.xlsx)
+                    </button>
+
+                    ${!isVercelHost ? `
+                    <button id="excel-btn-folder" type="button" style="background:#fff; color:#15803d; border:1.5px solid #86efac; border-radius:12px; padding:11px 16px; font-size:14px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;">
+                        📂 Open C:\\Expense_Data Folder
+                    </button>
+                    <button id="excel-btn-openfile" type="button" style="background:#fff; color:#15803d; border:1.5px solid #86efac; border-radius:12px; padding:11px 16px; font-size:14px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;">
+                        📈 Open in Microsoft Excel
+                    </button>
+                    ` : ''}
+
+                    <button id="excel-btn-sync" type="button" style="background:#f8fafc; color:#475569; border:1.5px solid #cbd5e1; border-radius:12px; padding:10px 16px; font-size:13.5px; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;">
+                        🔄 Force Sync Now
+                    </button>
+                </div>
+
+                <div style="margin-top:14px; font-size:12px; color:#64748b; text-align:center;">
+                    Includes 5 Sheets: Rojmel Daily · Khata Book · Fix Workers · Operators · Master List
+                </div>
+            </div>
+        `;
+
+        overlay.style.display = 'flex';
+
+        function closeExcelModal() { overlay.style.display = 'none'; }
+        document.getElementById('excel-modal-close-btn')?.addEventListener('click', closeExcelModal);
+        overlay.onclick = (e) => { if (e.target === overlay) closeExcelModal(); };
+
+        document.getElementById('excel-btn-download')?.addEventListener('click', async () => {
+            closeExcelModal();
+            await AppAPI.downloadExcel();
+        });
+
+        document.getElementById('excel-btn-folder')?.addEventListener('click', async () => {
+            closeExcelModal();
+            await AppAPI.openExcelFolder();
+        });
+
+        document.getElementById('excel-btn-openfile')?.addEventListener('click', async () => {
+            closeExcelModal();
+            await AppAPI.openExcelFile();
+        });
+
+        document.getElementById('excel-btn-sync')?.addEventListener('click', async () => {
+            closeExcelModal();
+            await AppAPI.syncExcelNow();
+        });
+    }
+
     // ── ACCOUNT WIDGET & MODAL INJECTION ──
     function renderAccountWidget() {
+        const isVercelHost = window.location.hostname.includes('vercel.app');
         const activeUname = getActiveUser();
         const displayName = capitalize(activeUname);
         const initial = displayName.charAt(0).toUpperCase();
@@ -949,9 +1288,9 @@
 
         if (container && !document.getElementById('account-user-chip')) {
             container.innerHTML = `
-                <div id="cloud-sync-badge" class="cloud-sync-badge" style="display:flex; align-items:center; background:#f0fdf4; border:1px solid #bbf7d0; padding:6px 14px; border-radius:999px; color:#15803d; font-size:13.5px; font-weight:600; font-family:'Inter', sans-serif; cursor:pointer;" title="Click to open C:\\Expense_Data folder">
+                <div id="cloud-sync-badge" class="cloud-sync-badge" style="display:flex; align-items:center; background:#f0fdf4; border:1px solid #bbf7d0; padding:6px 14px; border-radius:999px; color:#15803d; font-size:13.5px; font-weight:600; font-family:'Inter', sans-serif; cursor:pointer;" title="${isVercelHost ? 'Click to download Excel (.xlsx)' : 'Click to open Excel / C:\\Expense_Data'}">
                     <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#10b981; margin-right:7px;"></span>
-                    <span>📊 Excel Saved: C:\Expense_Data</span>
+                    <span>${isVercelHost ? '📊 Download Excel (.xlsx)' : '📊 Excel Saved: C:\\Expense_Data'}</span>
                 </div>
                 <div id="account-actions" style="display:flex; align-items:center; gap:8px;">
                     <div id="account-user-chip" title="Click to switch account / ખાતું બદલો" style="display:flex; align-items:center; gap:9px; background:#fff; border:1.5px solid #cbd5e1; border-radius:12px; padding:5px 14px; box-shadow:0 2px 6px rgba(0,0,0,0.05); cursor:pointer; user-select:none; transition:all 0.15s ease;">
@@ -959,7 +1298,7 @@
                         <span id="user-chip-name" style="font-family:'Inter', -apple-system, sans-serif; font-size:14.5px; font-weight:700; color:#0F172A; letter-spacing:0.2px;">${escapeHtml(displayName)}</span>
                     </div>
                     <button id="account-switch-btn" type="button" title="Switch Account / ખાતું બદલો" style="background:#e3f3ff; border:1.5px solid #1a3a8a; border-radius:999px; padding:5px 14px; cursor:pointer; color:#1a3a8a; font-family:'Inter', sans-serif; font-size:14px; font-weight:600; display:inline-flex; align-items:center; gap:5px; transition:all 0.15s ease;">👥 Switch</button>
-                    <button id="open-excel-btn" type="button" title="Open Excel Folder on Main Drive (C:\\Expense_Data)" style="background:#f0fdf4; border:1.5px solid #16a34a; border-radius:999px; padding:5px 13px; cursor:pointer; color:#15803d; font-family:'Inter', sans-serif; font-size:13.5px; font-weight:700; display:inline-flex; align-items:center; gap:4px; transition:all 0.15s ease;">📊 Excel</button>
+                    <button id="open-excel-btn" type="button" title="Open Excel Hub / Download Spreadsheet" style="background:#f0fdf4; border:1.5px solid #16a34a; border-radius:999px; padding:5px 13px; cursor:pointer; color:#15803d; font-family:'Inter', sans-serif; font-size:13.5px; font-weight:700; display:inline-flex; align-items:center; gap:4px; transition:all 0.15s ease;">📊 Excel</button>
                 </div>
             `;
         }
@@ -967,7 +1306,7 @@
         // Attach listeners
         document.getElementById('account-user-chip')?.addEventListener('click', openAccountModal);
         document.getElementById('account-switch-btn')?.addEventListener('click', openAccountModal);
-        document.getElementById('open-excel-btn')?.addEventListener('click', () => AppAPI.openExcelFolder());
+        document.getElementById('open-excel-btn')?.addEventListener('click', () => AppAPI.handleExcelClick());
     }
 
     function renderAccountModal() {

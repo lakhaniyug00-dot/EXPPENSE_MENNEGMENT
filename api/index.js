@@ -8,6 +8,8 @@ const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const crypto = require('crypto');
+const XLSX = require('xlsx');
+const excelSync = require('../excelSync');
 
 const app = express();
 
@@ -540,6 +542,106 @@ router.delete('/data/:username/:key', ensureDbAttempt, requireUserAccess, async 
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
     }
+});
+
+// ── EXCEL MANAGEMENT & CLOUD DOWNLOAD APIS ──
+
+// Handler to generate and stream Excel spreadsheet (.xlsx) directly to browser
+async function handleExcelDownload(req, res) {
+    try {
+        let u = (req.query.username || (req.body && req.body.username) || '').trim().toLowerCase();
+        if (!u) {
+            const authH = req.headers.authorization || '';
+            const token = authH.replace('Bearer ', '') || req.query.token;
+            if (token) {
+                const verified = verifyToken(token);
+                if (verified) u = verified;
+            }
+        }
+        if (!u) u = 'valam';
+
+        let dataMap = {};
+        if (isDbOnline()) {
+            try {
+                const records = await UserData.find({ username: u }).lean();
+                if (records && records.length) {
+                    records.forEach(r => { dataMap[r.key] = r.value; });
+                }
+            } catch (e) {
+                console.warn('[Excel Download DB read error]', e.message);
+            }
+        }
+
+        // Fallback to memory store if DB empty/offline
+        if (Object.keys(dataMap).length === 0) {
+            dataMap = getMemoryDataForUser(u) || {};
+        }
+
+        const wb = excelSync.buildWorkbookFromDataMap(dataMap);
+        const buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+
+        const filename = `Expense_Management_${u}.xlsx`;
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+        res.send(buffer);
+    } catch (err) {
+        console.error('[Excel Download Error]', err);
+        res.status(500).json({ success: false, error: err.message });
+    }
+}
+
+router.get('/excel/download', handleExcelDownload);
+router.post('/excel/download', handleExcelDownload);
+
+router.get('/excel/status', (req, res) => {
+    res.json({
+        success: true,
+        isVercel: true,
+        isLocal: false,
+        folder: null,
+        file: null,
+        message: 'Running on Vercel Cloud Server. Use /api/excel/download to download Excel file.'
+    });
+});
+
+router.post('/excel/sync-now', async (req, res) => {
+    try {
+        const u = (req.body && req.body.username) ? req.body.username : 'valam';
+        let dataMap = {};
+        if (isDbOnline()) {
+            try {
+                const records = await UserData.find({ username: u }).lean();
+                if (records && records.length) {
+                    records.forEach(r => { dataMap[r.key] = r.value; });
+                }
+            } catch (e) { }
+        }
+        if (Object.keys(dataMap).length === 0) {
+            dataMap = getMemoryDataForUser(u) || {};
+        }
+
+        const result = await excelSync.generateExcel(dataMap, u);
+        res.json({ success: true, isVercel: true, ...result });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+router.post('/excel/open-folder', (req, res) => {
+    res.json({
+        success: false,
+        isVercel: true,
+        message: 'Direct folder opening is not available on Cloud (Vercel). Please click Download Excel.'
+    });
+});
+
+router.post('/excel/open-file', (req, res) => {
+    res.json({
+        success: false,
+        isVercel: true,
+        message: 'Direct file opening is not available on Cloud (Vercel). Please click Download Excel.'
+    });
 });
 
 // Mount router on both '/api' and '/' for bulletproof Vercel routing

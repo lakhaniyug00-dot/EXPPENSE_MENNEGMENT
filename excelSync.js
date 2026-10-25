@@ -3,17 +3,20 @@ const path = require('path');
 const { exec } = require('child_process');
 const XLSX = require('xlsx');
 
+const IS_LOCAL_WIN = process.platform === 'win32' && !process.env.VERCEL;
 const EXCEL_DIR = 'C:\\Expense_Data';
 const EXCEL_FILE = path.join(EXCEL_DIR, 'Expense_Management.xlsx');
 const EXCEL_FALLBACK = path.join(EXCEL_DIR, 'Expense_Management_Latest.xlsx');
 
-// Ensure directory exists
-try {
-    if (!fs.existsSync(EXCEL_DIR)) {
-        fs.mkdirSync(EXCEL_DIR, { recursive: true });
+// Ensure directory exists on local Windows machine
+if (IS_LOCAL_WIN) {
+    try {
+        if (!fs.existsSync(EXCEL_DIR)) {
+            fs.mkdirSync(EXCEL_DIR, { recursive: true });
+        }
+    } catch (e) {
+        console.error('[ExcelSync] Directory initialization error:', e.message);
     }
-} catch (e) {
-    console.error('[ExcelSync] Directory initialization error:', e.message);
 }
 
 let syncTimeout = null;
@@ -48,16 +51,9 @@ function autoFitColumns(rows, defaultWidth = 15) {
 }
 
 /**
- * Compile MongoDB data into a multi-sheet Excel file on C:\Expense_Data\
+ * Compile dataMap dictionary into a multi-sheet XLSX workbook
  */
-async function generateExcel(UserData, username = 'valam') {
-    const u = (username || 'valam').trim().toLowerCase();
-    const records = await UserData.find({ username: u }).lean();
-    if (!records || records.length === 0) return null;
-
-    const dataMap = {};
-    records.forEach(r => { dataMap[r.key] = r.value; });
-
+function buildWorkbookFromDataMap(dataMap = {}) {
     const wb = XLSX.utils.book_new();
 
     // ── 1. ROJMEL (DAILY ENTRIES) ──
@@ -264,22 +260,55 @@ async function generateExcel(UserData, username = 'valam') {
     if (masterRows.length) wsMasters['!cols'] = autoFitColumns(masterRows, 15);
     XLSX.utils.book_append_sheet(wb, wsMasters, 'Master List');
 
-    // ── WRITE FILE TO C:\Expense_Data ──
+    return wb;
+}
+
+/**
+ * Compile MongoDB data into a multi-sheet Excel file.
+ * Saves to C:\Expense_Data\ on local Windows, or returns workbook for download on Cloud.
+ */
+async function generateExcel(UserDataOrMap, username = 'valam') {
+    const u = (username || 'valam').trim().toLowerCase();
+    let dataMap = {};
+
+    if (UserDataOrMap && typeof UserDataOrMap.find === 'function') {
+        // Mongoose Model
+        const records = await UserDataOrMap.find({ username: u }).lean();
+        if (records && records.length) {
+            records.forEach(r => { dataMap[r.key] = r.value; });
+        }
+    } else if (Array.isArray(UserDataOrMap)) {
+        // Records array
+        UserDataOrMap.forEach(r => { dataMap[r.key] = r.value; });
+    } else if (UserDataOrMap && typeof UserDataOrMap === 'object') {
+        // Already a dataMap dictionary
+        dataMap = UserDataOrMap;
+    }
+
+    const wb = buildWorkbookFromDataMap(dataMap);
+
+    // If on Cloud (Vercel) or not Windows, do not attempt local filesystem write
+    if (!IS_LOCAL_WIN) {
+        lastSavedTime = new Date().toISOString();
+        return { success: true, isLocal: false, time: lastSavedTime, wb };
+    }
+
+    // ── WRITE FILE TO C:\Expense_Data (Local Windows only) ──
     try {
         XLSX.writeFile(wb, EXCEL_FILE);
         lastSavedTime = new Date().toISOString();
         console.log(`[ExcelSync] 💾 Successfully saved to: ${EXCEL_FILE} (${new Date().toLocaleTimeString()})`);
-        return { success: true, file: EXCEL_FILE, time: lastSavedTime };
+        return { success: true, isLocal: true, file: EXCEL_FILE, time: lastSavedTime, wb };
     } catch (err) {
         // If file is open in Microsoft Excel, write to fallback file
         console.warn(`[ExcelSync] Primary file locked (likely open in Excel). Writing to fallback: ${EXCEL_FALLBACK}`);
         try {
             XLSX.writeFile(wb, EXCEL_FALLBACK);
             lastSavedTime = new Date().toISOString();
-            return { success: true, file: EXCEL_FALLBACK, time: lastSavedTime, warning: 'Primary file was open in Excel' };
+            return { success: true, isLocal: true, file: EXCEL_FALLBACK, time: lastSavedTime, warning: 'Primary file was open in Excel', wb };
         } catch (e2) {
             console.error('[ExcelSync] Critical write error:', e2.message);
-            throw e2;
+            return { success: false, isLocal: true, error: e2.message, wb };
         }
     }
 }
@@ -289,6 +318,9 @@ async function generateExcel(UserData, username = 'valam') {
  */
 function openExcelFolder() {
     return new Promise((resolve, reject) => {
+        if (!IS_LOCAL_WIN) {
+            return reject(new Error('Folder opening only supported on local Windows machine'));
+        }
         exec(`explorer.exe "${EXCEL_DIR}"`, (err) => {
             if (err) return reject(err);
             resolve(true);
@@ -301,6 +333,9 @@ function openExcelFolder() {
  */
 function openExcelFile() {
     return new Promise((resolve, reject) => {
+        if (!IS_LOCAL_WIN) {
+            return reject(new Error('File opening only supported on local Windows machine'));
+        }
         const fileToOpen = fs.existsSync(EXCEL_FILE) ? EXCEL_FILE : EXCEL_FALLBACK;
         exec(`start "" "${fileToOpen}"`, (err) => {
             if (err) return reject(err);
@@ -310,7 +345,8 @@ function openExcelFile() {
 }
 
 function getStatus() {
-    const exists = fs.existsSync(EXCEL_FILE);
+    const isLocal = IS_LOCAL_WIN;
+    const exists = isLocal && fs.existsSync(EXCEL_FILE);
     let size = 0;
     let modified = null;
     if (exists) {
@@ -321,8 +357,9 @@ function getStatus() {
         } catch (e) { }
     }
     return {
-        folder: EXCEL_DIR,
-        file: EXCEL_FILE,
+        isLocal,
+        folder: isLocal ? EXCEL_DIR : null,
+        file: isLocal ? EXCEL_FILE : null,
         exists,
         size,
         lastModified: modified || lastSavedTime
@@ -331,10 +368,12 @@ function getStatus() {
 
 module.exports = {
     scheduleSync,
+    buildWorkbookFromDataMap,
     generateExcel,
     openExcelFolder,
     openExcelFile,
     getStatus,
+    IS_LOCAL_WIN,
     EXCEL_DIR,
     EXCEL_FILE
 };
