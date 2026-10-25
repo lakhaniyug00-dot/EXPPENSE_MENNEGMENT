@@ -652,7 +652,7 @@
                         Object.keys(remoteData).forEach(k => {
                             const rVal = remoteData[k];
                             const localRaw = localStorage.getItem(prefix + k) || (u === 'valam' ? localStorage.getItem(k) : null);
-                            
+
                             let finalVal = rVal;
                             if (localRaw !== null && localRaw !== undefined) {
                                 finalVal = this.smartMergeValue(k, localRaw, rVal);
