@@ -1739,7 +1739,18 @@
             return { category, master, fixedLabel, pagarAmount };
         }
 
+        // --- Anti-blink guards for renderAccountsList ---
+        let _renderAccountsRunning = false;
+        let _lastRenderAccountsTime = 0;
+        const RENDER_DEBOUNCE_MS = 2000; // don't re-render within 2s
+
         async function renderAccountsList() {
+            // Debounce: skip if already running or called again too soon
+            const now = Date.now();
+            if (_renderAccountsRunning) return;
+            if (now - _lastRenderAccountsTime < RENDER_DEBOUNCE_MS) return;
+            _renderAccountsRunning = true;
+            try {
             const grid = $('accountsGrid');
             // Only show loading spinner if grid is currently empty (don't wipe live cards)
             if (!grid.children.length || grid.children[0].classList.contains('loading-placeholder')) {
@@ -1807,6 +1818,10 @@
             }
 
             summaries.forEach(s => grid.appendChild(makeCard(s)));
+            } finally {
+                _renderAccountsRunning = false;
+                _lastRenderAccountsTime = Date.now();
+            }
         }
 
         async function openDetail(acc) {
@@ -2836,6 +2851,11 @@
             await loadAccounts();
             await renderAccountsList();
 
+            // Record the time the page finished its initial render
+            // onSync callbacks within 5 seconds of load are skipped to prevent blinking
+            const PAGE_LOAD_TIME = Date.now();
+            const LOAD_GRACE_MS = 5000;
+
             function isUserActivelyInteracting() {
                 const active = document.activeElement;
                 const tag = (active && active.tagName) ? active.tagName.toLowerCase() : '';
@@ -2849,6 +2869,8 @@
 
             if (window.AppAPI && typeof window.AppAPI.onSync === 'function') {
                 window.AppAPI.onSync(async () => {
+                    // Skip sync callbacks that fire within 5s of page load (prevents blink from initial syncUserDataFromBackend)
+                    if (Date.now() - PAGE_LOAD_TIME < LOAD_GRACE_MS) return;
                     if (isUserActivelyInteracting()) return;
                     await loadMasterEntries();
                     await loadWorkers();
