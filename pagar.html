@@ -1447,15 +1447,15 @@
         let opWorkerDuties = {};
         let fixWorkerDuties = {};
 
-        function loadLocalStorageState() {
+        async function loadLocalStorageState() {
             try {
-                const compOverride = userLocalGet('khata:company_name') || localStorage.getItem('khata:company_name');
+                const compOverride = (await storageGet('khata:company_name')) || userLocalGet('khata:company_name') || localStorage.getItem('khata:company_name');
                 const curY = getActiveYear();
                 const specificKey = `khata_pagar_data_${curY}`;
-                const s = userLocalGet(specificKey) || userLocalGet('khata_pagar_data');
+                const s = (await storageGet(specificKey)) || (await storageGet('khata_pagar_data')) || userLocalGet(specificKey) || userLocalGet('khata_pagar_data');
                 if (compOverride && compOverride.trim()) globalCompanyName = compOverride.trim();
                 if (s) {
-                    const parsed = JSON.parse(s);
+                    const parsed = typeof s === 'string' ? JSON.parse(s) : s;
                     if (!compOverride && parsed.globalCompanyName) globalCompanyName = parsed.globalCompanyName;
 
                     if (parsed.ratesData) ratesData = parsed.ratesData;
@@ -1508,13 +1508,17 @@
             } catch (e) { }
         }
 
-        function saveStorage() {
+        async function saveStorage() {
             try {
                 const curY = getActiveYear();
                 const dataObj = { globalCompanyName, ratesData, opSlipsData, fixSlipsData, opWorkerDuties, fixWorkerDuties };
-                userLocalSet(`khata_pagar_data_${curY}`, JSON.stringify(dataObj));
-                userLocalSet('khata_pagar_data', JSON.stringify(dataObj));
+                const str = JSON.stringify(dataObj);
+                userLocalSet(`khata_pagar_data_${curY}`, str);
+                userLocalSet('khata_pagar_data', str);
                 userLocalSet('khata:company_name', globalCompanyName);
+                await storageSet(`khata_pagar_data_${curY}`, str);
+                await storageSet('khata_pagar_data', str);
+                await storageSet('khata:company_name', globalCompanyName);
             } catch (e) { }
         }
 
@@ -1531,9 +1535,9 @@
                     globalCompanyName = ev.data.company;
                     opSlipsData.forEach(s => s.company = globalCompanyName);
                     fixSlipsData.forEach(s => s.company = globalCompanyName);
-                    saveStorage();
+                    await saveStorage();
                 }
-                loadLocalStorageState();
+                await loadLocalStorageState();
                 await syncAllKhataData();
                 if (currentTab === 'op_slips') renderOpSlips();
                 if (currentTab === 'fix_slips') renderFixSlips();
@@ -1544,10 +1548,9 @@
 
         window.addEventListener('focus', async () => {
             // Skip re-render if user is currently typing in an input / textarea
-            // (prevents the slip from being destroyed mid-note like "ji" -> "jitu" -> "jitubhai")
             const active = document.activeElement;
             if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.tagName === 'SELECT')) return;
-            loadLocalStorageState();
+            await loadLocalStorageState();
             await syncAllKhataData();
             if (currentTab === 'op_slips') renderOpSlips();
             if (currentTab === 'fix_slips') renderFixSlips();
@@ -1556,9 +1559,6 @@
         });
 
         // ── KHATA SYNC ──
-        // FIX: reads BOTH `pagarType` ('fix' / 'daily', saved by Khata Book + Rojmel)
-        //      and the older `fixedLabel` ('Fix Pagar' / 'Daily Pagar', saved earlier by Rojmel).
-        //      Fix names -> Fix Pagar slips only. Daily names -> Operator Pagar slips only.
         async function getKhataMasterWorkers() {
             const fixSet = new Set();
             const opSet = new Set();
@@ -1637,6 +1637,21 @@
             return upadEntries;
         }
 
+        function mergeUpadLists(existingList, khataList) {
+            const result = [...(khataList || [])];
+            (existingList || []).forEach(e => {
+                if (!e || !e.amount) return;
+                const exists = result.some(k => 
+                    (k.date === e.date && Math.abs(k.amount) === Math.abs(e.amount)) ||
+                    ((k.note || k.ref) && (e.note || e.ref) && (k.note || k.ref) === (e.note || e.ref))
+                );
+                if (!exists) {
+                    result.push(e);
+                }
+            });
+            return result;
+        }
+
         async function fetchWorkerMasterFromKhata(workerName) {
             if (!workerName) return null;
             const nameLower = workerName.trim().toLowerCase();
@@ -1668,34 +1683,6 @@
                 opKhataWorkers = opWorkers;
                 fixKhataWorkers = fixWorkers;
 
-                const opSetLower = new Set(opWorkers.map(w => w.trim().toLowerCase()));
-                const fixSetLower = new Set(fixWorkers.map(w => w.trim().toLowerCase()));
-
-                // Only remove from Fix Slips if explicitly in opWorkers
-                for (let i = 0; i < fixSlipsData.length; i++) {
-                    if (fixSlipsData[i].name && !fixSlipsData[i].name.startsWith('Fix Worker #')) {
-                        const nameNorm = fixSlipsData[i].name.trim().toLowerCase();
-                        if (opSetLower.has(nameNorm)) {
-                            fixSlipsData[i].name = '';
-                            fixSlipsData[i].salary = 0;
-                            fixSlipsData[i].upad = [];
-                            fixSlipsData[i].duties = [];
-                        }
-                    }
-                }
-
-                // Only remove from Op Slips if explicitly in fixWorkers
-                for (let i = 0; i < opSlipsData.length; i++) {
-                    if (opSlipsData[i].name && !opSlipsData[i].name.startsWith('Operator #')) {
-                        const nameNorm = opSlipsData[i].name.trim().toLowerCase();
-                        if (fixSetLower.has(nameNorm)) {
-                            opSlipsData[i].name = '';
-                            opSlipsData[i].upad = [];
-                            opSlipsData[i].duties = [];
-                        }
-                    }
-                }
-
                 // Auto-assign unassigned fixWorkers to fixSlipsData
                 for (const workerName of fixWorkers) {
                     const exists = fixSlipsData.some(s => s.name && s.name.trim().toLowerCase() === workerName.trim().toLowerCase());
@@ -1718,14 +1705,15 @@
                     }
                 }
 
-                // Sync upad & master info for Op Slips
+                // Sync upad & master info for Op Slips (MERGING to preserve any manual upad)
                 for (let i = 0; i < opSlipsData.length; i++) {
                     if (opSlipsData[i].name && !opSlipsData[i].name.startsWith('Operator #')) {
-                        opSlipsData[i].upad = await fetchWorkerUpadFromKhata(opSlipsData[i].name);
+                        const khataUpad = await fetchWorkerUpadFromKhata(opSlipsData[i].name);
+                        opSlipsData[i].upad = mergeUpadLists(opSlipsData[i].upad, khataUpad);
                     }
                 }
 
-                // Sync upad & master info (Category & Salary) for Fix Slips
+                // Sync upad & master info (Category & Salary) for Fix Slips (MERGING upad)
                 for (let i = 0; i < fixSlipsData.length; i++) {
                     if (fixSlipsData[i].name && !fixSlipsData[i].name.startsWith('Fix Worker #')) {
                         const mInfo = await fetchWorkerMasterFromKhata(fixSlipsData[i].name);
@@ -1733,10 +1721,11 @@
                             if (mInfo.category) fixSlipsData[i].category = mInfo.category;
                             if (mInfo.pagarAmount) fixSlipsData[i].salary = parseFloat(mInfo.pagarAmount) || fixSlipsData[i].salary;
                         }
-                        fixSlipsData[i].upad = await fetchWorkerUpadFromKhata(fixSlipsData[i].name);
+                        const khataUpad = await fetchWorkerUpadFromKhata(fixSlipsData[i].name);
+                        fixSlipsData[i].upad = mergeUpadLists(fixSlipsData[i].upad, khataUpad);
                     }
                 }
-                saveStorage();
+                await saveStorage();
             } catch (e) { }
         }
 

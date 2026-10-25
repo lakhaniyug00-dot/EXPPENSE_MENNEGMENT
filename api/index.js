@@ -393,7 +393,10 @@ router.get('/data/:username/sync', ensureDbAttempt, requireUserAccess, async (re
                 const filter = { username: u };
                 if (req.query.since) {
                     const sinceDate = new Date(req.query.since);
-                    if (!isNaN(sinceDate.getTime())) filter.updatedAt = { $gt: sinceDate };
+                    if (!isNaN(sinceDate.getTime())) {
+                        const safeTime = new Date(Math.max(0, sinceDate.getTime() - 1000));
+                        filter.updatedAt = { $gte: safeTime };
+                    }
                 }
                 const records = await UserData.find(filter).lean();
                 const dataMap = {};

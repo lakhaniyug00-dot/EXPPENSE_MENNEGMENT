@@ -9,12 +9,23 @@
 (function (window) {
     'use strict';
 
-    // Base API URL
-    const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-        && window.location.port !== '5000'
-        && window.location.port !== ''
-        ? (window.location.protocol + '//' + window.location.hostname + ':5000')
-        : '';
+    // Base API URL with intelligent multi-device discovery
+    let API_BASE = (() => {
+        const saved = (localStorage.getItem('app_server_url') || '').trim().replace(/\/+$/, '');
+        if (saved) return saved;
+
+        const loc = window.location;
+        if (loc.port === '5000' || (!loc.port && loc.hostname && loc.protocol.startsWith('http') && !loc.hostname.includes('localhost') && !loc.hostname.includes('127.0.0.1'))) {
+            return '';
+        }
+        if (loc.protocol === 'file:') {
+            return 'http://localhost:5000';
+        }
+        if (loc.hostname) {
+            return loc.protocol + '//' + loc.hostname + ':5000';
+        }
+        return 'http://localhost:5000';
+    })();
 
     const TOKEN_KEY = 'auth_token';
     const USER_KEY = 'auth_user';
@@ -419,6 +430,15 @@
             const prefix = `u:${u}:`;
             const strVal = typeof value === 'object' ? JSON.stringify(value) : String(value);
             localStorage.setItem(prefix + key, strVal);
+            if (u === 'valam') {
+                localStorage.setItem(key, strVal);
+            }
+
+            // Immediately broadcast to other tabs on this machine
+            try {
+                const bc = new BroadcastChannel('khata_sync');
+                bc.postMessage({ type: 'day-updated', key: key });
+            } catch (e) { }
 
             if (!isBackendActive || !isDbConnected) return;
 
@@ -485,7 +505,120 @@
             return Array.from(keySet);
         },
 
-        // Full cloud sync: loads user data into local cache & migrates un-synced data
+        // Smart non-destructive bidirectional merge: ensures local entries are never wiped by older remote data
+        smartMergeValue: function (key, localVal, remoteVal) {
+            if (localVal === null || localVal === undefined || localVal === '') return remoteVal;
+            if (remoteVal === null || remoteVal === undefined || remoteVal === '') return localVal;
+
+            let lParsed = localVal;
+            if (typeof localVal === 'string') {
+                try { lParsed = JSON.parse(localVal); } catch (e) { lParsed = localVal; }
+            }
+            let rParsed = remoteVal;
+            if (typeof remoteVal === 'string') {
+                try { rParsed = JSON.parse(remoteVal); } catch (e) { rParsed = remoteVal; }
+            }
+
+            // String arrays (e.g. workers, categories, masters)
+            if (Array.isArray(lParsed) && Array.isArray(rParsed)) {
+                if (key.includes('workers') || key.includes('categories') || key.includes('masters')) {
+                    const set = new Set();
+                    [...rParsed, ...lParsed].forEach(item => {
+                        if (typeof item === 'string' && item.trim()) set.add(item.trim());
+                    });
+                    return Array.from(set);
+                }
+                // Array of objects with name or id (e.g. master_entries, accounts)
+                if (key.includes('master_entries') || key.includes('accounts')) {
+                    const map = new Map();
+                    rParsed.forEach(item => {
+                        if (!item) return;
+                        const k = (item.name || item.id || '').trim().toLowerCase();
+                        if (k) map.set(k, item);
+                    });
+                    lParsed.forEach(item => {
+                        if (!item) return;
+                        const k = (item.name || item.id || '').trim().toLowerCase();
+                        if (k) {
+                            const prev = map.get(k) || {};
+                            map.set(k, { ...prev, ...item });
+                        }
+                    });
+                    return Array.from(map.values());
+                }
+                // Other generic arrays
+                const seen = new Set();
+                const merged = [];
+                [...rParsed, ...lParsed].forEach(item => {
+                    const idStr = (item && typeof item === 'object') ? (item.id || item.name || JSON.stringify(item)) : String(item);
+                    if (!seen.has(idStr)) {
+                        seen.add(idStr);
+                        merged.push(item);
+                    }
+                });
+                return merged;
+            }
+
+            // Day data (income and expense entries)
+            if (key.startsWith('khata:day:') && typeof lParsed === 'object' && typeof rParsed === 'object') {
+                const mergeItems = (remoteArr, localArr) => {
+                    const map = new Map();
+                    (remoteArr || []).forEach(e => { if (e && e.id) map.set(e.id, e); });
+                    (localArr || []).forEach(e => {
+                        if (!e) return;
+                        if (e.id && map.has(e.id)) {
+                            map.set(e.id, { ...map.get(e.id), ...e });
+                        } else if (e.id) {
+                            map.set(e.id, e);
+                        } else {
+                            map.set(Math.random(), e);
+                        }
+                    });
+                    return Array.from(map.values());
+                };
+                return {
+                    income: mergeItems(rParsed.income, lParsed.income),
+                    expense: mergeItems(rParsed.expense, lParsed.expense)
+                };
+            }
+
+            // Pagar payroll slips
+            if (key.startsWith('khata_pagar_data') && typeof lParsed === 'object' && typeof rParsed === 'object') {
+                const mergeSlips = (rSlips, lSlips) => {
+                    const list = [];
+                    const count = Math.max((rSlips || []).length, (lSlips || []).length, 36);
+                    for (let i = 0; i < count; i++) {
+                        const r = (rSlips && rSlips[i]) ? rSlips[i] : null;
+                        const l = (lSlips && lSlips[i]) ? lSlips[i] : null;
+                        if (l && l.name && !l.name.startsWith('Operator #') && !l.name.startsWith('Fix Worker #')) {
+                            list.push(l);
+                        } else if (r && r.name && !r.name.startsWith('Operator #') && !r.name.startsWith('Fix Worker #')) {
+                            list.push(r);
+                        } else {
+                            list.push(l || r || { slipNo: i + 1, name: '', duties: [], upad: [] });
+                        }
+                    }
+                    return list;
+                };
+
+                return {
+                    globalCompanyName: lParsed.globalCompanyName || rParsed.globalCompanyName || 'TAPU FAB',
+                    ratesData: (lParsed.ratesData && lParsed.ratesData.length) ? lParsed.ratesData : (rParsed.ratesData || []),
+                    opSlipsData: mergeSlips(rParsed.opSlipsData, lParsed.opSlipsData),
+                    fixSlipsData: mergeSlips(rParsed.fixSlipsData, lParsed.fixSlipsData),
+                    opWorkerDuties: { ...(rParsed.opWorkerDuties || {}), ...(lParsed.opWorkerDuties || {}) },
+                    fixWorkerDuties: { ...(rParsed.fixWorkerDuties || {}), ...(lParsed.fixWorkerDuties || {}) }
+                };
+            }
+
+            if (typeof lParsed === 'object' && lParsed !== null) {
+                return { ...(rParsed || {}), ...lParsed };
+            }
+
+            return (localVal !== null && localVal !== undefined && String(localVal).trim() !== '') ? localVal : remoteVal;
+        },
+
+        // Full cloud sync: smart merge between local cache and cloud data
         syncUserDataFromBackend: async function () {
             const u = getActiveUser();
             if (!isBackendActive || !isDbConnected || !u) return;
@@ -499,16 +632,32 @@
                     if (data.success && data.data) {
                         const prefix = `u:${u}:`;
                         const remoteData = data.data;
+                        const payloadToPush = {};
 
-                        // Save remote keys into local cache
+                        // 1. Process all remote keys with smart merge against local
                         Object.keys(remoteData).forEach(k => {
-                            const val = remoteData[k];
-                            const strVal = typeof val === 'object' ? JSON.stringify(val) : String(val);
+                            const rVal = remoteData[k];
+                            const localRaw = localStorage.getItem(prefix + k) || (u === 'valam' ? localStorage.getItem(k) : null);
+                            
+                            let finalVal = rVal;
+                            if (localRaw !== null && localRaw !== undefined) {
+                                finalVal = this.smartMergeValue(k, localRaw, rVal);
+                            }
+
+                            const strVal = typeof finalVal === 'object' ? JSON.stringify(finalVal) : String(finalVal);
                             localStorage.setItem(prefix + k, strVal);
+                            if (u === 'valam') {
+                                localStorage.setItem(k, strVal);
+                            }
+
+                            // If local had additions that need saving back to cloud
+                            const rStr = typeof rVal === 'object' ? JSON.stringify(rVal) : String(rVal);
+                            if (strVal !== rStr) {
+                                payloadToPush[k] = finalVal;
+                            }
                         });
 
-                        // Preserve & Push any existing local keys to cloud
-                        const payloadToPush = {};
+                        // 2. Preserve & push any local keys that were NOT in remoteData
                         for (let i = 0; i < localStorage.length; i++) {
                             const lk = localStorage.key(i);
                             if (lk && lk.startsWith(prefix)) {
@@ -528,7 +677,7 @@
                         if (u === 'valam') {
                             for (let i = 0; i < localStorage.length; i++) {
                                 const lk = localStorage.key(i);
-                                if (lk && (lk.startsWith('khata:') || lk.startsWith('accounting_') || lk.startsWith('active_') || lk.startsWith('global_company_name'))) {
+                                if (lk && (lk.startsWith('khata:') || lk.startsWith('accounting_') || lk.startsWith('active_') || lk.startsWith('global_company_name') || lk.startsWith('khata_pagar_data'))) {
                                     if (!(lk in remoteData)) {
                                         const rawVal = localStorage.getItem(lk);
                                         try { payloadToPush[lk] = JSON.parse(rawVal); } catch (e) { payloadToPush[lk] = rawVal; }
@@ -537,6 +686,7 @@
                             }
                         }
 
+                        // Push merged changes to backend
                         if (Object.keys(payloadToPush).length > 0) {
                             await fetch(API_BASE + '/api/data/' + encodeURIComponent(u) + '/batch', {
                                 method: 'POST',
@@ -554,10 +704,10 @@
 
         startPeriodicSync: function () {
             if (syncInterval) clearInterval(syncInterval);
-            // Polling every 8 seconds
+            // Ultra-responsive 2-second polling for automatic sync across devices
             syncInterval = setInterval(() => {
                 this.pollSync();
-            }, 8000);
+            }, 2000);
 
             // Instant sync on window focus or wake-up
             if (!this._listenersBound) {
@@ -579,7 +729,7 @@
                 if (lastSyncTime) {
                     url += '?since=' + encodeURIComponent(lastSyncTime);
                 }
-                const res = await fetch(url, { headers: getHeaders() });
+                const res = await fetch(url, { headers: getHeaders(), cache: 'no-cache' });
                 if (res.ok) {
                     const json = await res.json();
                     if (json.success && json.data) {
@@ -587,13 +737,19 @@
                         if (keys.length > 0) {
                             const prefix = `u:${u}:`;
                             keys.forEach(k => {
-                                // Do not overwrite if there is a pending local save for this key
                                 if (pendingSaveQueue[k]) return;
                                 const val = json.data[k];
                                 const strVal = typeof val === 'object' ? JSON.stringify(val) : String(val);
                                 localStorage.setItem(prefix + k, strVal);
+                                if (u === 'valam') {
+                                    localStorage.setItem(k, strVal);
+                                }
                             });
                             this.notifySyncListeners(keys);
+                            try {
+                                const bc = new BroadcastChannel('khata_sync');
+                                bc.postMessage({ type: 'day-updated', keys: keys });
+                            } catch (e) { }
                             this.updateStatusBadge('synced', 'Synced across devices');
                         }
                         if (json.serverTime) lastSyncTime = json.serverTime;
@@ -634,39 +790,54 @@
             renderAccountModal();
             this.updateUi();
 
-            // Health check
-            try {
-                const res = await fetch(API_BASE + '/api/health', {
-                    method: 'GET',
-                    headers: { 'Cache-Control': 'no-cache' }
-                });
+            // Health check with smart candidate probing across network
+            const candidates = [
+                API_BASE,
+                '',
+                'http://localhost:5000',
+                'http://192.168.1.17:5000',
+                (window.location.protocol + '//' + window.location.hostname + ':5000')
+            ].filter((v, idx, arr) => arr.indexOf(v) === idx);
 
-                if (res.ok) {
-                    const data = await res.json().catch(() => ({}));
-                    isBackendActive = true;
-                    isDbConnected = data.database === 'connected' || data.database === 'fallback_cloud_ready';
-                    isConfigured = Boolean(data.configured);
+            let connectedCandidate = null;
+            let healthData = null;
 
-                    this.updateStatusBadge(isDbConnected ? 'synced' : 'offline', isDbConnected ? 'Cloud Synced' : 'Offline (Local Only)');
-
-                    if (isDbConnected) {
-                        await this.syncUserDataFromBackend();
-                        this.startPeriodicSync();
+            for (const cand of candidates) {
+                try {
+                    const url = (cand ? cand : '') + '/api/health';
+                    const res = await fetch(url, { method: 'GET', headers: { 'Cache-Control': 'no-cache' } });
+                    if (res.ok) {
+                        const data = await res.json().catch(() => ({}));
+                        if (data && data.status === 'ok') {
+                            connectedCandidate = cand;
+                            healthData = data;
+                            break;
+                        }
                     }
-                } else {
-                    isBackendActive = false;
-                    isDbConnected = false;
-                    this.updateStatusBadge('offline', 'Offline (Local Only)');
+                } catch (e) { }
+            }
+
+            if (connectedCandidate !== null && healthData) {
+                API_BASE = connectedCandidate;
+                this.API_BASE = connectedCandidate;
+                try { localStorage.setItem('app_server_url', connectedCandidate); } catch (e) { }
+                isBackendActive = true;
+                isDbConnected = healthData.database === 'connected' || healthData.database === 'fallback_cloud_ready';
+                isConfigured = Boolean(healthData.configured);
+
+                this.updateStatusBadge(isDbConnected ? 'synced' : 'offline', isDbConnected ? 'Cloud Synced' : 'Offline (Local Only)');
+
+                if (isDbConnected) {
+                    await this.syncUserDataFromBackend();
+                    this.startPeriodicSync();
                 }
-            } catch (err) {
-                console.warn('[AppAPI] Health check error:', err);
+            } else {
                 isBackendActive = false;
                 isDbConnected = false;
                 this.updateStatusBadge('offline', 'Offline (Local Only)');
-            } finally {
-                if (initPromiseResolve) {
-                    initPromiseResolve(true);
-                }
+            }
+            if (initPromiseResolve) {
+                initPromiseResolve(true);
             }
         }
     };

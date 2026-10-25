@@ -1571,6 +1571,11 @@
         async function saveAccounts() { await storageSet('khata:accounts', JSON.stringify(accounts)); }
 
         async function getActiveDateRange() {
+            // Default to showing all entries so no transactions ever vanish
+            const filterEnabled = localStorage.getItem('khata:year_filter_enabled') === 'true';
+            if (!filterEnabled) {
+                return null;
+            }
             try {
                 const raw = await storageGet('khata:active_year_info') || localStorage.getItem('khata:active_year_info');
                 if (raw) {

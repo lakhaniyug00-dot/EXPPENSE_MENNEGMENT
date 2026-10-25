@@ -365,7 +365,10 @@ app.get('/api/data/:username/sync', requireUserAccess, async (req, res) => {
         const filter = { username: u };
         if (req.query.since) {
             const d = new Date(req.query.since);
-            if (!isNaN(d.getTime())) filter.updatedAt = { $gt: d };
+            if (!isNaN(d.getTime())) {
+                const safeTime = new Date(Math.max(0, d.getTime() - 1000));
+                filter.updatedAt = { $gte: safeTime };
+            }
         }
         const records = await UserData.find(filter).lean();
         const dataMap = {};

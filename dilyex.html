@@ -4741,20 +4741,25 @@
 
         /* ── DATE NAV ── */
         async function goToDate(d) {
-            currentDate = d; renderDateBar(); setStatus('Loading…', false);
+            currentDate = d;
+            try { sessionStorage.setItem('rojmel_last_date', toKey(d)); } catch (e) { }
+            renderDateBar(); setStatus('Loading…', false);
             await loadDay(); await loadPrevNet();
             renderIncome(); renderExpense(); renderTotals(); setStatus('', false);
         }
         $('prevDay').addEventListener('click', () => { const d = new Date(currentDate); d.setDate(d.getDate() - 1); goToDate(d); });
         $('nextDay').addEventListener('click', () => { const d = new Date(currentDate); d.setDate(d.getDate() + 1); goToDate(d); });
         $('datePicker').addEventListener('change', e => { if (e.target.value) goToDate(fromKey(e.target.value)); });
-        $('dateLabel').addEventListener('dblclick', () => {
+        
+        function openNativeDatePicker() {
             const picker = $('datePicker');
             picker.style.position = 'absolute'; picker.style.opacity = '0';
             picker.style.pointerEvents = 'auto'; picker.style.width = '1px'; picker.style.height = '1px';
             try { picker.showPicker(); } catch (e) { picker.click(); }
             setTimeout(() => { picker.style.pointerEvents = 'none'; picker.style.width = '0'; picker.style.height = '0'; }, 500);
-        });
+        }
+        $('dateLabel').addEventListener('click', openNativeDatePicker);
+        $('dateLabel').addEventListener('dblclick', openNativeDatePicker);
 
         /* ── INIT ── */
         (async function init() {
@@ -4765,21 +4770,21 @@
             }
             renderAuthHeader();
             const yInfo = await getActiveYearInfo();
-            if (yInfo && yInfo.startDate && yInfo.endDate) {
-                const nowStr = toKey(new Date());
-                if (nowStr >= yInfo.startDate && nowStr <= yInfo.endDate) {
-                    currentDate = new Date();
-                } else {
-                    currentDate = fromKey(yInfo.startDate);
-                }
+            
+            // Prefer remembered date if user was working on a specific date, else today
+            let remembered = null;
+            try { remembered = sessionStorage.getItem('rojmel_last_date'); } catch (e) { }
+            if (remembered && /^\d{4}-\d{2}-\d{2}$/.test(remembered)) {
+                currentDate = fromKey(remembered);
             } else {
-                // First time login or no year range configured for this account (e.g. valam) -> Open Year Date Range Modal!
+                currentDate = new Date();
+            }
+
+            if (!yInfo || !yInfo.startDate || !yInfo.endDate) {
                 setTimeout(() => openYearModal(true), 150);
             }
             updateHeaderYearBadge();
             await loadCategories(); await loadMasters(); await loadWorkers(); await loadMasterEntries();
-            await deleteWorkerOrAccountName('goving', true);
-            await deleteWorkerOrAccountName('govind', true);
             renderDateBar(); await loadDay(); await loadPrevNet();
             renderIncome(); renderExpense(); renderTotals();
 
