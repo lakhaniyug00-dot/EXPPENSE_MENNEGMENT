@@ -39,6 +39,7 @@
             background: var(--bg);
             color: var(--ink);
             min-height: 100vh;
+            overscroll-behavior-y: none;
         }
 
         /* ── HEADER ── */
@@ -52,6 +53,9 @@
             position: sticky;
             top: 0;
             z-index: 100;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            transform: translateZ(0);
         }
 
         .top-left {
@@ -222,11 +226,17 @@
             padding: 16px;
             cursor: pointer;
             transition: box-shadow 0.15s, transform 0.1s;
+            will-change: transform;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            transform: translateZ(0);
         }
 
-        .account-card:hover {
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-            transform: translateY(-1px);
+        @media (hover: hover) and (pointer: fine) {
+            .account-card:hover {
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+                transform: translateY(-1px);
+            }
         }
 
         .account-hdr {
@@ -1742,7 +1752,10 @@
         // --- Anti-blink guards for renderAccountsList ---
         let _renderAccountsRunning = false;
         let _lastRenderAccountsTime = 0;
+        let _lastUserScrollTime = 0;
         const RENDER_DEBOUNCE_MS = 2000; // don't re-render within 2s
+
+        window.addEventListener('scroll', () => { _lastUserScrollTime = Date.now(); }, { passive: true });
 
         async function renderAccountsList() {
             // Debounce: skip if already running or called again too soon
@@ -1751,73 +1764,72 @@
             if (now - _lastRenderAccountsTime < RENDER_DEBOUNCE_MS) return;
             _renderAccountsRunning = true;
             try {
-            const grid = $('accountsGrid');
-            // Only show loading spinner if grid is currently empty (don't wipe live cards)
-            if (!grid.children.length || grid.children[0].classList.contains('loading-placeholder')) {
-                grid.innerHTML = '<div class="loading-placeholder" style="text-align:center;color:var(--ink-faint);padding:40px;font-style:italic">Loading…</div>';
-            }
+                const grid = $('accountsGrid');
+                // Only show loading spinner if grid is completely empty
+                if (!grid.children.length) {
+                    grid.innerHTML = '<div class="loading-placeholder" style="text-align:center;color:var(--ink-faint);padding:40px;font-style:italic">Loading…</div>';
+                }
 
-            // Preload daily entries map once in parallel for fast rendering
-            const dayMap = new Map();
-            try {
-                const keys = await storageList();
-                const dayKeys = keys.filter(k => k && k.startsWith('khata:day:'));
-                await Promise.all(dayKeys.map(async k => {
-                    try {
-                        const v = await storageGet(k);
-                        if (v) dayMap.set(k, JSON.parse(v));
-                    } catch (err) { }
-                }));
-            } catch (err) { }
+                // Preload daily entries map once in parallel for fast rendering
+                const dayMap = new Map();
+                try {
+                    const keys = await storageList();
+                    const dayKeys = keys.filter(k => k && k.startsWith('khata:day:'));
+                    await Promise.all(dayKeys.map(async k => {
+                        try {
+                            const v = await storageGet(k);
+                            if (v) dayMap.set(k, JSON.parse(v));
+                        } catch (err) { }
+                    }));
+                } catch (err) { }
 
-            const allAccounts = await getAllKhataNames(dayMap);
-            // If we got accounts, replace grid; if empty AND grid already has live cards, keep existing cards
-            if (allAccounts.length > 0) {
-                grid.innerHTML = '';
-            } else if (!grid.children.length || grid.children[0].classList.contains('loading-placeholder')) {
-                grid.innerHTML = '<div style="text-align:center;color:var(--ink-faint);padding:50px;font-style:italic">No entries yet in Rojmel.<br>Add income or expense entries first.</div>';
-                return;
-            } else {
-                // Accounts loaded empty but grid already has cards — keep existing cards and bail out
-                return;
-            }
+                const allAccounts = await getAllKhataNames(dayMap);
+                if (!allAccounts.length) {
+                    if (!grid.children.length || grid.children[0].classList.contains('loading-placeholder')) {
+                        grid.innerHTML = '<div style="text-align:center;color:var(--ink-faint);padding:50px;font-style:italic">No entries yet in Rojmel.<br>Add income or expense entries first.</div>';
+                    }
+                    return;
+                }
 
-            // Load summaries for all accounts using the preloaded dayMap
-            const summaries = [];
-            for (const acc of allAccounts) {
-                const sum = await getAccountSummary(acc, null, null, dayMap);
-                summaries.push({ acc, ...sum });
-            }
+                // Load summaries for all accounts using the preloaded dayMap
+                const summaries = [];
+                for (const acc of allAccounts) {
+                    const sum = await getAccountSummary(acc, null, null, dayMap);
+                    summaries.push({ acc, ...sum });
+                }
 
-            // Show every account together in one list — sorted alphabetically —
-            // instead of splitting into separate Aavak / Kharch sections.
-            summaries.sort((a, b) => a.acc.name.localeCompare(b.acc.name));
+                // Show every account together in one list — sorted alphabetically
+                summaries.sort((a, b) => a.acc.name.localeCompare(b.acc.name));
 
-            function makeCard({ acc, aavak, javak, net }) {
-                const card = document.createElement('div');
-                card.className = 'account-card';
-                card.innerHTML = `
-                <div class="account-hdr">
-                    <div>
-                        <div class="account-name">${escHtml(acc.name)}</div>
+                function makeCard({ acc, aavak, javak, net }) {
+                    const card = document.createElement('div');
+                    card.className = 'account-card';
+                    card.innerHTML = `
+                    <div class="account-hdr">
+                        <div>
+                            <div class="account-name">${escHtml(acc.name)}</div>
+                        </div>
+                        <div class="account-net ${net >= 0 ? 'pos' : 'neg'}">${net < 0 ? '−' : ''}${rupee(net)}</div>
                     </div>
-                    <div class="account-net ${net >= 0 ? 'pos' : 'neg'}">${net < 0 ? '−' : ''}${rupee(net)}</div>
-                </div>
-                <div class="account-cols">
-                    <div class="account-col">
-                        <div class="col-label inc">Aavak ↑</div>
-                        <div class="col-val">${rupee(aavak)}</div>
-                    </div>
-                    <div class="account-col">
-                        <div class="col-label exp">Javak ↓</div>
-                        <div class="col-val">${rupee(javak)}</div>
-                    </div>
-                </div>`;
-                card.addEventListener('click', () => openDetail(acc));
-                return card;
-            }
+                    <div class="account-cols">
+                        <div class="account-col">
+                            <div class="col-label inc">Aavak ↑</div>
+                            <div class="col-val">${rupee(aavak)}</div>
+                        </div>
+                        <div class="account-col">
+                            <div class="col-label exp">Javak ↓</div>
+                            <div class="col-val">${rupee(javak)}</div>
+                        </div>
+                    </div>`;
+                    card.addEventListener('click', () => openDetail(acc));
+                    return card;
+                }
 
-            summaries.forEach(s => grid.appendChild(makeCard(s)));
+                // Atomic DOM swap: builds fragment in memory and replaces all at once
+                // NEVER clears the grid beforehand so user never sees a blank flash
+                const frag = document.createDocumentFragment();
+                summaries.forEach(s => frag.appendChild(makeCard(s)));
+                grid.replaceChildren(frag);
             } finally {
                 _renderAccountsRunning = false;
                 _lastRenderAccountsTime = Date.now();
@@ -1863,7 +1875,10 @@
             $('detailView').classList.remove('active');
             $('accountsView').classList.remove('hidden');
             $('reportBtn').style.display = '';
-            renderAccountsList();
+            // If cards are already present, do NOT wipe or re-render; list stays visible immediately
+            if (!$('accountsGrid') || !$('accountsGrid').children.length || $('accountsGrid').children[0].classList.contains('loading-placeholder')) {
+                renderAccountsList();
+            }
         }
 
         function buildPanelRows(containerId, entries, amtClass, deleteCallback) {
@@ -2872,6 +2887,8 @@
                     // Skip sync callbacks that fire within 5s of page load (prevents blink from initial syncUserDataFromBackend)
                     if (Date.now() - PAGE_LOAD_TIME < LOAD_GRACE_MS) return;
                     if (isUserActivelyInteracting()) return;
+                    // Don't re-render accounts list while user is actively scrolling
+                    if (Date.now() - _lastUserScrollTime < 1500) return;
                     await loadMasterEntries();
                     await loadWorkers();
                     await loadAccounts();
@@ -2906,6 +2923,7 @@
                 if ($('searchOverlay') && $('searchOverlay').classList.contains('open')) return;
                 if ($('kpOverlay') && $('kpOverlay').classList.contains('open')) return;
                 if ($('reportOverlay') && $('reportOverlay').classList.contains('open')) return;
+                if (Date.now() - _lastUserScrollTime < 1500) return;
 
                 await loadMasterEntries();
                 await loadWorkers();
@@ -2924,7 +2942,7 @@
                 // Instead of reloading (which causes disappearing), just refresh the year state silently
                 await getActiveYear();
                 updateHeaderYearBadge();
-                if (!currentAccount) await renderAccountsList();
+                if (!currentAccount && Date.now() - _lastUserScrollTime >= 1500) await renderAccountsList();
                 return;
             }
             if (ev.key && ev.key.startsWith('khata:day:')) {
@@ -2932,6 +2950,7 @@
                 const tag = (active && active.tagName) ? active.tagName.toLowerCase() : '';
                 if (tag === 'input' || tag === 'textarea' || tag === 'select' || (active && active.isContentEditable)) return;
                 if ($('masterOverlay') && $('masterOverlay').classList.contains('open')) return;
+                if (Date.now() - _lastUserScrollTime < 1500) return;
                 await loadAccounts();
                 // Never call renderAccountsList while user is viewing a ledger detail
                 if (currentAccount && $('detailView') && $('detailView').classList.contains('active')) {

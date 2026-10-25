@@ -723,12 +723,20 @@
                 this.pollSync();
             }, 2000);
 
-            // Instant sync on window focus or wake-up
+            // Instant sync on window focus or wake-up (guarded against scroll-induced focus/visibility events)
             if (!this._listenersBound) {
                 this._listenersBound = true;
-                window.addEventListener('focus', () => this.pollSync());
+                let _lastScrollTs = 0;
+                window.addEventListener('scroll', () => { _lastScrollTs = Date.now(); }, { passive: true });
+                window.addEventListener('focus', () => {
+                    if (Date.now() - _lastScrollTs < 1500) return;
+                    this.pollSync();
+                });
                 document.addEventListener('visibilitychange', () => {
-                    if (document.visibilityState === 'visible') this.pollSync();
+                    if (document.visibilityState === 'visible') {
+                        if (Date.now() - _lastScrollTs < 1500) return;
+                        this.pollSync();
+                    }
                 });
             }
         },
