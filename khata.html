@@ -2396,6 +2396,7 @@
             const comp = (newComp || '').trim() || 'TAPU FAB';
             try {
                 await storageSet('khata:company_name', comp);
+                userLocalSet('khata:company_name', comp);
                 localStorage.setItem(getUserStorageKey('khata:company_name'), comp);
                 localStorage.setItem('khata:company_name', comp);
 
@@ -2706,6 +2707,11 @@
 
             try { syncChannel.postMessage({ type: 'day-updated', senderTab: window.TAB_ID }); } catch (e) { }
 
+            const compVal = ($('masterCompanyName') ? $('masterCompanyName').value : '').trim();
+            if (compVal) {
+                await saveGlobalCompanyName(compVal);
+            }
+
             closeMasterModal();
             await renderAccountsList();
             setStatus(`Saved "${name}" to Master & Khata Book.`, false);
@@ -2821,6 +2827,13 @@
             $('kpMasterBtn').addEventListener('click', () => {
                 $('kpOverlay').classList.remove('open');
                 openMasterModal();
+            });
+        }
+
+        if ($('masterCompanyName')) {
+            $('masterCompanyName').addEventListener('change', async (e) => {
+                const val = (e.target.value || '').trim();
+                if (val) await saveGlobalCompanyName(val);
             });
         }
 
