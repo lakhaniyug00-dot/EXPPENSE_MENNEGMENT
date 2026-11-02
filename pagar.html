@@ -1411,6 +1411,36 @@
         let globalCompanyName = 'TAPU FAB';
         let globalMonthLabel = (() => { const mn = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]; const now = new Date(); return `${mn[now.getMonth()]} ${getActiveYear()} पगार`; })();
 
+        function getCompanyTitle() {
+            if (globalCompanyName && globalCompanyName.trim() && globalCompanyName.trim() !== 'TAPU FAB') {
+                return globalCompanyName.trim();
+            }
+            const u = getAuthUser();
+            const stored = (u ? localStorage.getItem('u:' + u + ':khata:company_name') : null) ||
+                           localStorage.getItem('khata:company_name') ||
+                           (u ? localStorage.getItem('u:' + u + ':company_name') : null) ||
+                           localStorage.getItem('company_name');
+            if (stored && stored.trim() && stored.trim() !== 'TAPU FAB') {
+                globalCompanyName = stored.trim();
+                return globalCompanyName;
+            }
+            try {
+                const curY = getActiveYear();
+                const rawPagar = (u ? localStorage.getItem('u:' + u + ':khata_pagar_data_' + curY) : null) ||
+                                 localStorage.getItem('khata_pagar_data_' + curY) ||
+                                 (u ? localStorage.getItem('u:' + u + ':khata_pagar_data') : null) ||
+                                 localStorage.getItem('khata_pagar_data');
+                if (rawPagar) {
+                    const p = JSON.parse(rawPagar);
+                    if (p && p.globalCompanyName && p.globalCompanyName.trim() && p.globalCompanyName.trim() !== 'TAPU FAB') {
+                        globalCompanyName = p.globalCompanyName.trim();
+                        return globalCompanyName;
+                    }
+                }
+            } catch (e) { }
+            return globalCompanyName || 'TAPU FAB';
+        }
+
         let ratesData = [
             { id: 1, task: '36 Oprater :-', rate: 700 },
             { id: 2, task: 'Beam  चालू', rate: 1200 },
@@ -1556,9 +1586,9 @@
                 }
                 await loadLocalStorageState();
                 await syncAllKhataData();
-                if (currentTab === 'op_slips') renderOpSlips();
-                else if (currentTab === 'fix_slips') renderFixSlips();
-                else if (currentTab === 'op_total') renderOpTotalTable();
+                renderOpSlips();
+                renderFixSlips();
+                if (currentTab === 'op_total') renderOpTotalTable();
                 else if (currentTab === 'fix_total') renderFixTotalTable();
             }
         });
@@ -1566,9 +1596,9 @@
         window.addEventListener('storage', async (ev) => {
             if (ev.key && (ev.key.includes('company_name') || ev.key.includes('khata_pagar_data'))) {
                 await loadLocalStorageState();
-                if (currentTab === 'op_slips') renderOpSlips();
-                else if (currentTab === 'fix_slips') renderFixSlips();
-                else if (currentTab === 'op_total') renderOpTotalTable();
+                renderOpSlips();
+                renderFixSlips();
+                if (currentTab === 'op_total') renderOpTotalTable();
                 else if (currentTab === 'fix_total') renderFixTotalTable();
             }
         });
@@ -1579,9 +1609,9 @@
             if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.tagName === 'SELECT')) return;
             await loadLocalStorageState();
             await syncAllKhataData();
-            if (currentTab === 'op_slips') renderOpSlips();
-            else if (currentTab === 'fix_slips') renderFixSlips();
-            else if (currentTab === 'op_total') renderOpTotalTable();
+            renderOpSlips();
+            renderFixSlips();
+            if (currentTab === 'op_total') renderOpTotalTable();
             else if (currentTab === 'fix_total') renderFixTotalTable();
         });
 
@@ -2066,7 +2096,7 @@
             card.innerHTML = `
                 <div style="border:2px solid #000;background:#fff;border-radius:4px;height:100%;display:flex;flex-direction:column;justify-content:space-between;">
                     <div style="padding:6px 10px;border-bottom:1.5px solid #000;background:#fff;">
-                        <div style="text-align:center;font-size:16px;font-weight:900;letter-spacing:1px;margin-bottom:3px;color:#000;"><span style="text-decoration:underline;">${globalCompanyName || slip.company || 'TAPU FAB'}</span></div>
+                        <div style="text-align:center;font-size:16px;font-weight:900;letter-spacing:1px;margin-bottom:3px;color:#000;"><span style="text-decoration:underline;">${getCompanyTitle()}</span></div>
                         <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;">
                             <div style="font-size:13px;font-weight:800;color:#000;display:flex;align-items:center;gap:6px;flex:1;">
                                 <span>${slip.slipNo} Oprater</span>
@@ -2188,7 +2218,7 @@
             card.innerHTML = `
                 <div style="border:2px solid #000;background:#fff;border-radius:4px;height:100%;display:flex;flex-direction:column;justify-content:space-between;">
                     <div style="padding:6px 10px;border-bottom:1.5px solid #000;background:#fff;">
-                        <div style="text-align:center;font-size:16px;font-weight:900;letter-spacing:1px;margin-bottom:3px;color:#000;"><span style="text-decoration:underline;">${globalCompanyName || slip.company || 'TAPU FAB'}</span></div>
+                        <div style="text-align:center;font-size:16px;font-weight:900;letter-spacing:1px;margin-bottom:3px;color:#000;"><span style="text-decoration:underline;">${getCompanyTitle()}</span></div>
                         <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;">
                             <div style="font-size:13px;font-weight:800;color:#000;display:flex;align-items:center;gap:6px;">
                                 <input class="cell-edit no-print" type="text" value="${slip.category || 'HELPAR :-'}" style="max-width:110px;font-weight:800;border:1px solid #000;" onchange="updateFixCategory(${sIdx}, this.value)">

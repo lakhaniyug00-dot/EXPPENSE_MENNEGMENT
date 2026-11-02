@@ -2831,9 +2831,13 @@
         }
 
         if ($('masterCompanyName')) {
-            $('masterCompanyName').addEventListener('change', async (e) => {
+            $('masterCompanyName').addEventListener('input', e => {
                 const val = (e.target.value || '').trim();
-                if (val) await saveGlobalCompanyName(val);
+                if (val) saveGlobalCompanyName(val);
+            });
+            $('masterCompanyName').addEventListener('change', e => {
+                const val = (e.target.value || '').trim();
+                if (val) saveGlobalCompanyName(val);
             });
         }
 
